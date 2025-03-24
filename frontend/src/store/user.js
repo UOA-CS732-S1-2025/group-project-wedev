@@ -8,4 +8,16 @@ export const useUserStore = create((set) => ({
     const data = await response.json()
     set({ users: data.users })
   },
+  deleteUser: async (id) => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: 'DELETE',
+    })
+    const data = await response.json()
+    if (data.success) {
+        set((state) => ({ users: state.users.filter((user) => user._id !== id) }))
+        return { success: 'user deleted successfully' }
+      } else {
+        return { error: 'Failed to delete user' }
+      }
+  }
 }))

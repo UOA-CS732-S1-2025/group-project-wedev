@@ -1,21 +1,17 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Spacer, Text, HStack, Container } from "@chakra-ui/react"
 
 const UserCard = (user) => {
   return (
-    <Box
-      border="1px solid #ddd"
-      borderRadius="8px"
-      p="4"
-      boxShadow="md"
-      bg="white"
-      maxW="200px"
-      textAlign="center"
-    >
-      <Text fontSize="lg" fontWeight="bold">
-        {user.name}
-      </Text>
-    </Box>
-  );
-};
+    <Container>
+
+            
+            <Text>{user.name}</Text>
+            <Spacer />
+            <Text>{user.email}</Text>
+
+    
+        </Container>
+  )
+}
 
 export default UserCard;
