@@ -32,8 +32,11 @@ const HomePage = () => {
             }}
         transition={"all 0.1s ease-in-out"}>
             <Box>
-              <Text fontWeight="bold">{user.name}</Text>
+              <Text fontWeight="bold">{user.username}</Text>
               <Text fontSize="sm" color="gray.500">{user.email}</Text>
+              <Text fontSize="sm" color="gray.500">{user.role}</Text>
+              <Text fontSize="sm" color="gray.500">{user.createdAt}</Text>
+              
             </Box>
             <Button colorScheme="red" size="sm" onClick={() => deleteUser(user._id)}>Delete</Button>
           </HStack>

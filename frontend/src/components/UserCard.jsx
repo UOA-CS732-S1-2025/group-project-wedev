@@ -5,9 +5,10 @@ const UserCard = (user) => {
     <Container>
 
             
-            <Text>{user.name}</Text>
+            <Text>{user.username}</Text>
+            
             <Spacer />
-            <Text>{user.email}</Text>
+
 
     
         </Container>
