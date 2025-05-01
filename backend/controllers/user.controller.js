@@ -38,6 +38,23 @@ export const getUsers = async (req, res) => {
     }
 };
 
+export const getProviders = async (req, res) => {
+    try {
+        const providers = await User.find({ role: "provider" });
+        res.status(200).json({
+            success: true,
+            message: "Providers fetched successfully",
+            providers
+        });
+    } catch (error) {
+        console.error('Error fetching providers:', error);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            error: error.message 
+        });
+    }
+};
+
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
     try {

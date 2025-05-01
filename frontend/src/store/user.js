@@ -8,6 +8,11 @@ export const useUserStore = create((set) => ({
     const data = await response.json()
     set({ users: data.users })
   },
+  fetchProviders: async () => {
+    const response = await fetch('/api/users/providers')
+    const data = await response.json()
+    set({ users: data.providers })
+  },
   deleteUser: async (id) => {
     const response = await fetch(`/api/users/${id}`, {
       method: 'DELETE',
