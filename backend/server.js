@@ -7,6 +7,11 @@ import conversationRoutes from "./routes/conversation.route.js";
 import reportRoutes from "./routes/report.route.js";
 import adminUserRoutes from "./routes/admin/user.admin.route.js";
 import adminBookingRoutes from "./routes/admin/booking.admin.route.js";
+import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
+import adminReportRoutes from "./routes/admin/report.admin.route.js";
+
+
+
 
 
 
@@ -29,7 +34,8 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/users", adminUserRoutes);
 app.use("/api/admin/bookings", adminBookingRoutes);
-
+app.use("/api/admin/payments", adminPaymentRoutes);
+app.use("/api/admin/reports", adminReportRoutes);
 
 //Only used to test whether the backend is actually started, delete before deployment
 app.get("/", (req, res) => {
