@@ -8,8 +8,6 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
     <HStack spacing={4} align="center">
       {/* Navigation buttons */}
       <Button as={RouterLink} to="/">Home</Button>
-      <Button as={RouterLink} to="/booking">Book</Button>
-
       {/* User Info */}
       <Text>{user.name}</Text>
       <Avatar.Root>

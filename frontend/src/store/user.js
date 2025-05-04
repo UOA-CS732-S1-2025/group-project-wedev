@@ -60,7 +60,7 @@ export const useUserStore = create((set) => ({
         }
       });
 
-      const response = await fetch('/api/providers/search', {
+      const response = await fetch('/api/users/providers/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
