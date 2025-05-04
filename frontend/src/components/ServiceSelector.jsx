@@ -63,7 +63,7 @@ const ServiceSelector = ({ onSelect }) => {
           transition="all 0.2s ease-in-out"
         >
           <VStack spacing={1} align="start">
-            <Icon as={service.icon} boxSize={5} color="blue.500" />
+            <Icon as={service.icon} boxSize={5} color="gray.800" />
             <Text fontWeight="bold" fontSize="sm">{service.title}</Text>
             <Text fontSize="xs" color="gray.500" noOfLines={1}>
               {service.description}

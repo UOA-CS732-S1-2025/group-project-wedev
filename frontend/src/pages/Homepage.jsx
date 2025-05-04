@@ -27,7 +27,7 @@ const Homepage = () => {
         bgPosition="center"
         bgRepeat="no-repeat"
         bgSize="cover"
-        h="700px"
+        h="750px"
         position="relative"
       >
         <Box 
