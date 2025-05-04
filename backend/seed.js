@@ -1,5 +1,9 @@
-import mongoose from "mongoose";
-import User from "./models/user.model.js";
+
+import mongoose from 'mongoose';
+import Conversation from './models/conversation.model.js';
+import Message from './models/message.model.js';
+import User from './models/user.model.js'; // 按你实际路径调整
+
 
 async function seedUsers() {
   try {
@@ -142,4 +146,69 @@ async function seedUsers() {
   }
 }
 
-seedUsers();
+
+async function seedMessages() {
+  try{
+    await mongoose.connect('mongodb+srv://wedev:d4bw4kWtwckH4Ck2@wedev732.9ja99.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=wedev732');
+
+    console.log('MongoDB connected');
+    // data clear
+    // await User.deleteMany({});
+    // await Conversation.deleteMany({});
+    // await Message.deleteMany({});
+
+    const userA = await User.create({
+      username: 'usera',
+      email: 'usera@example.com',
+      password: 'hashedpassword1', 
+      role: 'customer',
+      firstName: 'user',
+      lastName: 'a',
+    });
+
+    const userB = await User.create({
+      username: 'userb',
+      email: 'userb@example.com',
+      password: 'hashedpassword2',
+      role: 'provider',
+      firstName: 'user',
+      lastName: 'b',
+    });
+
+    //  create conversation
+    const conversation = await Conversation.create({
+      participants: [userA._id, userB._id],
+      lastMessageTimestamp: new Date(),
+    });
+
+    //  create message
+    const messages = await Message.insertMany([
+      {
+        conversation: conversation._id,
+        sender: userA._id,
+        content: 'Hi Bob, I’m interested in your service.',
+        isRead: false,
+      },
+      {
+        conversation: conversation._id,
+        sender: userB._id,
+        content: 'Hi Alice, thanks for reaching out! Let’s discuss further.',
+        isRead: false,
+      },
+    ]);
+
+    //  upload Conversation last time
+    conversation.lastMessageTimestamp = messages[messages.length - 1].createdAt;
+    await conversation.save();
+
+
+    process.exit();
+  }catch (err) {
+    console.error('Error inserting users:', err);
+    process.exit(1);
+  }
+
+}
+
+//seedUsers();
+seedMessages();

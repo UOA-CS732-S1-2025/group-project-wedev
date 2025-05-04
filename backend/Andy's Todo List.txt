@@ -1,0 +1,8 @@
+[done] 设计对话和消息数据库模型（包括消息上的 isRead 标志）。
+[done] 实现 API 端点 /api/messages (POST) 以创建新消息（查找现有对话或创建新对话）。
+[done] 实现 API 端点 /api/conversations (GET) 以获取登录用户的对话（包括最后一条消息的时间戳和可能的未读状态等信息）。
+[done] 实现 API 端点 /api/conversations/:id/messages (GET) 以获取特定对话的所有消息。
+[done] 实现 API 端点 /api/conversations/:id/read (PUT/POST) 以将登录用户在对话中的所有消息标记为已读。
+[done] 实现 API 端点 /api/messages/unread-count (GET) 以高效获取登录用户的未读消息数量。
+[done] 添加新消息时更新对话的 lastMessageTimestamp 和 updatedAt。
+
