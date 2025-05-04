@@ -16,6 +16,7 @@ console.log(process.env.MONGO_URI);
 
 app.use(express.json());
 app.use("/api/users", userRoutes);
+
 app.use("/api/messages", messageRoutes);
 app.use("/api/conversations", conversationRoutes);
 
@@ -24,6 +25,8 @@ app.use("/api/conversations", conversationRoutes);
 app.get("/", (req, res) => {
   res.send("BACKEND is running"); 
 });
+
+
 
 app.listen(PORT, () => {
   connectDB();
