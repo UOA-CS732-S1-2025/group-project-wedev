@@ -18,7 +18,10 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
       {/* Mail Icon Button */}
       <IconButton 
         variant="outline" 
+        as={RouterLink} 
+        to="/inbox" 
       >
+
         <CiMail />
       </IconButton>
       {/* Log out and toggle button */}
