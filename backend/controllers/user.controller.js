@@ -72,3 +72,83 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+export const searchProviders = async (req, res) => {
+    try {
+        const { serviceType, location, date } = req.body;
+        
+        // Build the query
+        const query = { role: "provider" };
+        
+        // Filter by service type if provided
+        if (serviceType) {
+            query.serviceType = serviceType;
+        }
+        
+        // Filter by location if provided
+        if (location && location.city) {
+            query["address.city"] = location.city;
+        }
+        
+        // Filter by date availability if provided
+        if (date) {
+            const searchDate = new Date(date);
+            const dayOfWeek = searchDate.getDay(); // 0-6 (Sunday to Saturday)
+            const formattedDate = searchDate.toISOString().split('T')[0]; // YYYY-MM-DD
+            
+            // Complex query for availability
+            query.$or = [
+                // Check if provider has weekly availability for this day of week
+                {
+                    availability: {
+                        $elemMatch: {
+                            dayOfWeek: dayOfWeek,
+                            isAvailable: true
+                        }
+                    },
+                    // And doesn't have a special unavailable day for this date
+                    "specialDates": {
+                        $not: {
+                            $elemMatch: {
+                                date: {
+                                    $gte: new Date(searchDate.setHours(0,0,0,0)),
+                                    $lt: new Date(searchDate.setHours(23,59,59,999))
+                                },
+                                isAvailable: false
+                            }
+                        }
+                    }
+                },
+                // OR has this date specifically marked as available
+                {
+                    "specialDates": {
+                        $elemMatch: {
+                            date: {
+                                $gte: new Date(searchDate.setHours(0,0,0,0)),
+                                $lt: new Date(searchDate.setHours(23,59,59,999))
+                            },
+                            isAvailable: true
+                        }
+                    }
+                }
+            ];
+            
+            // Exclude providers who have this date in an unavailable date range
+            query["dateRanges"] = {
+                $not: {
+                    $elemMatch: {
+                        startDate: { $lte: searchDate },
+                        endDate: { $gte: searchDate },
+                        isAvailable: false
+                    }
+                }
+            };
+        }
+
+        const providers = await User.find(query);
+        
+        res.status(200).json({ providers });
+    } catch (error) {
+        res.status(500).json({ message: "Error searching providers", error: error.message });
+    }
+};
+

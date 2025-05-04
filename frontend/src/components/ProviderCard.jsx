@@ -81,7 +81,7 @@ const ProviderCard = ({ user }) => {
           <Text fontWeight="bold" fontSize="lg" color="blue.500">
             ${user.hourlyRate?.toFixed(2)}
           </Text>
-          <Text fontSize="sm" color="gray.500">/night</Text>
+          <Text fontSize="sm" color="gray.500">/Hour</Text>
         </Box>
       </Flex>
     </Box>

@@ -10,11 +10,16 @@ import {
 } from '@chakra-ui/react';
 import { FaSearch, FaMapMarkerAlt, FaCalendarAlt, FaBriefcase } from 'react-icons/fa';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ServiceSelector from './ServiceSelector';
 import LocationSelector from './LocationSelector';
 import DateSelector from './DateSelector';
+import { useUserStore } from '../store/user';
 
 const HomeFilter = () => {
+  const navigate = useNavigate();
+  const { searchProviders } = useUserStore();
+  
   const [serviceOpen, setServiceOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
@@ -69,6 +74,35 @@ const HomeFilter = () => {
     }
     
     return "Enter date";
+  };
+
+  // Handle the search button click
+  const handleSearch = async () => {
+    if (!selectedService || !selectedLocation) {
+      // Simple validation without toast
+      console.log("Missing required fields");
+      return;
+    }
+
+    try {
+      // Create search params based on selections
+      const searchParams = {
+        serviceType: selectedService.title,
+        location: selectedLocation,
+        // Make date parameter optional but defined
+        date: selectedDate?.date ? selectedDate.date.toISOString() : 
+              (selectedDate?.startDate ? selectedDate.startDate.toISOString() : null)
+      };
+      
+      // Call the search API through the store
+      await searchProviders(searchParams);
+      
+      // Navigate with state to indicate we're coming from search
+      navigate('/booking', { state: { fromSearch: true } });
+    } catch (error) {
+      // Handle error without toast
+      console.error("Search error:", error);
+    }
   };
 
   return (
@@ -304,6 +338,7 @@ const HomeFilter = () => {
             transform: 'scale(0.98)'
           }}
           transition="all 0.2s ease-in-out"
+          onClick={handleSearch}
         >
           <HStack spacing={2}>
             <Icon as={FaSearch} boxSize={4} />
