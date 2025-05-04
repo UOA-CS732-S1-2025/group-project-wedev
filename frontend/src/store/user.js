@@ -49,13 +49,14 @@ export const useUserStore = create((set) => ({
     }
   },
 
-  searchProviders: async (searchParams) => {
+  searchProviders: async (searchParams = {}) => {
     set({ loading: true, error: null });
     try {
-      // If searchParams has properties with null/undefined values, clean them up
-      Object.keys(searchParams).forEach(key => {
-        if (searchParams[key] === null || searchParams[key] === undefined) {
-          delete searchParams[key];
+      // Clean up null/undefined values
+      const cleanParams = {};
+      Object.entries(searchParams).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          cleanParams[key] = value;
         }
       });
 
@@ -64,7 +65,7 @@ export const useUserStore = create((set) => ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(searchParams)
+        body: JSON.stringify(cleanParams)
       });
       
       if (!response.ok) {

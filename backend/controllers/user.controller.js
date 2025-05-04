@@ -76,7 +76,7 @@ export const searchProviders = async (req, res) => {
     try {
         const { serviceType, location, date } = req.body;
         
-        // Build the query
+        // Build the query - always search for providers
         const query = { role: "provider" };
         
         // Filter by service type if provided
@@ -93,7 +93,6 @@ export const searchProviders = async (req, res) => {
         if (date) {
             const searchDate = new Date(date);
             const dayOfWeek = searchDate.getDay(); // 0-6 (Sunday to Saturday)
-            const formattedDate = searchDate.toISOString().split('T')[0]; // YYYY-MM-DD
             
             // Complex query for availability
             query.$or = [

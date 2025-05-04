@@ -78,21 +78,26 @@ const HomeFilter = () => {
 
   // Handle the search button click
   const handleSearch = async () => {
-    if (!selectedService || !selectedLocation) {
-      // Simple validation without toast
-      console.log("Missing required fields");
-      return;
-    }
-
     try {
-      // Create search params based on selections
-      const searchParams = {
-        serviceType: selectedService.title,
-        location: selectedLocation,
-        // Make date parameter optional but defined
-        date: selectedDate?.date ? selectedDate.date.toISOString() : 
-              (selectedDate?.startDate ? selectedDate.startDate.toISOString() : null)
-      };
+      // Create search params with only defined values
+      const searchParams = {};
+      
+      // Add service type if selected
+      if (selectedService) {
+        searchParams.serviceType = selectedService.title;
+      }
+      
+      // Add location if selected
+      if (selectedLocation) {
+        searchParams.location = selectedLocation;
+      }
+      
+      // Add date if selected (keeping your existing logic)
+      if (selectedDate?.date) {
+        searchParams.date = selectedDate.date.toISOString();
+      } else if (selectedDate?.startDate) {
+        searchParams.date = selectedDate.startDate.toISOString();
+      }
       
       // Call the search API through the store
       await searchProviders(searchParams);
@@ -171,8 +176,8 @@ const HomeFilter = () => {
                   boxSize={5}
                 />
                 <Box minWidth="120px" height="42px">
-                  <Text fontSize="xs" color="gray.500">I'm looking for</Text>
-                  <Text fontWeight="medium" isTruncated>
+                  <Text fontSize="xs" color="gray.500" userSelect="none">I'm looking for</Text>
+                  <Text fontWeight="medium" isTruncated userSelect="none">
                     {selectedService ? selectedService.title : "Service Type"}
                   </Text>
                 </Box>
@@ -230,8 +235,8 @@ const HomeFilter = () => {
             >
               <Icon as={FaMapMarkerAlt} mr={3} color="green.500" boxSize={5} />
               <Box minWidth="120px" height="42px">
-                <Text fontSize="xs" color="gray.600">Near</Text>
-                <Text fontWeight="medium" isTruncated>
+                <Text fontSize="xs" color="gray.600" userSelect="none">Near</Text>
+                <Text fontWeight="medium" isTruncated userSelect="none">
                   {selectedLocation ? selectedLocation.city : "Enter your city"}
                 </Text>
               </Box>
@@ -289,7 +294,7 @@ const HomeFilter = () => {
             >
               <Icon as={FaCalendarAlt} mr={3} color="green.500" boxSize={5} />
               <Box minWidth="120px" height="42px">
-                <Text fontSize="xs" color="gray.500">On</Text>
+                <Text fontSize="xs" color="gray.500" userSelect="none">On</Text>
                 <Text 
                   fontSize="md" 
                   fontWeight="medium" 
@@ -298,6 +303,7 @@ const HomeFilter = () => {
                   overflow="hidden" 
                   textOverflow="ellipsis"
                   maxW="100%"
+                  userSelect="none"
                 >
                   {getDateDisplayText()}
                 </Text>
