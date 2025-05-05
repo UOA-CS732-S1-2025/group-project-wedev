@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { 
   Box, 
   VStack, 
@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCircle } from 'react-icons/fa';
 import { useConversationStore } from '../store/conversationStore';
+import { useChatDialogStore } from '../store/chatDialogStore';
 import useAuthStore from '../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import ChatDialog from './ChatDialog';
@@ -27,8 +28,7 @@ const UserInbox = () => {
     markConversationAsRead 
   } = useConversationStore();
   
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { openDialog } = useChatDialogStore();
 
   useEffect(() => {
     if (user?._id) {
@@ -39,14 +39,9 @@ const UserInbox = () => {
   const handleConversationClick = useCallback((conversation) => {
     if (user?._id) {
       markConversationAsRead(conversation._id, user._id);
-      setSelectedConversation(conversation);
-      setIsDialogOpen(true);
+      openDialog(conversation._id, conversation.otherUser);
     }
-  }, [user, markConversationAsRead]);
-
-  const handleDialogClose = useCallback(() => {
-    setIsDialogOpen(false);
-  }, []);
+  }, [user, markConversationAsRead, openDialog]);
 
   // Helper function to format timestamp
   const formatTimestamp = useCallback((timestamp) => {
@@ -155,14 +150,8 @@ const UserInbox = () => {
         </Box>
       </Box>
       
-      {selectedConversation && (
-        <ChatDialog
-          isOpen={isDialogOpen}
-          onClose={handleDialogClose}
-          conversationId={selectedConversation._id}
-          otherUser={selectedConversation.otherUser}
-        />
-      )}
+      {/* ChatDialog will now be self-managed through the store */}
+      <ChatDialog />
     </>
   );
 };

@@ -12,23 +12,20 @@ import {
 } from '@chakra-ui/react';
 import { LuSend } from 'react-icons/lu';
 import { useConversationStore } from '../store/conversationStore';
+import { useChatDialogStore } from '../store/chatDialogStore';
 import useAuthStore from '../store/authStore';
 import ChatMessage from './ChatMessage';
 import CachedAvatar from './CachedAvatar';
 
-const ChatDialog = ({ 
-  isOpen, 
-  onClose, 
-  conversationId,
-  otherUser
-}) => {
+const ChatDialog = () => {
   const { user } = useAuthStore();
   const { activeMessages, messageLoading, fetchMessages, sendMessage } = useConversationStore();
+  const { isOpen, conversationId, otherUser, closeDialog } = useChatDialogStore();
+  
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
-  const dialogOpenRef = useRef(isOpen);
   
-  // 缓存用户信息，避免重新渲染时重新创建
+  // Cache user information
   const currentUserInfo = useMemo(() => ({
     id: user?._id,
     username: user?.username,
@@ -39,12 +36,7 @@ const ChatDialog = ({
     id: otherUser?._id,
     username: otherUser?.username,
     profilePictureUrl: otherUser?.profilePictureUrl
-  }), [otherUser?._id, otherUser?.username, otherUser?.profilePictureUrl]);
-  
-  // 保持最新的 isOpen 状态在 ref 中
-  useEffect(() => {
-    dialogOpenRef.current = isOpen;
-  }, [isOpen]);
+  }), [otherUser]);
   
   useEffect(() => {
     if (isOpen && conversationId) {
@@ -62,21 +54,20 @@ const ChatDialog = ({
   const handleSendMessage = useCallback(async () => {
     if (!newMessage.trim() || !user?._id || !conversationId) return;
     
-    // 先清空输入框，提高响应速度
+    // Clear input field first for better UX
     const messageToSend = newMessage;
     setNewMessage('');
     
     await sendMessage(conversationId, user._id, messageToSend);
   }, [newMessage, user?._id, conversationId, sendMessage]);
   
-  // 使用 useCallback 包装对话框关闭处理函数
   const handleOpenChange = useCallback(({open}) => {
-    if (!open && dialogOpenRef.current) {
-      onClose();
+    if (!open && isOpen) {
+      closeDialog();
     }
-  }, [onClose]);
+  }, [closeDialog, isOpen]);
   
-  // 预处理和缓存消息数据
+  // Process and cache message data
   const processedMessages = useMemo(() => {
     if (!Array.isArray(activeMessages)) return [];
     
@@ -98,12 +89,15 @@ const ChatDialog = ({
     }
   }, [handleSendMessage]);
   
-  // 缓存对话框标题
+  // Cache dialog title
   const dialogTitle = useMemo(() => {
     return otherUser?.firstName && otherUser?.lastName
       ? `${otherUser.firstName} ${otherUser.lastName}`
       : otherUser?.username || "User";
-  }, [otherUser?.firstName, otherUser?.lastName, otherUser?.username]);
+  }, [otherUser]);
+  
+  // If not open or no otherUser, don't render anything
+  if (!isOpen || !otherUser) return null;
   
   return (
     <Dialog.Root 

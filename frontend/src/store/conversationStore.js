@@ -83,7 +83,7 @@ export const useConversationStore = create((set, get) => ({
     if (!conversationId || !senderId || !content) return;
     
     try {
-      // 先查找对话以获取接收者ID
+      // Find conversation to get recipient ID
       const conversation = get().conversations.find(conv => conv._id === conversationId);
       if (!conversation) {
         throw new Error("Conversation not found");
@@ -91,20 +91,22 @@ export const useConversationStore = create((set, get) => ({
       
       const recipientId = conversation.otherUser._id;
       
-      // 先更新本地状态，提高响应速度
+      // Create optimistic message for instant UI feedback
       const optimisticMessage = {
         _id: `temp-${Date.now()}`,
-        sender: senderId,
+        sender: {
+          _id: senderId // Make sure sender is an object with _id
+        },
         content,
         createdAt: new Date().toISOString(),
       };
 
-      // 立即更新UI
+      // Update local state immediately
       set((state) => ({
         activeMessages: [...state.activeMessages, optimisticMessage]
       }));
       
-      // 然后发送请求，注意这里使用了 recipientId 而不是 conversationId
+      // Send the API request
       const response = await fetch('/api/messages', {
         method: 'POST',
         headers: {
@@ -121,22 +123,34 @@ export const useConversationStore = create((set, get) => ({
         throw new Error(`API returned status ${response.status}`);
       }
       
-      const newMessage = await response.json();
+      const responseData = await response.json();
       
-      // 用真实消息替换临时消息
+      // The actual message is in responseData.data
+      const newMessage = responseData.data || responseData;
+      
+      // Update with the real message and update conversation locally
       set((state) => ({
         activeMessages: state.activeMessages
           .filter(msg => msg._id !== optimisticMessage._id)
-          .concat(newMessage)
+          .concat(newMessage),
+        
+        // Update the conversation list directly without refetching
+        conversations: state.conversations.map(conv => {
+          if (conv._id === conversationId) {
+            return {
+              ...conv,
+              lastMessageTimestamp: new Date().toISOString(),
+              lastMessage: content // Update the last message preview
+            };
+          }
+          return conv;
+        })
       }));
-      
-      // 刷新会话列表
-      get().fetchConversations(senderId);
       
       return newMessage;
     } catch (error) {
       console.error("Error sending message:", error);
-      // 移除临时消息
+      // Remove temporary message on error
       set((state) => ({
         activeMessages: state.activeMessages.filter(msg => !msg._id.startsWith('temp-'))
       }));
