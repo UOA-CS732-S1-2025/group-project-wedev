@@ -112,8 +112,22 @@ const ChatDialog = ({
     >
       <Portal>
         <Dialog.Backdrop />
-        <Dialog.Positioner maxW="90%" maxH="90%" w="600px">
-          <Dialog.Content h="80vh" display="flex" flexDirection="column">
+        <Dialog.Positioner 
+          display="flex" 
+          alignItems="center" 
+          justifyContent="center" 
+          w="full" 
+          h="full"
+        >
+          <Dialog.Content 
+            h="80vh" 
+            w="600px"
+            maxW="90%" 
+            maxH="90%" 
+            display="flex" 
+            flexDirection="column"
+            overflow="hidden"
+          >
             <Dialog.Header>
               <HStack spacing={3}>
                 <CachedAvatar
