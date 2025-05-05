@@ -6,6 +6,7 @@ import BookingPage from './pages/Bookingpage'
 import Navbar from './components/Navbar'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import UserProfilePage from './pages/UserProfilePage'
 const App = () => {
   return (
     
@@ -16,7 +17,8 @@ const App = () => {
         <Route path="/booking" element={<BookingPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignupPage />} />
-
+        <Route path='/inbox' element={<UserProfilePage />} />
+        <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
       </Routes>
     </Box>
     
