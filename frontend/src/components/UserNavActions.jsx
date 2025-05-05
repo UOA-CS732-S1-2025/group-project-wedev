@@ -43,10 +43,13 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
       {/* User Info */}
       <Text>{displayName}</Text>
       
-      <Avatar.Root>
-        <Avatar.Fallback name={displayName} />
-        <Avatar.Image src={user?.profilePictureUrl || "https://bit.ly/sage-adebayo"} />
-      </Avatar.Root>
+      {/* Make avatar clickable and link to profile page */}
+      <Box as={RouterLink} to="/profile" cursor="pointer">
+        <Avatar.Root>
+          <Avatar.Fallback name={displayName} />
+          <Avatar.Image src={user?.profilePictureUrl || "https://bit.ly/sage-adebayo"} />
+        </Avatar.Root>
+      </Box>
 
       {/* Mail Icon Button */}
       <Box position="relative">

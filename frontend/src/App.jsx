@@ -18,6 +18,7 @@ const App = () => {
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/inbox' element={<UserProfilePage />} />
+        <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
       </Routes>
     </Box>
     

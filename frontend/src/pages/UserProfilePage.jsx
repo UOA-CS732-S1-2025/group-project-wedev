@@ -1,12 +1,13 @@
 import React from 'react'
 import { Tabs, Box } from "@chakra-ui/react"
 import UserInbox from '../components/UserInbox'
+import UserProfile from '../components/UserProfile'
 
-const UserProfilePage = () => {
+const UserProfilePage = ({ defaultTab = "messages" }) => {
     return (
         <Box pt={10} bg="gray.50" minH="100vh">
             <Box w="95%" maxW="1200px" mx="auto">
-                <Tabs.Root defaultValue="messages">
+                <Tabs.Root defaultValue={defaultTab}>
                     <Tabs.List>
                         <Tabs.Trigger value="dashboard">
                             Dashboard
@@ -30,9 +31,7 @@ const UserProfilePage = () => {
                     </Tabs.Content>
                     
                     <Tabs.Content value="profile">
-                        <Box p={4}>
-                            Manage your profile settings
-                        </Box>
+                        <UserProfile />
                     </Tabs.Content>
                 </Tabs.Root>
             </Box>
