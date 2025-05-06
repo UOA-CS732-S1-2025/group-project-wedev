@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
+import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
 
 // 用户注册
 export const registerUser = async (req, res) => {
@@ -28,6 +30,11 @@ export const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+
+    // 生成邮箱验证 token
+    const emailVerifyToken = crypto.randomBytes(32).toString("hex");
+
+
     // 创建新用户
     const newUser = new User({
       firstName,
@@ -36,10 +43,20 @@ export const registerUser = async (req, res) => {
       username: email.split('@')[0], // 使用邮箱前缀作为默认用户名
       password: hashedPassword,
       role: 'customer',
-      profilePictureUrl: "https://avatar.iran.liara.run/public" // 默认头像
+      profilePictureUrl: "https://avatar.iran.liara.run/public", // 默认头像
+      emailVerified: false,
+      emailVerifyToken
     });
 
     await newUser.save();
+
+
+    // 构造验证链接
+    const verifyUrl = `http://localhost:3000/api/auth/verify-email?token=${emailVerifyToken}`;
+
+    // 模拟发送验证邮件（建议改用 nodemailer）
+    await sendVerificationEmail(email, verifyUrl);
+
 
     // 生成JWT令牌
     const token = jwt.sign(
@@ -134,5 +151,34 @@ export const getCurrentUser = async (req, res) => {
       message: "Server error", 
       error: error.message 
     });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Missing verification token" });
+    }
+
+    const user = await User.findOne({ emailVerifyToken: token });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    if (user.emailVerified) {
+      return res.status(200).json({ success: true, message: "Email already verified" });
+    }
+
+    user.emailVerified = true;
+    user.emailVerifyToken = undefined;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Email verification error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
