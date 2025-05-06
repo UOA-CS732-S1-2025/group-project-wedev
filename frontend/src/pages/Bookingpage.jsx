@@ -12,78 +12,106 @@ import {
   Heading,
   Spinner,
   Alert,
-  Center
+  Center,
+  Flex
 } from "@chakra-ui/react";
 import { useUserStore } from "../store/user";
 import ProviderCard from "../components/ProviderCard";
+import AdvancedFilter from "../components/AdvancedFilter";
 import { useLocation } from "react-router-dom";
 
 const BookingPage = () => {
-  const { users, loading, error, fetchProviders } = useUserStore();
+  const { users: searchResults, loading, error, fetchProviders, lastSearchParams } = useUserStore();
   const location = useLocation();
 
-  // Determine if we came from a search or direct navigation
-  const isFromSearch = location.state?.fromSearch;
-
-  useEffect(() => {
-    // If navigating directly to page, fetch all providers
-    if (!isFromSearch && users.length === 0) {
-      fetchProviders();
-    }
-  }, [fetchProviders, isFromSearch, users.length]);
-
-  if (loading) {
-    return (
-      <Container maxW="container.sm" py={6} centerContent>
-        <Spinner size="xl" color="blue.500" thickness="4px" />
-        <Text mt={4}>Loading service providers...</Text>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxW="container.sm" py={6}>
-        <Alert status="error" borderRadius="md">
-          <Text fontSize="lg">Error fetching service providers: {error.message}</Text>
-        </Alert>
-        <Button mt={4} onClick={fetchProviders} colorScheme="blue">
-          Retry
-        </Button>
-      </Container>
-    );
-  }
-
-  if (users.length === 0) {
-    return (
-      <Container maxW="container.sm" py={6}>
-
-        <Card.Root>
-          <Card.Header />
-          <CardBody textAlign="center">
-            <Heading size="md" mb={4}>No service providers found</Heading>
-            <Text>Try adjusting your search criteria or check back later.</Text>
-          </CardBody>
-          <Card.Footer />
-        </Card.Root>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxW="container.sm" py={6}>
-      <Heading size="md" mb={4}>
-        {users.length} Service {users.length === 1 ? 'Provider' : 'Providers'} Available
-      </Heading>
-      <VStack spacing={3} align="stretch">
-        {users.map((user) => (
-          <ProviderCard
-            key={user._id}
-            user={user}
-          />
-        ))}
-      </VStack>
-    </Container>
+    <Box px={4} maxW="container.xl" mx="auto">
+      <Flex 
+        direction={{ base: 'column', md: 'row' }} 
+        py={6} 
+        gap={{ base: 4, md: 6 }}
+        align="flex-start"
+        height={{ base: 'auto', md: '100vh' }}
+      >
+        {/* Left Column - Filters and Map */}
+        <Box 
+          w={{ base: 'full', md: '500px', lg: '580px' }} 
+          flexShrink={0}
+          position="sticky"
+          top="20px"
+        > 
+          <AdvancedFilter />
+        </Box>
+
+        {/* Right Column - Results with scroll */}
+        <Box 
+          flex="1" 
+          maxH={{ base: 'auto', md: 'calc(100vh - 40px)' }}
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+        > 
+          {/* Loading Indicator */}
+          {loading && (
+            <Center py={4} mb={4} flexShrink={0}>
+              <Spinner size="md" color="blue.500" thickness="3px" mr={3} />
+              <Text>Loading service providers...</Text>
+            </Center>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <Alert status="error" borderRadius="md" mb={4} flexShrink={0}>
+              <Text fontSize="sm">Error fetching service providers: {error.message}</Text>
+            </Alert>
+          )}
+
+          {/* Results Content - Scrollable */}
+          {!loading && !error && (
+            <Box 
+              overflowY="auto" 
+              flex="1"
+              pr={2}
+              css={{
+                '&::-webkit-scrollbar': {
+                  width: '6px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  width: '8px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  borderRadius: '24px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: 'rgba(0, 0, 0, 0.15)',
+                  borderRadius: '24px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'rgba(0, 0, 0, 0.3)',
+                },
+              }}
+            >
+              <VStack spacing={4} align="stretch" pb={4}>
+                {searchResults.length === 0 ? (
+                  <Box textAlign="center" py={10} borderWidth="1px" borderRadius="lg" shadow="base">
+                    <VStack spacing={3}>
+                      <Heading size="md">No service providers found</Heading>
+                      <Text>Try adjusting your search criteria using the filters on the left.</Text>
+                    </VStack>
+                  </Box>
+                ) : (
+                  searchResults.map((user) => (
+                    <ProviderCard
+                      key={user._id}
+                      user={user}
+                    />
+                  ))
+                )}
+              </VStack>
+            </Box>
+          )}
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 
