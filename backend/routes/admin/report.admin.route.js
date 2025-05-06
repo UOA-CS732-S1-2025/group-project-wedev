@@ -20,3 +20,4 @@ router.put("/:id", updateReport);
 router.delete("/:id", deleteReport);
 
 export default router;
+//Add identity authentication and administrator authority verification

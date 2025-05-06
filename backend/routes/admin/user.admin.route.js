@@ -22,3 +22,4 @@ router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 
 export default router;
+//Add identity authentication and administrator authority verification

@@ -21,3 +21,4 @@ router.put("/:id", updateBooking);
 router.delete("/:id", deleteBooking);
 
 export default router;
+//Add identity authentication and administrator authority verification

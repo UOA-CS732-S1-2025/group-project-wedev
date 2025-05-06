@@ -7,3 +7,4 @@ const router = express.Router();
 router.get("/", getAllPayments);
 
 export default router;
+//Add identity authentication and administrator authority verification
