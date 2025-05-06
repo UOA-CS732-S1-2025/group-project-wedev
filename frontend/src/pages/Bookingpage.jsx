@@ -25,54 +25,93 @@ const BookingPage = () => {
   const location = useLocation();
 
   return (
-    <Flex direction={{ base: 'column', md: 'row' }} maxW="container.xl" mx="auto" py={6} gap={6}>
-      
-      <Box w={{ base: 'full', md: '300px' }} flexShrink={0}> 
-        <AdvancedFilter />
-      </Box>
+    <Box px={4} maxW="container.xl" mx="auto">
+      <Flex 
+        direction={{ base: 'column', md: 'row' }} 
+        py={6} 
+        gap={{ base: 4, md: 6 }}
+        align="flex-start"
+        height={{ base: 'auto', md: '100vh' }}
+      >
+        {/* Left Column - Filters and Map */}
+        <Box 
+          w={{ base: 'full', md: '500px', lg: '580px' }} 
+          flexShrink={0}
+          position="sticky"
+          top="20px"
+        > 
+          <AdvancedFilter />
+        </Box>
 
-      <Box flex="1"> 
-        {loading && (
-          <Center py={10}>
-            <Spinner size="xl" color="blue.500" thickness="4px" />
-            <Text ml={4}>Loading service providers...</Text>
-          </Center>
-        )}
+        {/* Right Column - Results with scroll */}
+        <Box 
+          flex="1" 
+          maxH={{ base: 'auto', md: 'calc(100vh - 40px)' }}
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+        > 
+          {/* Loading Indicator */}
+          {loading && (
+            <Center py={4} mb={4} flexShrink={0}>
+              <Spinner size="md" color="blue.500" thickness="3px" mr={3} />
+              <Text>Loading service providers...</Text>
+            </Center>
+          )}
 
-        {error && (
-          <VStack spacing={4} >
-            <Alert status="error" borderRadius="md">
-              <Text fontSize="lg">Error fetching service providers: {error.message}</Text>
+          {/* Error Message */}
+          {error && (
+            <Alert status="error" borderRadius="md" mb={4} flexShrink={0}>
+              <Text fontSize="sm">Error fetching service providers: {error.message}</Text>
             </Alert>
-          </VStack>
-        )}
+          )}
 
-        {!loading && !error && (
-          <> 
-            {searchResults.length === 0 ? (
-              <Box textAlign="center" py={10} borderWidth="1px" borderRadius="lg" shadow="base">
-                <VStack spacing={4}>
-                  <Heading size="md">No service providers found</Heading>
-                  <Text>Try adjusting your search criteria using the filters on the left.</Text>
-                </VStack>
-              </Box>
-            ) : (
-              <VStack spacing={4} >
-                <Heading size="lg" mb={2}>
-                  {searchResults.length} Service {searchResults.length === 1 ? 'Provider' : 'Providers'} Found
-                </Heading>
-                {searchResults.map((user) => (
-                  <ProviderCard
-                    key={user._id}
-                    user={user}
-                  />
-                ))}
+          {/* Results Content - Scrollable */}
+          {!loading && !error && (
+            <Box 
+              overflowY="auto" 
+              flex="1"
+              pr={2}
+              css={{
+                '&::-webkit-scrollbar': {
+                  width: '6px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  width: '8px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  borderRadius: '24px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: 'rgba(0, 0, 0, 0.15)',
+                  borderRadius: '24px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'rgba(0, 0, 0, 0.3)',
+                },
+              }}
+            >
+              <VStack spacing={4} align="stretch" pb={4}>
+                {searchResults.length === 0 ? (
+                  <Box textAlign="center" py={10} borderWidth="1px" borderRadius="lg" shadow="base">
+                    <VStack spacing={3}>
+                      <Heading size="md">No service providers found</Heading>
+                      <Text>Try adjusting your search criteria using the filters on the left.</Text>
+                    </VStack>
+                  </Box>
+                ) : (
+                  searchResults.map((user) => (
+                    <ProviderCard
+                      key={user._id}
+                      user={user}
+                    />
+                  ))
+                )}
               </VStack>
-            )}
-          </>
-        )}
-      </Box>
-    </Flex>
+            </Box>
+          )}
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 
