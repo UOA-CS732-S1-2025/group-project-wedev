@@ -1,83 +1,95 @@
 import React, { useState } from 'react';
 import {
-  Box, Heading, Input, Button, VStack, Text, FormControl, FormLabel, Container
+  Box, Input, Button, VStack, Heading, Text, Image,
 } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 
 const SignupPage = () => {
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSignup = (e) => {
     e.preventDefault();
-    const { firstName, lastName, email, password } = form;
-    if (!firstName || !lastName || !email || !password) {
-      setError('All fields are required');
-      return;
-    }
-    setError('');
-    console.log("Signed up with", form);
-    // TODO: Add API signup call
+    console.log('Signup with:', name, email, password);
+    // Call your backend API or Cognito here
   };
 
   return (
-    <Box py={16} bg="gray.50" minH="100vh">
-      <Container maxW="md">
-        <VStack spacing={6} p={8} bg="white" borderRadius="lg" boxShadow="md">
-          <Heading size="lg" textAlign="center">Create Your Account</Heading>
-          {error && <Text color="red.500">{error}</Text>}
-          <FormControl>
-            <FormLabel>First Name</FormLabel>
+    <Box
+      position="relative"
+      minH="100vh"
+      bgGradient="linear(to-br, green.100, green.50)"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px={4}
+      overflow="hidden"
+    >
+      {/* Decorative SVG Background */}
+      <Box position="absolute" top="-80px" left="-100px" zIndex={0} opacity={0.15}>
+        <svg width="500" height="500" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#68D391" d="M50.4,-61.2C65.5,-49.7,77.7,-32.4,77.6,-16.1C77.6,0.2,65.3,15.7,54.4,31.6C43.4,47.5,33.8,63.8,20.2,66.2C6.5,68.5,-11.2,56.9,-27.2,46.1C-43.3,35.2,-57.8,25.1,-66.7,9.5C-75.5,-6.1,-78.6,-28.1,-68.3,-42.6C-58,-57.1,-34.2,-64,-12.4,-61.6C9.4,-59.2,18.8,-47.7,50.4,-61.2Z" transform="translate(100 100)" />
+        </svg>
+      </Box>
+
+      {/* Signup Card */}
+      <Box
+        zIndex={1}
+        w="100%"
+        maxW="400px"
+        p={8}
+        bg="white"
+        borderRadius="2xl"
+        boxShadow="xl"
+      >
+        {/* Logo */}
+        <Box textAlign="center" mb={4}>
+          <Image
+            src="https://cdn-icons-png.flaticon.com/512/809/809957.png"
+            alt="Urban Ease Logo"
+            boxSize="60px"
+            mx="auto"
+            mb={2}
+          />
+          <Heading size="md" color="green.600">Urban Ease</Heading>
+        </Box>
+
+        {/* Signup Form */}
+        <form onSubmit={handleSignup}>
+          <VStack spacing={4}>
             <Input
-              name="firstName"
-              placeholder="First name"
-              value={form.firstName}
-              onChange={handleChange}
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              focusBorderColor="green.400"
             />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Last Name</FormLabel>
             <Input
-              name="lastName"
-              placeholder="Last name"
-              value={form.lastName}
-              onChange={handleChange}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Email</FormLabel>
-            <Input
-              name="email"
-              type="email"
               placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              focusBorderColor="green.400"
             />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Password</FormLabel>
             <Input
-              name="password"
-              type="password"
               placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              focusBorderColor="green.400"
             />
-          </FormControl>
-          <Button colorScheme="blue" width="full" onClick={handleSignup}>Sign Up</Button>
-          <Text fontSize="sm" color="gray.600">
-            Already have an account? <a href="/login" style={{ color: '#3182CE' }}>Login</a>
-          </Text>
-        </VStack>
-      </Container>
+            <Button colorScheme="green" type="submit" width="100%">
+              Signup
+            </Button>
+            <Text fontSize="sm" textAlign="center">
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: '#2F855A', fontWeight: 'bold' }}>
+                Login
+              </Link>
+            </Text>
+          </VStack>
+        </form>
+      </Box>
     </Box>
   );
 };
