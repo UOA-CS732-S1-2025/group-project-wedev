@@ -90,7 +90,7 @@ export const getProviders = async (req, res) => {
 
 export const searchProviders = async (req, res) => {
     try {
-        const { serviceType, location, date } = req.body;
+        const { serviceType, location, date, maxHourlyRate } = req.body;
         
         // Build the query - always search for providers
         const query = { role: "provider" };
@@ -105,13 +105,24 @@ export const searchProviders = async (req, res) => {
             query["address.city"] = location.city;
         }
         
+        // Filter by hourly rate if provided
+        if (maxHourlyRate) {
+            // Add hourlyRate filter - include providers with hourlyRate less than or equal to maxHourlyRate
+            // or providers that don't have hourlyRate specified
+            query.$or = query.$or || [];
+            query.$or.push(
+                { hourlyRate: { $lte: maxHourlyRate } },
+                { hourlyRate: { $exists: false } } // Include providers without hourlyRate set
+            );
+        }
+        
         // Filter by date availability if provided
         if (date) {
             const searchDate = new Date(date);
             const dayOfWeek = searchDate.getDay(); // 0-6 (Sunday to Saturday)
             
-            // Complex query for availability
-            query.$or = [
+            // Create or extend the $or query
+            const dateQuery = [
                 // Check if provider has weekly availability for this day of week
                 {
                     availability: {
@@ -146,6 +157,18 @@ export const searchProviders = async (req, res) => {
                     }
                 }
             ];
+            
+            // If we already have an $or query (from hourlyRate), we need to use $and to combine them
+            if (query.$or) {
+                const hourlyRateQuery = query.$or;
+                delete query.$or;
+                query.$and = [
+                    { $or: hourlyRateQuery },
+                    { $or: dateQuery }
+                ];
+            } else {
+                query.$or = dateQuery;
+            }
             
             // Exclude providers who have this date in an unavailable date range
             query["dateRanges"] = {

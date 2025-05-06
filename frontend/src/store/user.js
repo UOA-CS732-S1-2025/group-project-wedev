@@ -4,6 +4,7 @@ export const useUserStore = create((set) => ({
   users: [],
   loading: false,
   error: null,
+  lastSearchParams: {},
 
   setUser: (user) => set({ user }),
 
@@ -73,7 +74,7 @@ export const useUserStore = create((set) => ({
       }
       
       const data = await response.json();
-      set({ users: data.providers || [], loading: false });
+      set({ users: data.providers || [], loading: false, lastSearchParams: cleanParams });
     } catch (error) {
       console.error("Error searching providers:", error);
       set({ error: error.message, loading: false, users: [] });
