@@ -28,7 +28,9 @@ const PORT = process.env.PORT || 3000;
 console.log(process.env.MONGO_URI);
 
 app.use(express.json());
-// app.use("/api/users", userRoutes);
+
+app.use("/api/users", userRoutes);
+
 app.use("/api/messages", messageRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/reports", reportRoutes);
@@ -41,6 +43,8 @@ app.use("/api/admin/reports", adminReportRoutes);
 app.get("/", (req, res) => {
   res.send("BACKEND is running"); 
 });
+
+
 
 app.listen(PORT, () => {
   connectDB();
