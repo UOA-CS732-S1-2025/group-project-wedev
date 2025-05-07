@@ -10,7 +10,7 @@ import adminBookingRoutes from "./routes/admin/booking.admin.route.js";
 import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
 import adminReportRoutes from "./routes/admin/report.admin.route.js";
 import authRoutes from "./routes/auth.route.js";
-
+import cors from "cors";
 
 
 
@@ -36,6 +36,10 @@ const PORT = process.env.PORT || 3000;
 console.log(process.env.MONGO_URI);
 
 app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:5173", // 允许前端访问的源
+  credentials: true // 如果你未来会使用 cookies 或认证头
+}));
 
 app.use("/api/users", userRoutes);
 
@@ -53,6 +57,7 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
   res.send("BACKEND is running"); 
 });
+
 
 
 

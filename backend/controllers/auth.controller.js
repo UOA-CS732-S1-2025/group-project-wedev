@@ -7,7 +7,7 @@ import { sendVerificationEmail } from "../utils/sendEmail.js";
 // 用户注册
 export const registerUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, role, location  } = req.body;
 
     // 验证用户角色
     if (role !== 'customer') {
@@ -45,7 +45,11 @@ export const registerUser = async (req, res) => {
       role: 'customer',
       profilePictureUrl: "https://avatar.iran.liara.run/public", // 默认头像
       emailVerified: false,
-      emailVerifyToken
+      emailVerifyToken,
+      location: location || {
+        type: "Point",
+        coordinates: [174.7682, -36.8523]
+      }
     });
 
     await newUser.save();

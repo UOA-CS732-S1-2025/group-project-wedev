@@ -1,22 +1,101 @@
 import React, { useState } from 'react';
 import {
-  Box, Input, Button, VStack, Heading, Text, Image,
+  Field, Box, Input, Button, VStack, Heading, Text, Image, defineStyle
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import useAuthStore from "../store/authStore";
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ comtent: ''});
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Logging in with:', email, password);
+    const newErrors = { comtent: ''};
+    setErrors(newErrors); //reset
+    if (!email) {
+      newErrors.comtent = 'Please enter your email.';
+      setErrors(newErrors);
+      return;
+    } 
+    if (!password) {
+      newErrors.comtent = 'Please enter your password.';
+      setErrors(newErrors);
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.comtent = 'Invalid email format';
+      setErrors(newErrors);
+      return;
+    }
+    if (password.length <= 8) {
+      newErrors.comtent = 'Password must be 8+ characters';
+      setErrors(newErrors);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      newErrors.comtent = 'Password must include uppercase';
+      setErrors(newErrors);
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      newErrors.comtent = 'Password must include lowercase';
+      setErrors(newErrors);
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      newErrors.comtent = 'Password must include number';
+      setErrors(newErrors);
+      return;
+    }
+  
+    
+  
+    if (newErrors.comtent) {
+      newErrors.comtent = 'Some Wrong? Contact Servise Team!';
+      setErrors(newErrors);
+      return;
+    }
+
+    const result = await login(email, password);
+    if (!result.success) {
+      setErrors({ comtent: result.message });
+    } else {
+      navigate("/"); // 登录成功后跳转到首页
+    }
   };
 
+
+    const floatingStyles = defineStyle({
+      pos: "absolute",
+      bg: "bg",
+      px: "0.5",
+      top: "-3",
+      insetStart: "2",
+      fontWeight: "normal",
+      pointerEvents: "none",
+      transition: "position",
+      _peerPlaceholderShown: {
+        color: "fg.muted",
+        top: "2.5",
+        insetStart: "3",
+      },
+      _peerFocusVisible: {
+        color: "fg",
+        top: "-3",
+        insetStart: "2",
+      },
+    })
+    
   return (
     <Box
       position="relative"
-      minH="100vh"
+      minH="90vh"
       bgGradient="linear(to-br, green.100, green.50)"
       display="flex"
       alignItems="center"
@@ -40,6 +119,7 @@ const LoginPage = () => {
         bg="white"
         borderRadius="2xl"
         boxShadow="xl"
+        
       >
         {/* Logo */}
         <Box textAlign="center" mb={4}>
@@ -55,32 +135,48 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleLogin}>
-          <VStack spacing={4}>
-            <Input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              focusBorderColor="green.400"
+          <VStack spacing={10} >
+
+          <Field.Root w="100%" mb={3}>
+            <Input 
+            className="peer" 
+            placeholder="" 
+            type="text"//Don't use email, HTML5 features will affect the display
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             />
-            <Input
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              focusBorderColor="green.400"
+            <Field.Label css={floatingStyles}>Email</Field.Label>
+            
+          </Field.Root>
+
+          <Field.Root w="100%" mb={3}>
+            <Input 
+            className="peer" 
+            placeholder="" 
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             />
+            <Field.Label css={floatingStyles}>Password</Field.Label>
+            
+          </Field.Root>
+          <Field.Root w="100%" mb={1} visibility={errors.comtent ? "visible" : "hidden"}>
+            <Text mt={1} fontSize="sm" color="red.500">
+              {errors.comtent || "space"} 
+            </Text>
+          </Field.Root>
             <Button type="submit" colorScheme="green" width="100%">
               Login
             </Button>
-            <Text fontSize="sm" textAlign="center">
+          
+            <Text fontSize="xs" textAlign="center">
               New here?{' '}
               <Link to="/signup" style={{ color: '#2F855A', fontWeight: 'bold' }}>
                 Sign up
               </Link>
             </Text>
           </VStack>
-        </form>
+        </form> 
       </Box>
     </Box>
   );
