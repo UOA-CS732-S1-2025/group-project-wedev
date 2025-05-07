@@ -101,8 +101,20 @@ export const searchProviders = async (req, res) => {
         }
         
         // Filter by location if provided
+        //用前端传来的 city 作为 state 去和后端数据库的 state 做对比，state 比如 Auckland 作为奥克兰大区，address.city为更低一级地点
         if (location && location.city) {
-            query["address.city"] = location.city;
+            query["address.state"] = location.city;
+        }
+        
+        // Filter by hourly rate if provided
+        if (maxHourlyRate) {
+            // Add hourlyRate filter - include providers with hourlyRate less than or equal to maxHourlyRate
+            // or providers that don't have hourlyRate specified
+            query.$or = query.$or || [];
+            query.$or.push(
+                { hourlyRate: { $lte: maxHourlyRate } },
+                { hourlyRate: { $exists: false } } // Include providers without hourlyRate set
+            );
         }
         
         // Filter by hourly rate if provided

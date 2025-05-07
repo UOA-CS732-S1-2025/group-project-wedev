@@ -1,15 +1,30 @@
 import React from 'react'
 import { Box, VStack, } from "@chakra-ui/react"
 import { Routes, Route } from 'react-router-dom'
-import HomePage from './pages/Homepage'
-import BookingPage from './pages/Bookingpage'
+import HomePage from './pages/HomePage'
+import BookingPage from './pages/BookingPage'
 import Navbar from './components/Navbar'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
+import {
+  ChakraProvider,
+  createSystem,
+  defaultConfig,
+  defineConfig,
+} from "@chakra-ui/react"
+const config = defineConfig({
+  globalCss: {
+    "html, body": {
+      overscrollBehaviorY: 'none',
+    },
+  },
+})
+
+const system = createSystem(defaultConfig, config)
 const App = () => {
   return (
-    
+    <ChakraProvider value={system}>
     <Box minH="100vh" >
       <Navbar />
       <Routes>
@@ -21,7 +36,7 @@ const App = () => {
         <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
       </Routes>
     </Box>
-    
+    </ChakraProvider>
   )
 }
 

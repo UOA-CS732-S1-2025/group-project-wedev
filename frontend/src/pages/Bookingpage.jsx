@@ -1,14 +1,8 @@
 import React, { useEffect } from "react";
 import {
-  Container,
-  SimpleGrid,
   Text,
-  Button,
   Box,
-  HStack,
   VStack,
-  Card,
-  CardBody,
   Heading,
   Spinner,
   Alert,
@@ -21,9 +15,30 @@ import AdvancedFilter from "../components/AdvancedFilter";
 import { useLocation } from "react-router-dom";
 
 const BookingPage = () => {
+<<<<<<< HEAD
+  const { 
+    users: searchResults, 
+    loading, 
+    error, 
+    fetchProviders, 
+    lastSearchParams,
+    selectedProviderId 
+  } = useUserStore();
+  const location = useLocation();
+
+  // 在用户进入页面时清除任何选中的Provider
+  useEffect(() => {
+    return () => {
+      // 组件卸载时清除选中状态
+      useUserStore.getState().setSelectedProviderId(null);
+    };
+  }, []);
+
+=======
   const { users: searchResults, loading, error, fetchProviders, lastSearchParams } = useUserStore();
   const location = useLocation();
 
+>>>>>>> origin/develop
   return (
     <Box px={4} maxW="container.xl" mx="auto">
       <Flex 
@@ -47,6 +62,10 @@ const BookingPage = () => {
         <Box 
           flex="1" 
           maxH={{ base: 'auto', md: 'calc(100vh - 40px)' }}
+<<<<<<< HEAD
+          height="100%"
+=======
+>>>>>>> origin/develop
           overflow="hidden"
           display="flex"
           flexDirection="column"
@@ -72,6 +91,11 @@ const BookingPage = () => {
               overflowY="auto" 
               flex="1"
               pr={2}
+<<<<<<< HEAD
+              id="results-container"
+              height="100%"
+=======
+>>>>>>> origin/develop
               css={{
                 '&::-webkit-scrollbar': {
                   width: '6px',
@@ -99,12 +123,25 @@ const BookingPage = () => {
                     </VStack>
                   </Box>
                 ) : (
+<<<<<<< HEAD
+                  <>
+                    {searchResults.map((user) => (
+                      <ProviderCard
+                        key={user._id}
+                        user={user}
+                      />
+                    ))}
+                    {/* 额外的底部空间 */}
+                    <Box height="40px" />
+                  </>
+=======
                   searchResults.map((user) => (
                     <ProviderCard
                       key={user._id}
                       user={user}
                     />
                   ))
+>>>>>>> origin/develop
                 )}
               </VStack>
             </Box>
