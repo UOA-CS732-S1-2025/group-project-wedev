@@ -4,7 +4,7 @@ import User from './models/user.model.js';
 
 dotenv.config();
 
-const updateProfilePictureUrl = async () => {
+const updateAverageRating = async () => {
   try {
     const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) throw new Error('MONGO_URI not defined in .env');
@@ -15,15 +15,16 @@ const updateProfilePictureUrl = async () => {
     let count = 0;
 
     for (let i = 0; i < users.length; i++) {
-      const newUrl = `https://avatar.iran.liara.run/public/${i + 1}`;
+      // 生成 2~5 之间带一位小数的随机数
+      const newRating = Math.round((Math.random() * 3 + 2) * 10) / 10;
       await User.updateOne(
         { _id: users[i]._id },
-        { $set: { profilePictureUrl: newUrl } }
+        { $set: { averageRating: newRating } }
       );
       count++;
     }
 
-    console.log(`Updated ${count} users' profilePictureUrl.`);
+    console.log(`Updated ${count} users' averageRating.`);
   } catch (error) {
     console.error('Error updating users:', error);
   } finally {
@@ -32,4 +33,4 @@ const updateProfilePictureUrl = async () => {
   }
 };
 
-updateProfilePictureUrl();
+updateAverageRating();

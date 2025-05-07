@@ -23,6 +23,7 @@ import {
   FaCalendarAlt,
   FaDollarSign,
 } from "react-icons/fa";
+import { MdClear } from "react-icons/md";
 import { useUserStore } from "../store/user";
 import ServiceSelector from "./ServiceSelector";
 import LocationSelector from "./LocationSelector";
@@ -424,9 +425,7 @@ const AdvancedFilter = () => {
                       userSelect="none"
                       fontSize="md"
                     >
-                      {selectedLocation
-                        ? selectedLocation.city
-                        : "City"}
+                      {selectedLocation ? selectedLocation.city : "City"}
                     </Text>
                   </Box>
                 </Flex>
@@ -496,16 +495,28 @@ const AdvancedFilter = () => {
         {/* Second Row - Price Range Slider and Clear All Button */}
         <Box px={4} pb={4} pt={1}>
           <Flex justifyContent="space-between" alignItems="center">
+            
             <HStack flex={1} spacing={6} width="full">
-              <Flex alignItems="center" minWidth="140px">
+            <Flex
+                  p={3}
+                  align="center"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  height="48px"
+                  width="350px"
+                >
+              <Flex alignItems="center" minWidth="140px" >
                 <Icon as={FaDollarSign} color="blue.500" boxSize={5} mr={2} />
-                <Text fontSize="md" fontWeight="medium">
+                <Text fontSize="sm" fontWeight="medium" >
                   Price/Hour: {slider.value[0]}
                 </Text>
               </Flex>
 
-              <HStack spacing={3} flex={1} minWidth="250px">
-                <Slider.RootProvider value={slider} width="160px">
+
+              <HStack spacing={3} flex={1} minWidth="250px" ml={8}>
+                
+                <Slider.RootProvider value={slider} width="140px">
                   <Slider.Control height="20px">
                     <Slider.Track height="8px">
                       <Slider.Range bg="blue.500" />
@@ -514,20 +525,33 @@ const AdvancedFilter = () => {
                   </Slider.Control>
                 </Slider.RootProvider>
               </HStack>
+              </Flex>
 
               <Spacer />
 
               {/* Clear All Button moved to second row */}
-              <Button
-                size="md"
-                colorScheme="blue"
-                variant="outline"
+              <Flex
+                  p={3}
+                  align="center"
+                  cursor="pointer"
+                  borderRadius="md"
+                  _hover={{ bg: "gray.100" }}
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  height="48px"
                 onClick={handleClearAll}
-                minWidth="100px"
-                height="40px"
+                width="190px"
               >
-                Clear All
-              </Button>
+                <Icon as={MdClear} mr={2} color="blue.500" boxSize={5} />
+                <Box flex="1" minWidth="0">
+                    <Text
+                      fontWeight="medium"
+                      isTruncated
+                      userSelect="none"
+                      fontSize="md"
+                    >Clear All</Text>
+                </Box>
+              </Flex>
             </HStack>
           </Flex>
         </Box>
@@ -549,8 +573,8 @@ const AdvancedFilter = () => {
             zoom={mapZoom}
             onCameraChanged={handleCameraChange}
             style={{ width: "100%", height: "100%" }}
-            disableDefaultUI={true}    // 禁用所有默认的Google Maps UI控件
-            zoomControl={true}         // 单独启用缩放按钮
+            disableDefaultUI={true} // 禁用所有默认的Google Maps UI控件
+            zoomControl={true} // 单独启用缩放按钮
           >
             {/* 遍历所有查询结果，显示标记点 */}
             {users &&
@@ -574,11 +598,11 @@ const AdvancedFilter = () => {
                       position={position}
                       onClick={() => handleMarkerClick(user._id)}
                     >
-<Pin
-  background={"#B0E0E6"} // 淡蓝色
-  borderColor={"#6495ED"} // 中蓝色
-  glyphColor={"#F0F8FF"}  // 爱丽丝蓝
-/>
+                      <Pin
+                        background={"#B0E0E6"} // 淡蓝色
+                        borderColor={"#6495ED"} // 中蓝色
+                        glyphColor={"#F0F8FF"} // 爱丽丝蓝
+                      />
                     </AdvancedMarker>
                   );
                 }
