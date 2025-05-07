@@ -22,6 +22,7 @@ import { useUserStore } from "../store/user";
 import ServiceSelector from "./ServiceSelector";
 import LocationSelector from "./LocationSelector";
 import DateSelector from "./DateSelector";
+import { APIProvider, Map, Marker} from "@vis.gl/react-google-maps";
 
 // Helper function to format date (copied from HomeFilter)
 const formatDate = (date) => {
@@ -382,25 +383,24 @@ const AdvancedFilter = () => {
 
       {/* Map Area Placeholder */}
       <Box 
-        borderWidth="1px" 
-        borderRadius="lg" 
-        shadow="base" 
-        height="510px" 
-        bg="gray.100"
-        position="relative"
-        overflow="hidden"
-      >
-        <Flex 
-          direction="column" 
-          justify="center" 
-          align="center" 
-          height="100%" 
-          color="gray.500"
-        >
-          <Heading size="md" mb={2}>Map View</Heading>
-          <Text fontSize="md">Google Maps will be integrated here</Text>
-        </Flex>
-      </Box>
+  borderWidth="1px" 
+  borderRadius="lg" 
+  shadow="base" 
+  height="510px" 
+  position="relative"
+  overflow="hidden"
+>
+  <APIProvider apiKey={'AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE'}>
+    <Map
+      center={{ lat: -36.8485, lng: 174.7633 }} // 奥克兰的经纬度
+      zoom={10}
+      style={{ width: '100%', height: '100%' }}
+    >
+      {/* 示例标记 */}
+      <Marker position={{lat: -36.8485, lng: 174.7633}} />
+    </Map>
+  </APIProvider>
+</Box>
     </VStack>
   );
 };
