@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Input, Button, VStack, Heading, Text, Image, Field, defineStyle } from '@chakra-ui/react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from "../store/authStore";
@@ -39,10 +39,16 @@ const SignupPage = () => {
   const [errors, setErrors] = useState({ comtent: ''});
   const { register } = useAuthStore();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const notify = () => toast('Please check your email to verify.', {
     duration: 4000,
     icon: '📧',
   });
+  useEffect(() => {
+    if (user) {
+      navigate("/"); // 已登录直接跳首页或 profile
+    }
+  }, [user, navigate]);
   
   const handleSignup = async (e) => {
     e.preventDefault();

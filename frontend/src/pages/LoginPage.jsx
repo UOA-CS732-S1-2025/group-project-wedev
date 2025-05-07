@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Field, Box, Input, Button, VStack, Heading, Text, Image, defineStyle
 } from '@chakra-ui/react';
@@ -12,6 +12,15 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({ comtent: ''});
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+useEffect(() => {
+  if (user) {
+    navigate("/"); // 已登录直接跳首页或 profile
+  }
+}, [user, navigate]);
+ 
+ 
 
 
   const handleLogin = async (e) => {

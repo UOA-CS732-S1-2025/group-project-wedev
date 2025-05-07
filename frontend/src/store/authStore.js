@@ -7,6 +7,7 @@ const useAuthStore = create((set) => ({
   token: localStorage.getItem("token") || null,
 
   login: async (email, password) => {
+    localStorage.removeItem("token");
     try {
       const res = await api.post("/auth/login", { email, password });
       const { user, token } = res.data;
@@ -52,6 +53,8 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem("token");
     set({ user: null, token: null });
   },
+
+
 
 }));
 
