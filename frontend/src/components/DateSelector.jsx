@@ -221,7 +221,7 @@ const DateSelector = ({ onSelect }) => {
   };
 
   return (
-    <Box width="300px" boxShadow="md" borderRadius="md" p={4} bg="white">
+    //<Box width="300px" boxShadow="md" borderRadius="md" p={4} bg="white">
       <VStack spacing={4} align="stretch">
         <HStack justifyContent="space-between" alignItems="center">
           <Button 
@@ -260,7 +260,7 @@ const DateSelector = ({ onSelect }) => {
           </Button>
         </ButtonGroup>
       </VStack>
-    </Box>
+    //</Box>
   );
 };
 
