@@ -7,6 +7,8 @@ import Navbar from './components/Navbar'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
+import ProviderDetailPage from './pages/ProviderDetailPage'
+
 import {
   ChakraProvider,
   createSystem,
@@ -34,6 +36,7 @@ const App = () => {
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/inbox' element={<UserProfilePage />} />
         <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
+        <Route path='/providerDetail/:id' element={<ProviderDetailPage />} />
       </Routes>
     </Box>
     </ChakraProvider>

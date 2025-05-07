@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useRef, useEffect } from "react";
 import { Box, Flex, Image, Text, Badge, Icon, VStack, HStack, RatingGroup} from "@chakra-ui/react";
 import { FaStar, FaSyncAlt, FaCalendar, FaEnvelope, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
@@ -73,6 +74,19 @@ const ProviderCard = ({ user }) => {
   return (
     <Box
       ref={cardRef}
+=======
+import { Box, Flex, Image, Text, Badge, Icon, VStack, HStack } from "@chakra-ui/react";
+import { FaStar, FaSyncAlt, FaCalendar, FaEnvelope } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+const ProviderCard = ({ user }) => {
+  const navigate = useNavigate();
+
+  return (
+    <Box
+      onClick={() => navigate(`/providerDetail/${user._id}`)}
+      cursor="pointer"
+>>>>>>> origin/develop
       w="600px"
       mx="auto"
       p={4}
@@ -98,7 +112,6 @@ const ProviderCard = ({ user }) => {
       onMouseLeave={handleMouseLeave}
     >
       <Flex>
-        {/* 头像 */}
         <Image
           src={user.profilePictureUrl}
           boxSize="100px"
@@ -108,23 +121,21 @@ const ProviderCard = ({ user }) => {
           mr={4}
         />
 
-        {/* 基本信息 */}
         <VStack align="start" spacing={1} flex="1">
           <Text fontWeight="bold" fontSize="lg" color="black">
             {user.firstName} {user.lastName}
           </Text>
           <Text fontSize="md" color="gray.600">
             {user.serviceType}
-            <Badge ml={2} colorPalette="green" fontSize="0.8em">
-                Verified
-              </Badge>
+            <Badge ml={2} colorScheme="green" fontSize="0.8em">
+              Verified
+            </Badge>
           </Text>
           <Text fontSize="sm" color="gray.500">
             {user.address.suburb}, {user.address.city}
           </Text>
           <Text fontSize="sm" color="gray.500">{user.description}</Text>
-          
-          {/* 统计数据 */}
+
           <HStack spacing={4} mt={2}>
             <Flex align="center">
               {/* 星星评分显示 */}
@@ -152,7 +163,6 @@ const ProviderCard = ({ user }) => {
             </Flex>
           </HStack>
 
-          {/* 预订 & 联系信息 */}
           <HStack spacing={4}>
             <Flex align="center">
               <Icon as={FaCalendar} color="blue.500" />
@@ -165,7 +175,6 @@ const ProviderCard = ({ user }) => {
           </HStack>
         </VStack>
 
-        {/* 价格 */}
         <Box textAlign="right">
           <Text fontWeight="bold" fontSize="lg" color="blue.500">
             ${user.hourlyRate?.toFixed(2)}

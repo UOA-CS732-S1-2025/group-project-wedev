@@ -5,8 +5,11 @@ export const useUserStore = create((set) => ({
   loading: false,
   error: null,
   lastSearchParams: {},
+<<<<<<< HEAD
   selectedProviderId: null,
   isMarkerSelect: false,
+=======
+>>>>>>> origin/develop
 
   setUser: (user) => set({ user }),
 
@@ -86,5 +89,24 @@ export const useUserStore = create((set) => ({
       console.error("Error searching providers:", error);
       set({ error: error.message, loading: false, users: [] });
     }
-  }
+  },
+  searchProvider: async (id) => {
+    try {
+      const response = await fetch(`/api/providers/${id}`, {
+        method: 'get',
+      });
+      const data = await response.json();
+      if (data.success) {
+        //todo
+        return { success: 'provider fetching successfully' };
+      } else {
+        return { error: 'Failed to fetching user' };
+      }
+    } catch (error) {
+      console.error("Error fetching providers:", error);
+      return { error: error.message };
+    }
+  },
 }));
+
+
