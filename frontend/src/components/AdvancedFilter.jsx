@@ -17,6 +17,7 @@ import {
   Heading,
   Spacer,
 } from "@chakra-ui/react";
+<<<<<<< HEAD
 import {
   FaBriefcase,
   FaMapMarkerAlt,
@@ -24,16 +25,22 @@ import {
   FaDollarSign,
 } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
+=======
+import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign } from "react-icons/fa";
+>>>>>>> origin/develop
 import { useUserStore } from "../store/user";
 import ServiceSelector from "./ServiceSelector";
 import LocationSelector from "./LocationSelector";
 import DateSelector from "./DateSelector";
+<<<<<<< HEAD
 import {
   APIProvider,
   Map,
   AdvancedMarker,
   Pin,
 } from "@vis.gl/react-google-maps";
+=======
+>>>>>>> origin/develop
 
 // Helper function to format date (copied from HomeFilter)
 const formatDate = (date) => {
@@ -103,6 +110,7 @@ const parsePriceParam = (priceString) => {
   return !isNaN(price) ? price : 100; // Return parsed price or default
 };
 
+<<<<<<< HEAD
 // 默认的地图中心位置（奥克兰）
 const DEFAULT_CENTER = { lat: -36.8485, lng: 174.7633 };
 const DEFAULT_ZOOM = 10;
@@ -121,6 +129,10 @@ const AdvancedFilter = () => {
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
   // 用于跟踪是否正在进行编程式更新地图状态
   const isUpdatingMapProgrammatically = useRef(false);
+=======
+const AdvancedFilter = () => {
+  const { searchProviders, lastSearchParams } = useUserStore();
+>>>>>>> origin/develop
 
   // Local state for filter values initialized from store
   const [selectedService, setSelectedService] = useState(() =>
@@ -157,7 +169,11 @@ const AdvancedFilter = () => {
   useEffect(() => {
     // Skip initial render to avoid duplicate search
     if (isInitialMount.current) return;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     const sliderValue = slider.value[0];
     if (sliderValue !== selectedPrice) {
       setSelectedPrice(sliderValue);
@@ -170,7 +186,11 @@ const AdvancedFilter = () => {
       isInitialMount.current = false;
       return;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     const searchParams = {};
     if (selectedService) {
       searchParams.serviceType = selectedService.title;
@@ -185,12 +205,17 @@ const AdvancedFilter = () => {
     } else if (selectedDate?.startDate) {
       searchParams.date = selectedDate.startDate.toISOString();
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     // Add price filter
     searchParams.maxHourlyRate = selectedPrice;
 
     // Call searchProviders with the current combined filters
     searchProviders(searchParams);
+<<<<<<< HEAD
   }, [
     selectedService,
     selectedLocation,
@@ -285,6 +310,10 @@ const AdvancedFilter = () => {
       setMapZoom(newZoom);
     }
   };
+=======
+
+  }, [selectedService, selectedLocation, selectedDate, selectedPrice, searchProviders]);
+>>>>>>> origin/develop
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
@@ -303,7 +332,11 @@ const AdvancedFilter = () => {
 
   // Get display text for date selection
   const getDateDisplayText = () => {
+<<<<<<< HEAD
     if (!selectedDate) return "Date";
+=======
+    if (!selectedDate) return "Any Date";
+>>>>>>> origin/develop
 
     if (selectedDate.date) {
       return formatDate(selectedDate.date);
@@ -316,7 +349,11 @@ const AdvancedFilter = () => {
       return formatDate(selectedDate.startDate);
     }
 
+<<<<<<< HEAD
     return "Date";
+=======
+    return "Any Date";
+>>>>>>> origin/develop
   };
 
   // Function to clear all filters
@@ -326,11 +363,16 @@ const AdvancedFilter = () => {
     setSelectedDate(null);
     // Reset slider to default value (100)
     slider.setValue([100]);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/develop
     // Trigger search with empty params
     searchProviders({});
   };
 
+<<<<<<< HEAD
   // 处理标记点点击事件
   const handleMarkerClick = (userId) => {
     // 设置选中的 provider ID，这将在 BookingPage 中用于高亮显示对应的 ProviderCard
@@ -340,6 +382,10 @@ const AdvancedFilter = () => {
 
   return (
     <VStack spacing={4} align="stretch" ml={4}>
+=======
+  return (
+    <VStack spacing={4} align="stretch">
+>>>>>>> origin/develop
       {/* Filter Section */}
       <Box borderWidth="1px" borderRadius="lg" shadow="base" overflow="hidden">
         {/* First Row - Service, Location, Date */}
@@ -370,6 +416,7 @@ const AdvancedFilter = () => {
                     boxSize={5}
                   />
                   <Box flex="1" minWidth="0">
+<<<<<<< HEAD
                     <Text
                       fontWeight="medium"
                       isTruncated
@@ -377,6 +424,10 @@ const AdvancedFilter = () => {
                       fontSize="md"
                     >
                       {selectedService ? selectedService.title : "Service"}
+=======
+                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
+                      {selectedService ? selectedService.title : "Any Service"}
+>>>>>>> origin/develop
                     </Text>
                   </Box>
                 </Flex>
@@ -412,6 +463,7 @@ const AdvancedFilter = () => {
                   borderColor="gray.200"
                   height="48px"
                 >
+<<<<<<< HEAD
                   <Icon
                     as={FaMapMarkerAlt}
                     mr={2}
@@ -426,6 +478,12 @@ const AdvancedFilter = () => {
                       fontSize="md"
                     >
                       {selectedLocation ? selectedLocation.city : "City"}
+=======
+                  <Icon as={FaMapMarkerAlt} mr={2} color="blue.500" boxSize={5} />
+                  <Box flex="1" minWidth="0">
+                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
+                      {selectedLocation ? selectedLocation.city : "Any Location"}
+>>>>>>> origin/develop
                     </Text>
                   </Box>
                 </Flex>
@@ -461,6 +519,7 @@ const AdvancedFilter = () => {
                   borderColor="gray.200"
                   height="48px"
                 >
+<<<<<<< HEAD
                   <Icon
                     as={FaCalendarAlt}
                     mr={2}
@@ -474,6 +533,11 @@ const AdvancedFilter = () => {
                       userSelect="none"
                       fontSize="md"
                     >
+=======
+                  <Icon as={FaCalendarAlt} mr={2} color="blue.500" boxSize={5} />
+                  <Box flex="1" minWidth="0">
+                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
+>>>>>>> origin/develop
                       {getDateDisplayText()}
                     </Text>
                   </Box>
@@ -495,6 +559,7 @@ const AdvancedFilter = () => {
         {/* Second Row - Price Range Slider and Clear All Button */}
         <Box px={4} pb={4} pt={1}>
           <Flex justifyContent="space-between" alignItems="center">
+<<<<<<< HEAD
             
             <HStack flex={1} spacing={6} width="full">
             <Flex
@@ -519,12 +584,27 @@ const AdvancedFilter = () => {
                 <Slider.RootProvider value={slider} width="140px">
                   <Slider.Control height="20px">
                     <Slider.Track height="8px">
+=======
+            <HStack flex={1} spacing={6} width="full">
+              <Flex alignItems="center" minWidth="140px">
+                <Icon as={FaDollarSign} color="blue.500" boxSize={5} mr={2} />
+                <Text fontSize="md" fontWeight="medium">
+                  Price/Hour: {slider.value[0]}
+                </Text>
+              </Flex>
+              
+              <HStack spacing={3} flex={1} minWidth="250px">
+                <Slider.RootProvider value={slider} width="160px">
+                  <Slider.Control height="20px" >
+                    <Slider.Track height="8px" >
+>>>>>>> origin/develop
                       <Slider.Range bg="blue.500" />
                     </Slider.Track>
                     <Slider.Thumbs boxSize="16px" />
                   </Slider.Control>
                 </Slider.RootProvider>
               </HStack>
+<<<<<<< HEAD
               </Flex>
 
               <Spacer />
@@ -552,11 +632,28 @@ const AdvancedFilter = () => {
                     >Clear All</Text>
                 </Box>
               </Flex>
+=======
+              
+              <Spacer />
+              
+              {/* Clear All Button moved to second row */}
+              <Button 
+                size="md" 
+                colorScheme="blue" 
+                variant="outline"
+                onClick={handleClearAll}
+                minWidth="100px"
+                height="40px"
+              >
+                Clear All
+              </Button>
+>>>>>>> origin/develop
             </HStack>
           </Flex>
         </Box>
       </Box>
 
+<<<<<<< HEAD
       {/* 地图区域 */}
       <Box
         borderWidth="1px"
@@ -610,6 +707,28 @@ const AdvancedFilter = () => {
               })}
           </Map>
         </APIProvider>
+=======
+      {/* Map Area Placeholder */}
+      <Box 
+        borderWidth="1px" 
+        borderRadius="lg" 
+        shadow="base" 
+        height="510px" 
+        bg="gray.100"
+        position="relative"
+        overflow="hidden"
+      >
+        <Flex 
+          direction="column" 
+          justify="center" 
+          align="center" 
+          height="100%" 
+          color="gray.500"
+        >
+          <Heading size="md" mb={2}>Map View</Heading>
+          <Text fontSize="md">Google Maps will be integrated here</Text>
+        </Flex>
+>>>>>>> origin/develop
       </Box>
     </VStack>
   );

@@ -2,5 +2,9 @@
 node_modules
 @llm.txt
 llms-components.txt
+<<<<<<< HEAD
 .cursor/
 backend/seed.js
+=======
+.cursor/
+>>>>>>> origin/develop

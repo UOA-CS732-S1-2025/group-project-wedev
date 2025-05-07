@@ -5,8 +5,11 @@ export const useUserStore = create((set) => ({
   loading: false,
   error: null,
   lastSearchParams: {},
+<<<<<<< HEAD
   selectedProviderId: null,
   isMarkerSelect: false,
+=======
+>>>>>>> origin/develop
 
   setUser: (user) => set({ user }),
 
