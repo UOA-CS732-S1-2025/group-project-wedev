@@ -31,9 +31,28 @@ const userSchema = new mongoose.Schema({
     },
   },
   hourlyRate: { type: Number },
+  // Enhanced availability structure
   availability: [{
-    startTime: { type: Date },
-    endTime: { type: Date },
+    // Weekly recurring availability
+    dayOfWeek: { type: Number, min: 0, max: 6 }, // 0=Sunday, 1=Monday, etc.
+    startTime: { type: String }, // Format: "HH:MM" in 24h
+    endTime: { type: String }, // Format: "HH:MM" in 24h
+    isAvailable: { type: Boolean, default: true }
+  }],
+  // Special dates (overrides or one-time availability)
+  specialDates: [{
+    date: { type: Date, required: true },
+    isAvailable: { type: Boolean, default: true },
+    startTime: { type: String }, // Optional, if different from regular hours
+    endTime: { type: String }    // Optional, if different from regular hours
+  }],
+  // Date ranges for longer periods (vacations, special availability periods)
+  dateRanges: [{
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    isAvailable: { type: Boolean, default: false }, // typically used for unavailability periods
+    startTime: { type: String }, // Optional
+    endTime: { type: String }    // Optional
   }],
   portfolioMedia: [{
     type: { type: String, enum: ['image', 'video'] },
@@ -43,6 +62,9 @@ const userSchema = new mongoose.Schema({
   averageRating: { type: Number, default: 0 },
   reviewCount: { type: Number, default: 0 },
 }, { timestamps: true }); // Auto-manage createdAt and updatedAt
+
+// Create a geospatial index for location-based queries
+userSchema.index({ "location": "2dsphere" });
 
 const User = mongoose.model("User", userSchema);
 

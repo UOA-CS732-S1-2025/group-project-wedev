@@ -9,5 +9,10 @@ router.delete("/:id", deleteUser);
 router.get("/profile/:id", getUserById);
 router.put("/profile/:id", updateUserById);
 
+import { getProviders, searchProviders } from "../controllers/user.controller.js";
+
+router.get("/providers", getProviders); // GET /api/providers
+router.post('/providers/search', searchProviders);
+
 
 export default router;
