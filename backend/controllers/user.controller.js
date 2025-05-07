@@ -230,3 +230,33 @@ export const getUserById = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+  export const updateAvailability = async (req, res) => {
+    try {
+      const { availability, specialDates, dateRanges } = req.body;
+      if (availability === undefined && specialDates === undefined && dateRanges === undefined) {
+        return res.status(400).json({ message: "At least one field must be provided" });
+      }
+  
+      const update = {};
+      if (availability !== undefined) update.availability = availability;
+      if (specialDates !== undefined) update.specialDates = specialDates;
+      if (dateRanges !== undefined) update.dateRanges = dateRanges;
+  
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        update,
+        { new: true, select: "availability specialDates dateRanges" }
+      );
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        availability: user.availability,
+        specialDates: user.specialDates,
+        dateRanges: user.dateRanges
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
