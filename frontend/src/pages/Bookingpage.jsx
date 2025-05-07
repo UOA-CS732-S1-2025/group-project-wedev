@@ -18,7 +18,7 @@ import {
 import { useUserStore } from "../store/user";
 import ProviderCard from "../components/ProviderCard";
 import AdvancedFilter from "../components/AdvancedFilter";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate  } from "react-router-dom";
 
 const BookingPage = () => {
   const { users: searchResults, loading, error, fetchProviders, lastSearchParams } = useUserStore();

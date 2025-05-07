@@ -190,3 +190,20 @@ export const searchProviders = async (req, res) => {
     }
 };
 
+
+export const getProviderById = async (req, res) => {
+    try {
+       
+        const provider = await User.findById(req.params.id);
+        if (!provider) return res.status(404).json({ message: "provider not found" });
+        res.status(200).json(provider);
+       
+    } catch (error) {
+        console.error('Error fetching provider detail :', error);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            error: error.message 
+        });
+    }
+};
+
