@@ -128,6 +128,17 @@ export const searchProviders = async (req, res) => {
             );
         }
         
+        // Filter by hourly rate if provided
+        if (maxHourlyRate) {
+            // Add hourlyRate filter - include providers with hourlyRate less than or equal to maxHourlyRate
+            // or providers that don't have hourlyRate specified
+            query.$or = query.$or || [];
+            query.$or.push(
+                { hourlyRate: { $lte: maxHourlyRate } },
+                { hourlyRate: { $exists: false } } // Include providers without hourlyRate set
+            );
+        }
+        
         // Filter by date availability if provided
         if (date) {
             const searchDate = new Date(date);
