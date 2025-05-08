@@ -51,13 +51,46 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem("token");
+    localStorage.setItem("logout", Date.now().toString());
     set({ user: null, token: null });
   },
 
 
+  fetchCurrentUser: async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+  
+    try {
+      const res = await api.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      set({ user: res.data.user, token });
+    } catch (err) {
+      console.error("Fetch user failed:", err);
+      localStorage.removeItem("token");
+      set({ user: null, token: null });
+    }
+  },
+  
+  
+
 
 }));
 
+
+export const initAuthSync = () => {
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", (e) => {
+      if (e.key === "logout") {
+        localStorage.removeItem("token");
+        window.location.href = "/"; 
+      }
+    });
+  }
+};
 
 
 export default useAuthStore;

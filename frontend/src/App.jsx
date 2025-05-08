@@ -7,8 +7,13 @@ import Navbar from './components/Navbar'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
+import useAuthStore from "./store/authStore";
 const App = () => {
   const navigate = useNavigate();
+  const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
+  useEffect(() => {
+    fetchCurrentUser(); 
+  }, []);
   useEffect(() => {
     const syncLogout = (e) => {
       if (e.key === "token" && e.newValue === null) {
