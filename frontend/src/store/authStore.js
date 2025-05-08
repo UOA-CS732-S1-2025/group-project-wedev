@@ -12,6 +12,7 @@ const useAuthStore = create((set) => ({
       const res = await api.post("/auth/login", { email, password });
       const { user, token } = res.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("login", Date.now().toString());
       set({ user, token });
       return { success: true };
     } catch (error) {
@@ -81,12 +82,17 @@ const useAuthStore = create((set) => ({
 }));
 
 
-export const initAuthSync = () => {
+export const initAuthSync = (fetchCurrentUser) => {
   if (typeof window !== "undefined") {
     window.addEventListener("storage", (e) => {
       if (e.key === "logout") {
         localStorage.removeItem("token");
-        window.location.href = "/"; 
+        window.location.href = "/login";
+      } else if (e.key === "login") {
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetchCurrentUser();
+        }
       }
     });
   }

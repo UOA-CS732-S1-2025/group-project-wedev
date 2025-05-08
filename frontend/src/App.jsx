@@ -7,13 +7,19 @@ import Navbar from './components/Navbar'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
-import useAuthStore from "./store/authStore";
+import useAuthStore, { initAuthSync } from "./store/authStore";
+import ProtectedRoute from './components/ProtectedRoute';
+
+
 const App = () => {
   const navigate = useNavigate();
-  const fetchCurrentUser = useAuthStore((state) => state.fetchCurrentUser);
   useEffect(() => {
-    fetchCurrentUser(); 
+    const fetchUser = useAuthStore.getState().fetchCurrentUser;
+    fetchUser(); // 首次加载拉取用户
+    initAuthSync(fetchUser); // 跨标签页同步登录/登出
   }, []);
+
+
   useEffect(() => {
     const syncLogout = (e) => {
       if (e.key === "token" && e.newValue === null) {
@@ -31,11 +37,11 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/booking" element={<BookingPage />} />
+        <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignupPage />} />
-        <Route path='/inbox' element={<UserProfilePage />} />
-        <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
+        <Route path='/inbox' element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+        <Route path='/profile' element={<ProtectedRoute><UserProfilePage defaultTab="profile" /></ProtectedRoute>} />
       </Routes>
     </Box>
 
