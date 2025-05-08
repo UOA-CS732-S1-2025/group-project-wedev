@@ -4,6 +4,8 @@ import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/Homepage'
 import Bookingpage from './pages/Bookingpage'
 import Navbar from './components/navbar'
+import ProfilePage from "./pages/ProfilePage";
+
 const App = () => {
   return (
     
@@ -12,6 +14,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/booking" element={<Bookingpage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Box>
     
