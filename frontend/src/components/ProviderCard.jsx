@@ -43,7 +43,8 @@ const ProviderCard = ({ user }) => {
         resultsContainer.scrollTo({
           top: scrollTarget,
           behavior: 'smooth'
-	@@ -42,37 +61,31 @@ const ProviderCard = ({ user }) => {
+        });
+      }
     }
   }, [isSelected, isMarkerSelect]);
 
