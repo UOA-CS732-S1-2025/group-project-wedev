@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Box, Flex, Image, Text, Badge, Icon, VStack, HStack, RatingGroup} from "@chakra-ui/react";
 import { FaStar, FaSyncAlt, FaCalendar, FaEnvelope, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useUserStore } from "../store/user";
+import { useNavigate } from "react-router-dom";
 
 
 const ProviderCard = ({ user }) => {

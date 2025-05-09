@@ -93,6 +93,9 @@ const DateSelector = ({ onSelect }) => {
     } else if (selectedStartDate) {
       // Single date selection
       onSelect && onSelect({ date: selectedStartDate });
+    } else {
+      // No date selected, apply empty
+      onSelect && onSelect({ date: null });
     }
   };
 
@@ -254,7 +257,6 @@ const DateSelector = ({ onSelect }) => {
             colorScheme="blue" 
             size="sm" 
             onClick={handleApply}
-            isDisabled={!selectedStartDate}
           >
             Apply
           </Button>

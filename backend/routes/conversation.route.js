@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserConversations, getMessagesByConversationId, markConversationAsRead  } from "../controllers/conversation.controller.js";
+import { getUserConversations, getMessagesByConversationId, markConversationAsRead, findOrCreateConversation  } from "../controllers/conversation.controller.js";
 
 const router = express.Router();
 
@@ -12,5 +12,9 @@ router.get("/:id/messages", getMessagesByConversationId);
 //     "userId": "user_id"
 // }
 router.put("/:id/read", markConversationAsRead);
+
+// POST /api/conversations/find-or-create
+// Body: { "userId1": "current_user_id", "userId2": "provider_user_id" }
+router.post("/find-or-create", findOrCreateConversation);
 
 export default router;

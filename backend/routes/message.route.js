@@ -11,7 +11,7 @@ const router = express.Router();
 // }
 router.post("/", sendMessage);
 // GET /api/messages/unread-count?userId=user_id
-router.get("/unread-count", getUnreadMessageCount);
+router.get("/unread-count?userId=user_id", getUnreadMessageCount);
 
 
 export default router;

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { 
   Box, 
   VStack, 
@@ -10,13 +10,15 @@ import {
   Spinner,
   Center,
   Alert,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import { FaCircle } from 'react-icons/fa';
 import { useConversationStore } from '../store/conversationStore';
 import { useChatDialogStore } from '../store/chatDialogStore';
 import useAuthStore from '../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
-import ChatDialog from './ChatDialog';
+import ConversationView from './ConversationView'; // We'll create this component next
 
 const UserInbox = () => {
   const { user } = useAuthStore();
@@ -28,7 +30,8 @@ const UserInbox = () => {
     markConversationAsRead 
   } = useConversationStore();
   
-  const { openDialog } = useChatDialogStore();
+  const { openDialog, conversationId: targetConversationIdFromStore } = useChatDialogStore();
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
   useEffect(() => {
     if (user?._id) {
@@ -36,10 +39,30 @@ const UserInbox = () => {
     }
   }, [user, fetchConversations]);
 
+  // Effect to auto-select conversation based on targetConversationIdFromStore
+  useEffect(() => {
+    if (targetConversationIdFromStore && conversations.length > 0) {
+      const conversationToSelect = conversations.find(c => c._id === targetConversationIdFromStore);
+      if (conversationToSelect) {
+        // Avoid re-selecting if already selected, or if selectedConversation is programmatically set
+        if (!selectedConversation || selectedConversation._id !== conversationToSelect._id) {
+          setSelectedConversation(conversationToSelect);
+          if (user?._id) {
+            // Mark as read when programmatically selected
+            markConversationAsRead(conversationToSelect._id, user._id);
+          }
+        }
+      } 
+      // If not found, it might be that `fetchConversations` (called on mount) will soon provide it.
+      // The list will re-render, and this effect will run again.
+    }
+  }, [targetConversationIdFromStore, conversations, user, markConversationAsRead, selectedConversation]);
+
   const handleConversationClick = useCallback((conversation) => {
     if (user?._id) {
       markConversationAsRead(conversation._id, user._id);
       openDialog(conversation._id, conversation.otherUser);
+      setSelectedConversation(conversation);
     }
   }, [user, markConversationAsRead, openDialog]);
 
@@ -53,106 +76,130 @@ const UserInbox = () => {
     }
   }, []);
 
-  if (loading) {
-    return (
-      <Center h="300px">
-        <Spinner size="xl" color="blue.500" />
-      </Center>
-    );
-  }
+  const renderConversationList = () => {
+    if (loading) {
+      return (
+        <Center h="300px">
+          <Spinner size="xl" color="blue.500" />
+        </Center>
+      );
+    }
 
-  if (error) {
-    return (
-      <Alert status="error" mx={4} my={4} borderRadius="md">
-        <Alert.Icon />
-        {error}
-      </Alert>
-    );
-  }
+    if (error) {
+      return (
+        <Alert status="error" mx={4} my={4} borderRadius="md">
+          <Alert.Icon />
+          {error}
+        </Alert>
+      );
+    }
 
-  if (!conversations || conversations.length === 0) {
+    if (!conversations || conversations.length === 0) {
+      return (
+        <Box p={6} textAlign="center">
+          <Text fontSize="md" color="gray.500">No conversations yet</Text>
+        </Box>
+      );
+    }
+
     return (
-      <Box p={8} textAlign="center">
-        <Text fontSize="lg" color="gray.500">No conversations yet</Text>
-      </Box>
+      <VStack spacing={0} align="stretch" h="100%" overflowY="auto">
+        {conversations.map((conversation, index) => (
+          <Box 
+            key={conversation._id}
+            borderBottom={index < conversations.length - 1 ? "1px solid" : "none"} 
+            borderColor="gray.200"
+          >
+            <Box 
+              p={4} 
+              bg={
+                selectedConversation?._id === conversation._id 
+                  ? "blue.100" 
+                  : conversation.unreadCount > 0 
+                    ? "blue.50" 
+                    : "white"
+              }
+              _hover={{ bg: "gray.50" }}
+              transition="background 0.2s"
+              cursor="pointer"
+              onClick={() => handleConversationClick(conversation)}
+            >
+              <HStack spacing={3} align="center">
+                <Image
+                  src={conversation.otherUser?.profilePictureUrl || "https://bit.ly/sage-adebayo"}
+                  boxSize="40px"
+                  borderRadius="full"
+                  objectFit="cover"
+                  alt={conversation.otherUser?.username || "User"}
+                  loading="eager"
+                  crossOrigin="anonymous"
+                />
+                
+                <Flex flex="1" direction="column">
+                  <HStack justify="space-between" mb={1}>
+                    <HStack>
+                      <Text fontWeight="bold" fontSize="sm">{conversation.otherUser?.username || "User"}</Text>
+                      {conversation.unreadCount > 0 && (
+                        <Icon as={FaCircle} color="blue.500" boxSize={2} />
+                      )}
+                    </HStack>
+                  </HStack>
+                  
+                  <Text fontSize="xs" color="gray.500">
+                    {formatTimestamp(conversation.lastMessageTimestamp)}
+                  </Text>
+                </Flex>
+              </HStack>
+            </Box>
+          </Box>
+        ))}
+      </VStack>
     );
-  }
+  };
 
   return (
-    <>
-      <Box bg="gray.50" minH="100vh" py={8} px={4}>
-        <Box 
-          w={{ base: "95%", md: "85%", lg: "90%" }} 
-          minH="500px"
-          mx="auto" 
-          bg="white" 
-          borderRadius="lg" 
-          boxShadow="md" 
-          overflow="hidden"
+    <Box py={4} position="relative" zIndex={1}>
+      <Grid 
+        templateColumns={{ base: "1fr", md: "300px 1fr" }}
+        gap={4}
+        w="100%" 
+        bg="white" 
+        borderRadius="lg" 
+        boxShadow="md" 
+        overflow="hidden"
+        minH="550px"
+        maxH="calc(100vh - 200px)"
+      >
+        {/* Left sidebar: Conversation list */}
+        <GridItem 
+          borderRight="1px solid" 
+          borderColor="gray.200" 
+          overflowY="auto"
+          maxH="calc(100vh - 200px)"
         >
-          <Box maxH="calc(100vh - 200px)" overflowY="auto" p={2}>
-            <VStack spacing={0} align="stretch">
-              {conversations.map((conversation, index) => (
-                <Box key={conversation._id}>
-                  <Box 
-                    p={4} 
-                    bg={conversation.unreadCount > 0 ? "blue.50" : "white"}
-                    _hover={{ bg: conversation.unreadCount > 0 ? "blue.100" : "gray.50" }}
-                    transition="background 0.2s"
-                    cursor="pointer"
-                    onClick={() => handleConversationClick(conversation)}
-                  >
-                    <HStack spacing={4} align="center">
-                      <Image
-                        src={conversation.otherUser?.profilePictureUrl || "https://bit.ly/sage-adebayo"}
-                        boxSize="50px"
-                        borderRadius="full"
-                        objectFit="cover"
-                        alt={conversation.otherUser?.username || "User"}
-                        loading="eager"
-                        crossOrigin="anonymous"
-                      />
-                      
-                      <Flex flex="1" direction="column">
-                        <HStack justify="space-between" mb={1}>
-                          <HStack>
-                            <Text fontWeight="bold">{conversation.otherUser?.username || "User"}</Text>
-                            {conversation.unreadCount > 0 && (
-                              <Icon as={FaCircle} color="blue.500" boxSize={2} />
-                            )}
-                          </HStack>
-                          <Text fontSize="xs" color="gray.500">
-                            {formatTimestamp(conversation.lastMessageTimestamp)}
-                          </Text>
-                        </HStack>
-                        
-                        {conversation.lastMessage && (
-                          <Text fontSize="sm" color="gray.600" noOfLines={1}>
-                            {conversation.lastMessage}
-                          </Text>
-                        )}
-                        
-                        {conversation.unreadCount > 0 && (
-                          <Text fontSize="sm" fontWeight="semibold" color="blue.500">
-                            {conversation.unreadCount} new {conversation.unreadCount === 1 ? 'message' : 'messages'}
-                          </Text>
-                        )}
-                      </Flex>
-                    </HStack>
-                  </Box>
-                  {index < conversations.length - 1 && (
-                    <Box borderBottom="1px solid" borderColor="gray.200" />
-                  )}
-                </Box>
-              ))}
-            </VStack>
+          <Box p={2} borderBottom="1px solid" borderColor="gray.200">
+            <Text fontWeight="bold" fontSize="lg" py={2} px={4}>
+              Messages
+            </Text>
           </Box>
-        </Box>
-      </Box>
-      
-      {/* ChatDialog will now be self-managed through the store */}
-      <ChatDialog />
-    </>
+          {renderConversationList()}
+        </GridItem>
+
+        {/* Right content: Selected conversation */}
+        <GridItem overflowY="auto" maxH="calc(100vh - 200px)">
+          {selectedConversation ? (
+            <ConversationView 
+              conversation={selectedConversation} 
+              user={user}
+            />
+          ) : (
+            <Center h="100%">
+              <Text color="gray.500">Select a conversation to start messaging</Text>
+            </Center>
+          )}
+        </GridItem>
+      </Grid>
+    </Box>
   );
 };
 

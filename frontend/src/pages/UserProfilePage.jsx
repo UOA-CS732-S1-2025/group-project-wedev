@@ -5,10 +5,10 @@ import UserProfile from '../components/UserProfile'
 
 const UserProfilePage = ({ defaultTab = "messages" }) => {
     return (
-        <Box pt={10} bg="gray.50" minH="100vh">
-            <Box w="95%" maxW="1200px" mx="auto">
+        <Box bg="gray.50" minH="calc(100vh - 80px)" pt="20px">
+            <Box w="95%" maxW="1200px" mx="auto" pb={4}>
                 <Tabs.Root defaultValue={defaultTab}>
-                    <Tabs.List>
+                    <Tabs.List mb={3}>
                         <Tabs.Trigger value="dashboard">
                             Dashboard
                         </Tabs.Trigger>
