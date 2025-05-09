@@ -9,10 +9,13 @@ import {
   Icon,
   Spinner,
   Center,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { LuSend, LuMessageSquare } from 'react-icons/lu';
+import { FaUserCircle } from 'react-icons/fa';
 import { useConversationStore } from '../store/conversationStore';
 import CachedAvatar from './CachedAvatar';
+import { Link as RouterLink } from 'react-router-dom';
 
 const ConversationView = ({ conversation, user }) => {
   const { activeMessages, messageLoading, fetchMessages, sendMessage } = useConversationStore();
@@ -99,9 +102,19 @@ const ConversationView = ({ conversation, user }) => {
           size="sm"
         />
         <Text fontWeight="bold">
-          {conversation?.otherUser?.firstName && conversation?.otherUser?.lastName
-            ? `${conversation.otherUser.firstName} ${conversation.otherUser.lastName}`
-            : conversation?.otherUser?.username || "User"}
+          
+            <Button 
+              as={RouterLink} 
+              to={`/providerDetail/${conversation.otherUser._id}`}
+              size="xs" 
+              variant="outline"
+              colorScheme="blue"
+              ml="auto"
+              leftIcon={<FaUserCircle />}
+            >
+              View Profile
+            </Button>
+          
         </Text>
       </Box>
 
