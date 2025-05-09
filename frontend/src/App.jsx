@@ -32,8 +32,8 @@ const App = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const fetchUser = useAuthStore.getState().fetchCurrentUser;
-    fetchUser(); // 
-    initAuthSync(fetchUser); //
+    fetchUser(); // 首次加载拉取用户
+    initAuthSync(fetchUser); // 跨标签页同步登录/登出
   }, []);
 
 
