@@ -119,13 +119,122 @@ export default function ProviderDetailPage() {
     }
   };
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!bookingDate) {
       setError('Please select a date first');
       return;
     }
-    alert(`Booking confirmed for: ${new Date(bookingDate).toLocaleDateString()}`);
-    setBookingDate('');
+
+    if (!currentUser || !provider || !provider._id) {
+      setError("Please log in first or provider information is missing");
+      return;
+    }
+
+    try {
+      // 1. Find or create conversation
+      const conversationResponse = await fetch('/api/conversations/find-or-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId1: currentUser._id, userId2: provider._id }),
+      });
+
+      const conversationData = await conversationResponse.json();
+
+      if (!conversationResponse.ok || !conversationData.success) {
+        throw new Error(conversationData.message || 'Failed to create conversation');
+      }
+      
+      // 2. Prepare booking message content
+      const formattedDate = new Date(bookingDate).toLocaleDateString();
+      const formattedTime = getTimeSlotsForDate(new Date(bookingDate))
+        .map(slot => `${slot.start} - ${slot.end}`)
+        .join(', ');
+      
+      const bookingMessage = `Booking Confirmation:\n` +
+        `Customer: ${currentUser.firstName} ${currentUser.lastName} (${currentUser.email})\n` +
+        `Provider: ${provider.firstName} ${provider.lastName}\n` +
+        `Service Type: ${formatServiceType(provider.serviceType)}\n` +
+        `Booking Date: ${formattedDate}\n` +
+        (formattedTime ? `Booking Time: ${formattedTime}\n` : '') +
+        `Rate: $${provider.hourlyRate || 'Not specified'}/hour`;
+
+      // 3. Send booking message
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderId: currentUser._id,
+          recipientId: provider._id,
+          content: bookingMessage,
+          messageType: 'booking',
+          bookingStatus: 'pending',
+          senderDisplayText: `您已向 ${provider.firstName} ${provider.lastName} 提交预约请求，等待对方确认。`,
+          receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} 向您发起了预约请求，请及时处理。`
+        })
+      });
+
+      // 4. Open the conversation
+      openDialog(conversationData.conversationId, conversationData.otherUser);
+
+      // 5. Refresh conversation list if needed
+      if (conversationData.isNew && currentUser?._id) {
+        await refreshUserConversations(currentUser._id);
+      }
+      
+      // 6. Navigate to inbox
+      navigate('/inbox');
+
+    } catch (error) {
+      console.error('Booking error:', error);
+      setError(error.message || 'An error occurred during booking');
+    }
+  };
+
+  // Helper function to get time slots for a date
+  const getTimeSlotsForDate = (date) => {
+    if (!date) return [];
+    
+    const dayOfWeek = date.getDay();
+    const dateString = date.toISOString().split('T')[0];
+    
+    // Check special dates
+    const specialDates = provider.specialDates || [];
+    const specialDate = specialDates.find(sd => 
+      new Date(sd.date).toISOString().split('T')[0] === dateString
+    );
+    
+    if (specialDate) {
+      if (!specialDate.isAvailable) return [];
+      if (specialDate.startTime && specialDate.endTime) {
+        return [{ start: specialDate.startTime, end: specialDate.endTime }];
+      }
+    }
+    
+    // Check date ranges
+    const dateRanges = provider.dateRanges || [];
+    for (const range of dateRanges) {
+      const startDate = new Date(range.startDate);
+      const endDate = new Date(range.endDate);
+      
+      if (date >= startDate && date <= endDate) {
+        if (!range.isAvailable) return [];
+        if (range.startTime && range.endTime) {
+          return [{ start: range.startTime, end: range.endTime }];
+        }
+      }
+    }
+    
+    // Check weekly availability
+    const availability = provider.availability || [];
+    const weeklyAvailability = availability.find(a => a.dayOfWeek === dayOfWeek);
+    if (weeklyAvailability && weeklyAvailability.isAvailable) {
+      return [{ 
+        start: weeklyAvailability.startTime, 
+        end: weeklyAvailability.endTime 
+      }];
+    }
+    
+    return [];
   };
 
   // Format service type display

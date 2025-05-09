@@ -5,12 +5,19 @@ import Message from "../models/message.model.js";
 
 export const sendMessage = async (req, res) => {
     try {
-      const { recipientId, content } = req.body;
+      const { recipientId, content, messageType = "text", bookingStatus, senderDisplayText, receiverDisplayText } = req.body;
   
       const senderId = req.body.senderId ; 
   
       if (!recipientId || !content) {
         return res.status(400).json({ message: "Missing recipientId or/and content" });
+      }
+
+      // booking 类型校验
+      if (messageType === 'booking') {
+        if (!bookingStatus || !senderDisplayText || !receiverDisplayText) {
+          return res.status(400).json({ message: "Missing booking fields for booking message" });
+        }
       }
   
       // Check conversation
@@ -27,17 +34,23 @@ export const sendMessage = async (req, res) => {
       }
   
       // Create message
-      const message = await Message.create({
+      const messageData = {
         conversation: conversation._id,
         sender: senderId,
         content,
-      });
+        messageType,
+      };
+      if (messageType === 'booking') {
+        messageData.bookingStatus = bookingStatus;
+        messageData.senderDisplayText = senderDisplayText;
+        messageData.receiverDisplayText = receiverDisplayText;
+      }
+      const message = await Message.create(messageData);
   
       // Update timestamp
       conversation.lastMessageTimestamp = message.createdAt;
       await conversation.save();
   
-      
       const populatedMessage = await message.populate("sender", "username profilePictureUrl");
   
       res.status(201).json({

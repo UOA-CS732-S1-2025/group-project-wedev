@@ -10,6 +10,7 @@ import {
   Spinner,
   Center,
   Link as ChakraLink,
+  Heading,
 } from '@chakra-ui/react';
 import { LuSend, LuMessageSquare } from 'react-icons/lu';
 import { FaUserCircle } from 'react-icons/fa';
@@ -145,11 +146,39 @@ const ConversationView = ({ conversation, user }) => {
                     />
                     {message.isCurrentUserSender ? currentUserInfo.username : otherUserInfo.username}
                     <Span color="fg.muted"> sent </Span>
-                    <Span fontWeight="medium">{message.content}</Span>
+                    </Timeline.Title>
+                    
+                    
+                    {message.messageType === 'booking' ? (
+                      <Box
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        p={4}
+                        bg="gray.50"
+                        my={2}
+                        minW="250px"
+                        maxW="400px"
+                        boxShadow="md"
+                      >
+                        <Box mb={2}>
+                          <Heading size="md" color="blue.600">预约请求</Heading>
+                        </Box>
+                        <Text color="fg.muted" mb={2}>{message.content}</Text>
+                        <Text fontSize="sm" color="gray.600" mb={1}>
+                          预约状态：{message.bookingStatus === 'pending' ? '待确认' : message.bookingStatus === 'accepted' ? '已接受' : message.bookingStatus === 'rejected' ? '已拒绝' : message.bookingStatus}
+                        </Text>
+                        <Text fontSize="xs" color="gray.400">
+                          {message.isCurrentUserSender ? message.senderDisplayText : message.receiverDisplayText}
+                        </Text>
+                      </Box>
+                    ) : (
+                      <Span fontWeight="medium">{message.content}</Span>
+                    )}
+
                     <Span color="fg.muted" ml="auto" fontSize="xs">
                       {new Date(message.createdAt).toLocaleString()}
                     </Span>
-                  </Timeline.Title>
+                  
                 </Timeline.Content>
               </Timeline.Item>
             ))}
