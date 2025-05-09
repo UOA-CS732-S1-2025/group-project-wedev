@@ -3,19 +3,13 @@ import { Box, Flex, Image, Text, Badge, Icon, VStack, HStack, RatingGroup} from 
 import { FaStar, FaSyncAlt, FaCalendar, FaEnvelope, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { useUserStore } from "../store/user";
 
-
 const ProviderCard = ({ user }) => {
   const { selectedProviderId, setSelectedProviderId, isMarkerSelect } = useUserStore();
   const isSelected = selectedProviderId === user._id;
   const isEffectivelyMarkerSelected = isSelected && isMarkerSelect;
   const cardRef = useRef(null);
-  const navigate = useNavigate();
 
-  const handleCardClick = () => {
-    navigate(`/providerDetail/${user._id}`);
-  };
-
-   // 当组件被选中时，且是通过地图标记点击选中的，才滚动到视图中
+  // 当组件被选中时，且是通过地图标记点击选中的，才滚动到视图中
   useEffect(() => {
     if (isEffectivelyMarkerSelected && cardRef.current) {
       // 查找结果容器
@@ -25,7 +19,7 @@ const ProviderCard = ({ user }) => {
       // 检查元素是否在容器的可视区域内
       const containerRect = resultsContainer.getBoundingClientRect();
       const cardRect = cardRef.current.getBoundingClientRect();
-
+      
       // 计算卡片相对于容器的位置
       const isFullyVisible = (
         cardRect.top >= containerRect.top &&
@@ -38,7 +32,7 @@ const ProviderCard = ({ user }) => {
         const cardTopRelativeToContainer = cardRect.top - containerRect.top + resultsContainer.scrollTop;
         // 计算目标滚动位置（居中显示卡片）
         const scrollTarget = cardTopRelativeToContainer - (containerRect.height - cardRect.height) / 2;
-
+        
         // 平滑滚动到目标位置
         resultsContainer.scrollTo({
           top: scrollTarget,
@@ -58,10 +52,10 @@ const ProviderCard = ({ user }) => {
           setSelectedProviderId(null, false);
         }
       };
-
+      
       // 添加点击事件监听器到document
       document.addEventListener('mousedown', handleOutsideClick);
-
+      
       // 清理函数，移除事件监听器
       return () => {
         document.removeEventListener('mousedown', handleOutsideClick);
@@ -79,8 +73,6 @@ const ProviderCard = ({ user }) => {
   return (
     <Box
       ref={cardRef}
-      onClick={handleCardClick}
-      cursor="pointer"
       w="600px"
       mx="auto"
       p={4}
@@ -131,7 +123,7 @@ const ProviderCard = ({ user }) => {
             {user.address.suburb}, {user.address.city}
           </Text>
           <Text fontSize="sm" color="gray.500">{user.description}</Text>
-
+          
           {/* 统计数据 */}
           <HStack spacing={4} mt={2}>
             <Flex align="center">
