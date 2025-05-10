@@ -9,6 +9,11 @@ import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
 
 import AdminDashboard from './pages/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import OrderManagement from './pages/admin/OrderManagement';
+import TransactionHistory from './pages/admin/TransactionHistory';
+import CustomerReports from './pages/admin/CustomerReports';
+
 const App = () => {
   return (
     
@@ -22,6 +27,10 @@ const App = () => {
         <Route path='/inbox' element={<UserProfilePage />} />
         <Route path='/profile' element={<UserProfilePage defaultTab="profile" />} />
         <Route path='/admin' element={<AdminDashboard />} />
+        <Route path='/admin/users' element={<UserManagement />} />
+        <Route path='/admin/orders' element={<OrderManagement />} />
+        <Route path='/admin/transactions' element={<TransactionHistory />} />
+        <Route path='/admin/reports' element={<CustomerReports />} />
       </Routes>
     </Box>
     

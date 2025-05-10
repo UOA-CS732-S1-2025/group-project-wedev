@@ -10,8 +10,9 @@ const AdminDashboard = () => {
       <VStack w="250px" bg="gray.800" color="white" spacing={4} p={6} align="stretch">
         <Heading size="md" mb={6}>Admin Panel</Heading>
         <Button variant="ghost" onClick={() => navigate("/admin/users")}>Manage Users</Button>
-        <Button variant="ghost" onClick={() => navigate("/admin/providers")}>Manage Providers</Button>
-        <Button variant="ghost" onClick={() => navigate("/admin/analytics")}>Analytics</Button>
+        <Button variant="ghost" onClick={() => navigate("/admin/orders")}>Manage Orders</Button>
+        <Button variant="ghost" onClick={() => navigate("/admin/transactions")}>Transaction History</Button>
+        <Button variant="ghost" onClick={() => navigate("/admin/reports")}>Customer Report</Button>
       </VStack>
 
       {/* Main Content */}
