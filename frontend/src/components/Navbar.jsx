@@ -1,5 +1,5 @@
 import { Box, Button, Container, Flex, HStack, Icon, IconButton, Text, Avatar } from "@chakra-ui/react";
-import { Link as RouterLink } from "react-router-dom";
+import { useNavigate , Link as RouterLink } from "react-router-dom";
 import React from "react";
 import { FaLeaf, FaStar, FaCircle } from "react-icons/fa";
 import UserNavActions from "./UserNavActions";
@@ -13,6 +13,8 @@ const Navbar = () => {
     else login();
   };
 
+  const navigate = useNavigate();
+  
   return (
     <Container maxW="1920px" px={4} bg="gray.100" py={4}>
       <Flex
@@ -22,7 +24,7 @@ const Navbar = () => {
       >
         {/* Left icons */}
         <HStack spacing={4} color="green.500">
-          <Text fontSize="2xl" fontWeight="bold">
+          <Text fontSize="2xl" fontWeight="bold" cursor="pointer" onClick={() => navigate('/')}>
             UrbanEase
           </Text>
           {/* Simulate login/logout */}
