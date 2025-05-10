@@ -11,6 +11,11 @@ const messageSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   content: { // For "text" type messages, this is the main content.
              // For "booking" type messages, this stores the original booking request information,
              // e.g., "Booking: Haircut service on Tuesday at 3pm". This content doesn't change with status.
