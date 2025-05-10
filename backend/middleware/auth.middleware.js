@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
   // 从请求头获取token
-  const token = req.header('x-auth-token');
+  const token = req.header("x-auth-token") || (req.header("Authorization") && req.header("Authorization").split(" ")[1]);
 
   // 检查是否有token
   if (!token) {
@@ -30,14 +30,14 @@ export const authMiddleware = (req, res, next) => {
 };
 
 // 检查是否为特定角色的中间件
-export const checkRole = (role) => {
-  return (req, res, next) => {
-    if (req.userRole !== role) {
-      return res.status(403).json({ 
-        success: false,
-        message: "Access denied. Not authorized" 
-      });
-    }
-    next();
-  };
-};
+// export const checkRole = (role) => {
+//   return (req, res, next) => {
+//     if (req.userRole !== role) {
+//       return res.status(403).json({ 
+//         success: false,
+//         message: "Access denied. Not authorized" 
+//       });
+//     }
+//     next();
+//   };
+// };

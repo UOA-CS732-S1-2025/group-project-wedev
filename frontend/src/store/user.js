@@ -5,8 +5,15 @@ export const useUserStore = create((set) => ({
   loading: false,
   error: null,
   lastSearchParams: {},
+  selectedProviderId: null,
+  isMarkerSelect: false,
 
   setUser: (user) => set({ user }),
+
+  setSelectedProviderId: (id, fromMarker = false) => set({ 
+    selectedProviderId: id,
+    isMarkerSelect: fromMarker
+  }),
 
   fetchUsers: async () => {
     set({ loading: true, error: null });

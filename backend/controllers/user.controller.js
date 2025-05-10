@@ -101,8 +101,31 @@ export const searchProviders = async (req, res) => {
         }
         
         // Filter by location if provided
+        //用前端传来的 city 作为 state 去和后端数据库的 state 做对比，state 比如 Auckland 作为奥克兰大区，address.city为更低一级地点
         if (location && location.city) {
-            query["address.city"] = location.city;
+            query["address.state"] = location.city;
+        }
+        
+        // Filter by hourly rate if provided
+        if (maxHourlyRate) {
+            // Add hourlyRate filter - include providers with hourlyRate less than or equal to maxHourlyRate
+            // or providers that don't have hourlyRate specified
+            query.$or = query.$or || [];
+            query.$or.push(
+                { hourlyRate: { $lte: maxHourlyRate } },
+                { hourlyRate: { $exists: false } } // Include providers without hourlyRate set
+            );
+        }
+        
+        // Filter by hourly rate if provided
+        if (maxHourlyRate) {
+            // Add hourlyRate filter - include providers with hourlyRate less than or equal to maxHourlyRate
+            // or providers that don't have hourlyRate specified
+            query.$or = query.$or || [];
+            query.$or.push(
+                { hourlyRate: { $lte: maxHourlyRate } },
+                { hourlyRate: { $exists: false } } // Include providers without hourlyRate set
+            );
         }
         
         // Filter by hourly rate if provided
@@ -260,3 +283,19 @@ export const getUserById = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
+
+export const getProviderById = async (req, res) => {
+    try {
+       
+        const provider = await User.findById(req.params.id);
+        if (!provider) return res.status(404).json({ message: "provider not found" });
+        res.status(200).json(provider);
+       
+    } catch (error) {
+        console.error('Error fetching provider detail :', error);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            error: error.message 
+        });
+    }
+};

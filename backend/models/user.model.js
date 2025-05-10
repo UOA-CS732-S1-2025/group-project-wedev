@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, index: true },
   email: { type: String, required: true, unique: true, index: true },
+  emailVerified: { type: Boolean, default: false }, //Email authentication and token
+  emailVerifyToken: { type: String },
   password: { type: String, required: true }, // Hashed password
   role: { type: String, enum: ['customer', 'provider', 'admin'], required: true },
   firstName: { type: String },
@@ -10,11 +12,12 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String },
   profilePictureUrl: { type: String },
   address: {
-    street: { type: String },
-    city: { type: String },
-    state: { type: String },
-    postalCode: { type: String },
-    country: { type: String },
+    street: { type: String },       // 街道地址，例如 "10 Downing Street"
+    suburb: { type: String },       // 新增的区/区域，例如 "New Lynn"
+    city: { type: String },         // 城市，例如 "Auckland"
+    state: { type: String },        // 州/省/地区，例如 "Auckland" (在新西兰，city 和 state/region 有时会是同一个，或者这里可以是 "AKL" 等简称)
+    postalCode: { type: String },   // 邮政编码，例如 "0600"
+    country: { type: String },      // 国家，例如 "New Zealand"
   },
   // Provider Specific
   serviceType: { type: String }, // or serviceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceType' }

@@ -93,6 +93,9 @@ const DateSelector = ({ onSelect }) => {
     } else if (selectedStartDate) {
       // Single date selection
       onSelect && onSelect({ date: selectedStartDate });
+    } else {
+      // No date selected, apply empty
+      onSelect && onSelect({ date: null });
     }
   };
 
@@ -221,7 +224,7 @@ const DateSelector = ({ onSelect }) => {
   };
 
   return (
-    <Box width="300px" boxShadow="md" borderRadius="md" p={4} bg="white">
+    //<Box width="300px" boxShadow="md" borderRadius="md" p={4} bg="white">
       <VStack spacing={4} align="stretch">
         <HStack justifyContent="space-between" alignItems="center">
           <Button 
@@ -254,13 +257,12 @@ const DateSelector = ({ onSelect }) => {
             colorScheme="blue" 
             size="sm" 
             onClick={handleApply}
-            isDisabled={!selectedStartDate}
           >
             Apply
           </Button>
         </ButtonGroup>
       </VStack>
-    </Box>
+    //</Box>
   );
 };
 

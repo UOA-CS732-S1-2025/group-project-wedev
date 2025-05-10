@@ -1,6 +1,9 @@
 import express from "express";
 import { createUser, getUsers, deleteUser, getUserById, updateUserById } from "../controllers/user.controller.js";
 
+// import { createUser, getUsers, deleteUser } from "../controllers/user.controller.js";
+import { getProviders, searchProviders, getProviderById } from "../controllers/user.controller.js";
+
 const router = express.Router();
 
 router.post("/", createUser);
@@ -9,10 +12,8 @@ router.delete("/:id", deleteUser);
 router.get("/profile/:id", getUserById);
 router.put("/profile/:id", updateUserById);
 
-import { getProviders, searchProviders } from "../controllers/user.controller.js";
-
 router.get("/providers", getProviders); // GET /api/providers
 router.post('/providers/search', searchProviders);
-
+router.get("/providers/:id", getProviderById);
 
 export default router;

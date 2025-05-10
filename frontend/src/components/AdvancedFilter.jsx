@@ -17,11 +17,23 @@ import {
   Heading,
   Spacer,
 } from "@chakra-ui/react";
-import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign } from "react-icons/fa";
+import {
+  FaBriefcase,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaDollarSign,
+} from "react-icons/fa";
+import { MdClear } from "react-icons/md";
 import { useUserStore } from "../store/user";
 import ServiceSelector from "./ServiceSelector";
 import LocationSelector from "./LocationSelector";
 import DateSelector from "./DateSelector";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  Pin,
+} from "@vis.gl/react-google-maps";
 
 // Helper function to format date (copied from HomeFilter)
 const formatDate = (date) => {
@@ -91,8 +103,24 @@ const parsePriceParam = (priceString) => {
   return !isNaN(price) ? price : 100; // Return parsed price or default
 };
 
+// 默认的地图中心位置（奥克兰）
+const DEFAULT_CENTER = { lat: -36.8485, lng: 174.7633 };
+const DEFAULT_ZOOM = 10;
+
+// 用于检查经纬度浮点值是否有显著差异的辅助函数
+const isSignificantChange = (value1, value2, threshold = 0.0001) => {
+  return Math.abs(value1 - value2) > threshold;
+};
+
 const AdvancedFilter = () => {
-  const { searchProviders, lastSearchParams } = useUserStore();
+  const { searchProviders, lastSearchParams, users, setSelectedProviderId } =
+    useUserStore();
+
+  // 地图相关状态
+  const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
+  const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
+  // 用于跟踪是否正在进行编程式更新地图状态
+  const isUpdatingMapProgrammatically = useRef(false);
 
   // Local state for filter values initialized from store
   const [selectedService, setSelectedService] = useState(() =>
@@ -129,7 +157,6 @@ const AdvancedFilter = () => {
   useEffect(() => {
     // Skip initial render to avoid duplicate search
     if (isInitialMount.current) return;
-    
     const sliderValue = slider.value[0];
     if (sliderValue !== selectedPrice) {
       setSelectedPrice(sliderValue);
@@ -142,7 +169,6 @@ const AdvancedFilter = () => {
       isInitialMount.current = false;
       return;
     }
-    
     const searchParams = {};
     if (selectedService) {
       searchParams.serviceType = selectedService.title;
@@ -157,14 +183,105 @@ const AdvancedFilter = () => {
     } else if (selectedDate?.startDate) {
       searchParams.date = selectedDate.startDate.toISOString();
     }
-    
     // Add price filter
     searchParams.maxHourlyRate = selectedPrice;
 
     // Call searchProviders with the current combined filters
     searchProviders(searchParams);
+  }, [
+    selectedService,
+    selectedLocation,
+    selectedDate,
+    selectedPrice,
+    searchProviders,
+  ]);
 
-  }, [selectedService, selectedLocation, selectedDate, selectedPrice, searchProviders]);
+  // 根据搜索结果更新地图中心点和缩放级别
+  useEffect(() => {
+    if (users && users.length > 0) {
+      // 设置标记开始进行编程式更新
+      isUpdatingMapProgrammatically.current = true;
+
+      // 收集所有有效的坐标点
+      const validLocations = users
+        .filter(
+          (user) =>
+            user.location &&
+            user.location.coordinates &&
+            Array.isArray(user.location.coordinates) &&
+            user.location.coordinates.length === 2
+        )
+        .map((user) => ({
+          lng: user.location.coordinates[0],
+          lat: user.location.coordinates[1],
+        }));
+
+      if (validLocations.length > 0) {
+        // 如果只有一个位置，直接将地图中心设置为该位置
+        if (validLocations.length === 1) {
+          setMapCenter(validLocations[0]);
+          setMapZoom(14); // 放大一点以便清晰查看单个位置
+        } else {
+          // 计算所有位置的边界，然后调整地图以显示所有位置
+          // 由于我们没有使用 Google Maps API 的 bounds，我们通过计算平均坐标简单实现
+          const sumLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0);
+          const sumLng = validLocations.reduce((sum, loc) => sum + loc.lng, 0);
+
+          setMapCenter({
+            lat: sumLat / validLocations.length,
+            lng: sumLng / validLocations.length,
+          });
+
+          // 根据结果数量调整缩放级别，这里使用一个简单的启发式方法
+          if (validLocations.length <= 3) {
+            setMapZoom(12);
+          } else if (validLocations.length <= 8) {
+            setMapZoom(11);
+          } else {
+            setMapZoom(10);
+          }
+        }
+      } else {
+        // 如果没有有效位置，使用默认中心和缩放级别
+        setMapCenter(DEFAULT_CENTER);
+        setMapZoom(DEFAULT_ZOOM);
+      }
+
+      // 设置一个短暂的延时，确保地图更新完成后再允许用户交互更新
+      setTimeout(() => {
+        isUpdatingMapProgrammatically.current = false;
+      }, 300);
+    } else {
+      // 如果没有搜索结果，使用默认中心和缩放级别
+      isUpdatingMapProgrammatically.current = true;
+      setMapCenter(DEFAULT_CENTER);
+      setMapZoom(DEFAULT_ZOOM);
+
+      setTimeout(() => {
+        isUpdatingMapProgrammatically.current = false;
+      }, 300);
+    }
+  }, [users]);
+
+  // 处理地图相机变化事件
+  const handleCameraChange = (ev) => {
+    // 如果正在进行编程式更新，则忽略用户交互引起的相机变化
+    if (isUpdatingMapProgrammatically.current) return;
+
+    const { center, zoom } = ev.detail;
+    const newCenter = { lat: center.lat, lng: center.lng };
+    const newZoom = zoom;
+
+    // 检查中心点是否有显著变化，避免浮点数精度问题导致不必要的重渲染
+    if (
+      isSignificantChange(newCenter.lat, mapCenter.lat) ||
+      isSignificantChange(newCenter.lng, mapCenter.lng) ||
+      newZoom !== mapZoom
+    ) {
+      setMapCenter(newCenter);
+      setMapZoom(newZoom);
+    }
+  };
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
@@ -183,7 +300,7 @@ const AdvancedFilter = () => {
 
   // Get display text for date selection
   const getDateDisplayText = () => {
-    if (!selectedDate) return "Any Date";
+    if (!selectedDate) return "Date";
 
     if (selectedDate.date) {
       return formatDate(selectedDate.date);
@@ -196,7 +313,7 @@ const AdvancedFilter = () => {
       return formatDate(selectedDate.startDate);
     }
 
-    return "Any Date";
+    return "Date";
   };
 
   // Function to clear all filters
@@ -206,13 +323,19 @@ const AdvancedFilter = () => {
     setSelectedDate(null);
     // Reset slider to default value (100)
     slider.setValue([100]);
-    
     // Trigger search with empty params
     searchProviders({});
   };
 
+  // 处理标记点点击事件
+  const handleMarkerClick = (userId) => {
+    // 设置选中的 provider ID，这将在 BookingPage 中用于高亮显示对应的 ProviderCard
+    // 传递 true 表示这是通过地图标记点击触发的选中
+    setSelectedProviderId(userId, true);
+  };
+
   return (
-    <VStack spacing={4} align="stretch">
+    <VStack spacing={4} align="stretch" ml={4}>
       {/* Filter Section */}
       <Box borderWidth="1px" borderRadius="lg" shadow="base" overflow="hidden">
         {/* First Row - Service, Location, Date */}
@@ -243,8 +366,13 @@ const AdvancedFilter = () => {
                     boxSize={5}
                   />
                   <Box flex="1" minWidth="0">
-                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
-                      {selectedService ? selectedService.title : "Any Service"}
+                    <Text
+                      fontWeight="medium"
+                      isTruncated
+                      userSelect="none"
+                      fontSize="md"
+                    >
+                      {selectedService ? selectedService.title : "Service"}
                     </Text>
                   </Box>
                 </Flex>
@@ -280,10 +408,20 @@ const AdvancedFilter = () => {
                   borderColor="gray.200"
                   height="48px"
                 >
-                  <Icon as={FaMapMarkerAlt} mr={2} color="blue.500" boxSize={5} />
+                  <Icon
+                    as={FaMapMarkerAlt}
+                    mr={2}
+                    color="blue.500"
+                    boxSize={5}
+                  />
                   <Box flex="1" minWidth="0">
-                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
-                      {selectedLocation ? selectedLocation.city : "Any Location"}
+                    <Text
+                      fontWeight="medium"
+                      isTruncated
+                      userSelect="none"
+                      fontSize="md"
+                    >
+                      {selectedLocation ? selectedLocation.city : "City"}
                     </Text>
                   </Box>
                 </Flex>
@@ -319,9 +457,19 @@ const AdvancedFilter = () => {
                   borderColor="gray.200"
                   height="48px"
                 >
-                  <Icon as={FaCalendarAlt} mr={2} color="blue.500" boxSize={5} />
+                  <Icon
+                    as={FaCalendarAlt}
+                    mr={2}
+                    color="blue.500"
+                    boxSize={5}
+                  />
                   <Box flex="1" minWidth="0">
-                    <Text fontWeight="medium" isTruncated userSelect="none" fontSize="md">
+                    <Text
+                      fontWeight="medium"
+                      isTruncated
+                      userSelect="none"
+                      fontSize="md"
+                    >
                       {getDateDisplayText()}
                     </Text>
                   </Box>
@@ -343,63 +491,121 @@ const AdvancedFilter = () => {
         {/* Second Row - Price Range Slider and Clear All Button */}
         <Box px={4} pb={4} pt={1}>
           <Flex justifyContent="space-between" alignItems="center">
+            
             <HStack flex={1} spacing={6} width="full">
-              <Flex alignItems="center" minWidth="140px">
+            <Flex
+                  p={3}
+                  align="center"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  height="48px"
+                  width="350px"
+                >
+              <Flex alignItems="center" minWidth="140px" >
                 <Icon as={FaDollarSign} color="blue.500" boxSize={5} mr={2} />
-                <Text fontSize="md" fontWeight="medium">
+                <Text fontSize="sm" fontWeight="medium" >
                   Price/Hour: {slider.value[0]}
                 </Text>
               </Flex>
-              
-              <HStack spacing={3} flex={1} minWidth="250px">
-                <Slider.RootProvider value={slider} width="160px">
-                  <Slider.Control height="20px" >
-                    <Slider.Track height="8px" >
+
+
+              <HStack spacing={3} flex={1} minWidth="250px" ml={8}>
+                
+                <Slider.RootProvider value={slider} width="140px">
+                  <Slider.Control height="20px">
+                    <Slider.Track height="8px">
                       <Slider.Range bg="blue.500" />
                     </Slider.Track>
                     <Slider.Thumbs boxSize="16px" />
                   </Slider.Control>
                 </Slider.RootProvider>
               </HStack>
-              
+              </Flex>
+
               <Spacer />
-              
+
               {/* Clear All Button moved to second row */}
-              <Button 
-                size="md" 
-                colorScheme="blue" 
-                variant="outline"
+              <Flex
+                  p={3}
+                  align="center"
+                  cursor="pointer"
+                  borderRadius="md"
+                  _hover={{ bg: "gray.100" }}
+                  borderWidth="1px"
+                  borderColor="gray.200"
+                  height="48px"
                 onClick={handleClearAll}
-                minWidth="100px"
-                height="40px"
+                width="190px"
               >
-                Clear All
-              </Button>
+                <Icon as={MdClear} mr={2} color="blue.500" boxSize={5} />
+                <Box flex="1" minWidth="0">
+                    <Text
+                      fontWeight="medium"
+                      isTruncated
+                      userSelect="none"
+                      fontSize="md"
+                    >Clear All</Text>
+                </Box>
+              </Flex>
             </HStack>
           </Flex>
         </Box>
       </Box>
 
-      {/* Map Area Placeholder */}
-      <Box 
-        borderWidth="1px" 
-        borderRadius="lg" 
-        shadow="base" 
-        height="510px" 
-        bg="gray.100"
+      {/* 地图区域 */}
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        shadow="base"
+        height="510px"
         position="relative"
         overflow="hidden"
       >
-        <Flex 
-          direction="column" 
-          justify="center" 
-          align="center" 
-          height="100%" 
-          color="gray.500"
-        >
-          <Heading size="md" mb={2}>Map View</Heading>
-          <Text fontSize="md">Google Maps will be integrated here</Text>
-        </Flex>
+        <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"}>
+          <Map
+            mapId="d792ca0a8995a3f5"
+            center={mapCenter}
+            zoom={mapZoom}
+            onCameraChanged={handleCameraChange}
+            style={{ width: "100%", height: "100%" }}
+            disableDefaultUI={true} // 禁用所有默认的Google Maps UI控件
+            zoomControl={true} // 单独启用缩放按钮
+          >
+            {/* 遍历所有查询结果，显示标记点 */}
+            {users &&
+              users.length > 0 &&
+              users.map((user) => {
+                // 确保用户有位置信息
+                if (
+                  user.location &&
+                  user.location.coordinates &&
+                  Array.isArray(user.location.coordinates) &&
+                  user.location.coordinates.length === 2
+                ) {
+                  const position = {
+                    lng: user.location.coordinates[0],
+                    lat: user.location.coordinates[1],
+                  };
+
+                  return (
+                    <AdvancedMarker
+                      key={user._id}
+                      position={position}
+                      onClick={() => handleMarkerClick(user._id)}
+                    >
+                      <Pin
+                        background={"#B0E0E6"} // 淡蓝色
+                        borderColor={"#6495ED"} // 中蓝色
+                        glyphColor={"#F0F8FF"} // 爱丽丝蓝
+                      />
+                    </AdvancedMarker>
+                  );
+                }
+                return null;
+              })}
+          </Map>
+        </APIProvider>
       </Box>
     </VStack>
   );

@@ -47,6 +47,57 @@ export const getUserConversations = async (req, res) => {
   }
 };
 
+export const findOrCreateConversation = async (req, res) => {
+  try {
+    const { userId1, userId2 } = req.body; // userId1 is current user, userId2 is provider
+
+    if (!userId1 || !userId2) {
+      return res.status(400).json({ message: "User IDs (userId1, userId2) are required." });
+    }
+
+    if (userId1 === userId2) {
+        return res.status(400).json({ message: "Cannot create a conversation with oneself." });
+    }
+
+    let conversation = await Conversation.findOne({
+      participants: { $all: [userId1, userId2], $size: 2 },
+    }).populate("participants", "username profilePictureUrl firstName lastName _id email role");
+
+    let isNew = false;
+    if (!conversation) {
+      conversation = new Conversation({
+        participants: [userId1, userId2],
+        lastMessageTimestamp: new Date(),
+      });
+      await conversation.save();
+      // Repopulate to get the full participant details consistent with an existing conversation
+      conversation = await Conversation.findById(conversation._id)
+                         .populate("participants", "username profilePictureUrl firstName lastName _id email role");
+      isNew = true;
+    }
+
+    // Determine the 'otherUser' from the perspective of userId1 (the initiating user)
+    const otherUserParticipant = conversation.participants.find(p => p._id.toString() === userId2.toString());
+
+    res.status(200).json({
+      success: true,
+      conversationId: conversation._id,
+      otherUser: { // Structure this to match what UserInbox expects for 'conversation.otherUser'
+        _id: otherUserParticipant._id,
+        username: otherUserParticipant.username,
+        profilePictureUrl: otherUserParticipant.profilePictureUrl,
+        firstName: otherUserParticipant.firstName,
+        lastName: otherUserParticipant.lastName,
+        // Add any other fields UserInbox might directly access from conversation.otherUser
+      },
+      isNew,
+    });
+
+  } catch (error) {
+    console.error("Error in findOrCreateConversation:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
 
 export const getMessagesByConversationId = async (req, res) => {
     try {
