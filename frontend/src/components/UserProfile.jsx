@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Box, 
   VStack, 
@@ -8,12 +8,74 @@ import {
   Flex,
   AvatarGroup,
   Avatar,
+  Button,
+  Fieldset,
+  Field,
+  Input,
+  Stack,
+  Textarea,
 } from '@chakra-ui/react';
 import useAuthStore from '../store/authStore';
+import api from '../lib/api';
+import { toaster } from "@/components/ui/toaster";
 
 const UserProfile = () => {
-  const { user } = useAuthStore();
-  
+  const { user, fetchCurrentUser } = useAuthStore();
+  const [form, setForm] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    phoneNumber: user?.phoneNumber || '',
+    profilePictureUrl: user?.profilePictureUrl || '',
+    bio: user?.bio || '',
+    address: {
+      street: user?.address?.street || '',
+      suburb: user?.address?.suburb || '',
+      city: user?.address?.city || '',
+      state: user?.address?.state || '',
+      postalCode: user?.address?.postalCode || '',
+      country: user?.address?.country || '',
+    },
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('address.')) {
+      const key = name.replace('address.', '');
+      setForm((prev) => ({
+        ...prev,
+        address: { ...prev.address, [key]: value },
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setError('');
+    try {
+      await api.put(`/auth/me`, {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phoneNumber: form.phoneNumber,
+        profilePictureUrl: form.profilePictureUrl,
+        bio: form.bio,
+        address: { ...form.address },
+      });
+      toaster.create({ title: 'Profile updated successfully' });
+      fetchCurrentUser && fetchCurrentUser();
+    } catch (err) {
+      toaster.create({ title: 'Update failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Get display name
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
@@ -111,6 +173,67 @@ const UserProfile = () => {
             </>
           )}
         </VStack>
+        {/* 编辑表单 */}
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <Fieldset.Root size="lg" maxW="md" mb={8}>
+            <Stack>
+              <Fieldset.Legend>Edit Profile</Fieldset.Legend>
+              <Fieldset.HelperText>You can update your profile information below.</Fieldset.HelperText>
+            </Stack>
+            <Fieldset.Content>
+              <Field.Root>
+                <Field.Label>First Name</Field.Label>
+                <Input name="firstName" value={form.firstName} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Last Name</Field.Label>
+                <Input name="lastName" value={form.lastName} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Phone Number</Field.Label>
+                <Input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Profile Picture URL</Field.Label>
+                <Input name="profilePictureUrl" value={form.profilePictureUrl} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Bio</Field.Label>
+                <Textarea name="bio" value={form.bio} onChange={handleChange} />
+              </Field.Root>
+              <Fieldset.Legend mt={6}>Address</Fieldset.Legend>
+              <Field.Root>
+                <Field.Label>Street</Field.Label>
+                <Input name="address.street" value={form.address.street} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Suburb</Field.Label>
+                <Input name="address.suburb" value={form.address.suburb} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>City</Field.Label>
+                <Input name="address.city" value={form.address.city} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>State</Field.Label>
+                <Input name="address.state" value={form.address.state} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Postal Code</Field.Label>
+                <Input name="address.postalCode" value={form.address.postalCode} onChange={handleChange} />
+              </Field.Root>
+              <Field.Root>
+                <Field.Label>Country</Field.Label>
+                <Input name="address.country" value={form.address.country} onChange={handleChange} />
+              </Field.Root>
+            </Fieldset.Content>
+            <Button type="submit" alignSelf="flex-start" isLoading={loading} mt={2}>
+              Save Changes
+            </Button>
+          </Fieldset.Root>
+        </form>
+        
+        
       </Box>
     </Box>
   );
