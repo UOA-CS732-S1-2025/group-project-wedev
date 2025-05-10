@@ -129,7 +129,7 @@ const ProviderCard = ({ user }) => {
               </Badge>
           </Text>
           <Text fontSize="sm" color="gray.500">
-            {user.address.suburb}, {user.address.city}
+            {user.address?.suburb || "Unknown"}, {user.address?.city || "Unknown"}
           </Text>
           <Text fontSize="sm" color="gray.500">{user.description}</Text>
 
