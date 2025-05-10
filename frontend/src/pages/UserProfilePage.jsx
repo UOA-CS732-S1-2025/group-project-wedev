@@ -2,12 +2,16 @@ import React from 'react'
 import { Tabs, Box } from "@chakra-ui/react"
 import UserInbox from '../components/UserInbox'
 import UserProfile from '../components/UserProfile'
+import { useSearchParams } from 'react-router-dom';
 
-const UserProfilePage = ({ defaultTab = "messages" }) => {
+const UserProfilePage = ({ defaultTab = "profile" }) => {
+    const [searchParams] = useSearchParams();
+    const tabFromUrl = searchParams.get("tab");
+    const effectiveTab = tabFromUrl || defaultTab;
     return (
         <Box bg="gray.50" minH="calc(100vh - 80px)" pt="20px">
             <Box w="95%" maxW="1200px" mx="auto" pb={4}>
-                <Tabs.Root defaultValue={defaultTab}>
+                <Tabs.Root defaultValue={effectiveTab}>
                     <Tabs.List mb={3}>
                         <Tabs.Trigger value="dashboard">
                             Dashboard

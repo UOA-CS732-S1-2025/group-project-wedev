@@ -97,12 +97,16 @@ export default function ProviderDetailPage() {
       const response = await fetch('/api/conversations/find-or-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId1: currentUser._id, userId2: provider._id }),
       });
 
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Failed to create conversation');
+      }
       const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || 'Failed to create conversation');
       }
 
@@ -112,7 +116,7 @@ export default function ProviderDetailPage() {
         await refreshUserConversations(currentUser._id);
       }
       
-      navigate('/inbox');
+      navigate('/profile?tab=messages');
 
     } catch (error) {
       console.error('Error contacting provider:', error);
@@ -136,12 +140,16 @@ export default function ProviderDetailPage() {
       const conversationResponse = await fetch('/api/conversations/find-or-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId1: currentUser._id, userId2: provider._id }),
       });
 
+      if (!conversationResponse.ok) {
+        const errData = await conversationResponse.json().catch(() => ({}));
+        throw new Error(errData.message || 'Failed to create conversation');
+      }
       const conversationData = await conversationResponse.json();
-
-      if (!conversationResponse.ok || !conversationData.success) {
+      if (!conversationData.success) {
         throw new Error(conversationData.message || 'Failed to create conversation');
       }
       
@@ -160,9 +168,10 @@ export default function ProviderDetailPage() {
         `Rate: $${provider.hourlyRate || 'Not specified'}/hour`;
 
       // 3. Send booking message
-      await fetch('/api/messages', {
+      const messageResponse = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           senderId: currentUser._id,
           recipientId: provider._id,
@@ -173,7 +182,10 @@ export default function ProviderDetailPage() {
           receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} has sent you a booking request, please review it.`
         })
       });
-
+      if (!messageResponse.ok) {
+        const errData = await messageResponse.json().catch(() => ({}));
+        throw new Error(errData.message || 'Failed to send booking message');
+      }
       // 4. Open the conversation
       openDialog(conversationData.conversationId, conversationData.otherUser);
 
@@ -183,7 +195,7 @@ export default function ProviderDetailPage() {
       }
       
       // 6. Navigate to inbox
-      navigate('/inbox');
+      navigate('/profile?tab=messages');
 
     } catch (error) {
       console.error('Booking error:', error);

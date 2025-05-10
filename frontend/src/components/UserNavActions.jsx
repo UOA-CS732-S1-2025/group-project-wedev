@@ -38,13 +38,12 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
   return (
     <HStack spacing={4} align="center">
       {/* Navigation buttons */}
-      <Button as={RouterLink} to="/">Home</Button>
       
       {/* User Info */}
       <Text>{displayName}</Text>
       
       {/* Make avatar clickable and link to profile page */}
-      <Box as={RouterLink} to="/profile" cursor="pointer">
+      <Box as={RouterLink} to="/profile?tab=profile" cursor="pointer">
         <Avatar.Root>
           <Avatar.Fallback name={displayName} />
           <Avatar.Image src={user?.profilePictureUrl || "https://bit.ly/sage-adebayo"} />
@@ -56,7 +55,7 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
         <IconButton 
           variant="outline" 
           as={RouterLink} 
-          to="/inbox" 
+          to="/profile?tab=messages" 
         >
           <CiMail />
         </IconButton>
