@@ -3,14 +3,20 @@ import { Link as RouterLink } from "react-router-dom";
 import React from "react";
 import { FaLeaf, FaStar, FaCircle } from "react-icons/fa";
 import UserNavActions from "./UserNavActions";
+import { useNavigate } from "react-router-dom";
 
 import useAuthStore from "../store/authStore";
 const Navbar = () => {
   const { user, login, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   const toggleAuth = () => {
-    if (user) logout();
-    else login();
+    if (user) {
+      logout();
+      navigate("/"); // ← 登出后跳转到首页
+    } else {
+      login();
+    }
   };
 
   return (
@@ -38,9 +44,23 @@ const Navbar = () => {
               <Button as={RouterLink} to="/login">Log in</Button>
               <Button as={RouterLink} to="/signup">Sign up</Button>
             </>
-          ) : <UserNavActions user={user} logout={logout} toggleAuth={toggleAuth} />}
+          ) : (
+            <>
+            {/*如果是customer以登陆，就显示Admin Dashboard导航按钮*/ }
+              {user.role === 'customer' && (
+                <Button as={RouterLink} to="/admin" variant="outline" color="black" background="white"  _hover={ {bg: "gray.200"} }>
+                  Admin Dashboard
+                </Button>
+              )}
+              <UserNavActions user={user} logout={logout} toggleAuth={toggleAuth} navigate={navigate}/>
+              </>
+          )}
         </HStack>
+
+      
       </Flex>
+
+      
     </Container>
   );
 };
