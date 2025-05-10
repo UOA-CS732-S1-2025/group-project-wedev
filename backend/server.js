@@ -11,6 +11,7 @@ import adminBookingRoutes from "./routes/admin/booking.admin.route.js";
 import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
 import adminReportRoutes from "./routes/admin/report.admin.route.js";
 import authRoutes from "./routes/auth.route.js";
+import reviewRoutes from "./routes/review.route.js";
 import cors from "cors";
 
 
@@ -44,6 +45,7 @@ app.use(cors({
 
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingsRoutes);
+app.use("/api/review", reviewRoutes);
 
 app.use("/api/messages", messageRoutes);
 app.use("/api/conversations", conversationRoutes);
