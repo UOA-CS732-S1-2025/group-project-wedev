@@ -20,6 +20,57 @@ export const registerUser = async (req, res) => {
       });
     }
 
+    if (!email){
+      return res.status(400).json({ 
+        success: false,
+        message: "Email is null" 
+      });
+    }
+
+    if (!password){
+      return res.status(400).json({ 
+        success: false,
+        message: "Password is null" 
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid email format" 
+      });
+    }
+
+    if (password.length <= 8) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must be longer than 8 characters" 
+      });
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one uppercase letter" 
+      });
+    }
+
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one lowercase letter" 
+      });
+    }
+
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one number" 
+      });
+    }
+    
+
     // 检查邮箱是否已经存在
     const existingUser = await User.findOne({ email });
     if (existingUser) {

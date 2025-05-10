@@ -176,8 +176,8 @@ const HomeFilter = () => {
                   boxSize={5}
                 />
                 <Box minWidth="120px" height="42px">
-                  <Text fontSize="xs" color="gray.500" userSelect="none">I'm looking for</Text>
-                  <Text fontWeight="medium" isTruncated userSelect="none">
+                  <Text fontSize="xs" color="gray.500" userSelect="none" textAlign="left">I'm looking for</Text>
+                  <Text fontWeight="medium" isTruncated userSelect="none" textAlign="left">
                     {selectedService ? selectedService.title : "Service Type"}
                   </Text>
                 </Box>
@@ -235,8 +235,8 @@ const HomeFilter = () => {
             >
               <Icon as={FaMapMarkerAlt} mr={3} color="green.500" boxSize={5} />
               <Box minWidth="120px" height="42px">
-                <Text fontSize="xs" color="gray.600" userSelect="none">Near</Text>
-                <Text fontWeight="medium" isTruncated userSelect="none">
+                <Text fontSize="xs" color="gray.600" userSelect="none" textAlign="left">Near</Text>
+                <Text fontWeight="medium" isTruncated userSelect="none" textAlign="left">
                   {selectedLocation ? selectedLocation.city : "Enter your city"}
                 </Text>
               </Box>
@@ -294,7 +294,7 @@ const HomeFilter = () => {
             >
               <Icon as={FaCalendarAlt} mr={3} color="green.500" boxSize={5} />
               <Box minWidth="120px" height="42px">
-                <Text fontSize="xs" color="gray.500" userSelect="none">On</Text>
+                <Text fontSize="xs" color="gray.500" userSelect="none" textAlign="left">On</Text>
                 <Text 
                   fontSize="md" 
                   fontWeight="medium" 
@@ -304,6 +304,7 @@ const HomeFilter = () => {
                   textOverflow="ellipsis"
                   maxW="100%"
                   userSelect="none"
+                  textAlign="left"
                 >
                   {getDateDisplayText()}
                 </Text>
