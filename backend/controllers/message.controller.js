@@ -37,6 +37,7 @@ export const sendMessage = async (req, res) => {
       const messageData = {
         conversation: conversation._id,
         sender: senderId,
+        receiver: recipientId,
         content,
         messageType,
       };
@@ -76,7 +77,7 @@ export const sendMessage = async (req, res) => {
       // Find all unread messages from other people
       const unreadCount = await Message.countDocuments({
         isRead: false,
-        sender: { $ne: userId }, 
+        receiver: userId, 
       });
   
       res.status(200).json({ unreadCount });
