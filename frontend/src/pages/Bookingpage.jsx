@@ -24,6 +24,16 @@ const BookingPage = () => {
     };
   }, []);
 
+  // 禁用浏览器最外层滚动，只保留右侧结果区滚动
+  useEffect(() => {
+    // 保存原始 overflow
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   return (
     <Box px={4} maxW="container.xl" mx="auto">
       <Flex direction={{ base: 'column', md: 'row' }} py={6} gap={{ base: 4, md: 6 }} align="flex-start" height={{ base: 'auto', md: '100vh' }}>

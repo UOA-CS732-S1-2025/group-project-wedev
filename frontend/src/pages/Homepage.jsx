@@ -223,11 +223,11 @@ const ServiceCard = ({ icon, title, description }) => {
       minH="300px"
      
     >
-      <box >
+      <Box >
       <Icon as={icon} boxSize={10} color="blue.500"  />
       <Heading size="md" >{title}</Heading>
       <Text color="gray.600">{description}</Text>
-      </box>
+      </Box>
       <Box mt="auto" w="100%" textAlign="right" >
         <Button variant="link" colorScheme="blue" >
           Learn More →
