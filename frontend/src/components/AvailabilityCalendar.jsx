@@ -142,6 +142,10 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
   // Handle date click
   const handleDateClick = (day, month, year) => {
     const clickedDate = new Date(year, month, day);
+    
+    // 检查日期是否可用，如果不可用则直接返回
+    if (!isDateAvailable(clickedDate)) return;
+    
     setSelectedDate && setSelectedDate(clickedDate.toISOString());
 
     // Get time slots for this date
@@ -150,7 +154,7 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
     // If we have an onClick handler, call it with the date and availability info
     if (providerData && providerData.onDateSelect) {
       providerData.onDateSelect(clickedDate, {
-        isAvailable: isDateAvailable(clickedDate),
+        isAvailable: true, // 我们知道日期是可用的，因为我们已经检查过了
         timeSlots: timeSlots
       });
     }
@@ -250,25 +254,25 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
       days.push(
         <GridItem 
           key={`day-${day}-${month}`}
-          onClick={() => handleDateClick(day, month, year)}
+          onClick={() => available ? handleDateClick(day, month, year) : null}
           position="relative"
           display="flex"
           justifyContent="center"
           alignItems="center"
           height="36px"
-          cursor="pointer"
+          cursor={available ? "pointer" : "default"}
           borderRadius="full"
           bg={isSelectedDay ? "blue.500" : "transparent"}
           _hover={{
             _before: {
-              content: '""',
+              content: available ? '""' : 'none',
               position: "absolute",
               top: "0",
               left: "0",
               right: "0",
               bottom: "0",
               borderRadius: "full",
-              border: !isSelectedDay ? "2px solid" : "none",
+              border: !isSelectedDay && available ? "2px solid" : "none",
               borderColor: "blue.700"
             }
           }}
@@ -361,19 +365,6 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
           </Flex>
           
           {renderSelectedDateInfo()}
-          
-          {isEditable && (
-            <HStack mt={4} spacing={4} justify="flex-end">
-              <Button 
-                leftIcon={<FaCalendarAlt />}
-                size="sm"
-                colorScheme="blue"
-                onClick={() => alert('Edit availability settings in your provider profile')}
-              >
-                Manage Availability
-              </Button>
-            </HStack>
-          )}
         </VStack>
       )}
     </Box>

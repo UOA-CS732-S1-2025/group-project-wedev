@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react'
-import { Box  } from "@chakra-ui/react"
+import { Box} from "@chakra-ui/react"
+import { Toaster} from "@/components/ui/toaster"
 import { Routes, Route ,useNavigate } from 'react-router-dom'
 import HomePage from './pages/Homepage'
 import BookingPage from './pages/Bookingpage'
@@ -61,6 +62,8 @@ const App = () => {
         <Route path='/profile' element={<ProtectedRoute><UserProfilePage defaultTab="profile" /></ProtectedRoute>} />
          <Route path='/providerDetail/:id' element={<ProviderDetailPage />} />
       </Routes>
+      <Toaster />
+
     </Box>
     </ChakraProvider>
   )

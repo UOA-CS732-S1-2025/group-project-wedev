@@ -24,6 +24,7 @@ import { useChatDialogStore } from '../store/chatDialogStore';
 import { useConversationStore } from '../store/conversationStore';
 import { FaRegCalendarAlt, FaMapMarkerAlt, FaStar, FaRegClock, FaEnvelope, FaPhone, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import AvailabilityCalendar from '../components/AvailabilityCalendar';
+import AvailabilitySetting from '../components/AvailabilitySetting';
 
 export default function ProviderDetailPage() {
   const { id } = useParams();
@@ -168,8 +169,8 @@ export default function ProviderDetailPage() {
           content: bookingMessage,
           messageType: 'booking',
           bookingStatus: 'pending',
-          senderDisplayText: `您已向 ${provider.firstName} ${provider.lastName} 提交预约请求，等待对方确认。`,
-          receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} 向您发起了预约请求，请及时处理。`
+          senderDisplayText: `You have sent a booking request to ${provider.firstName} ${provider.lastName}, waiting for confirmation.`,
+          receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} has sent you a booking request, please review it.`
         })
       });
 
@@ -361,15 +362,22 @@ export default function ProviderDetailPage() {
                   </HStack>
                 </Box>
 
-                {/* Availability Calendar */}
+                {/* Availability Calendar or Setting */}
                 <Heading size="md" mb={4}>Availability</Heading>
-                <AvailabilityCalendar 
-                  providerId={provider._id} 
-                  currentUser={currentUser} 
-                  providerData={provider}
-                  selectedDate={bookingDate}
-                  setSelectedDate={setBookingDate}
-                />
+                {currentUser?._id === provider._id ? (
+                  <AvailabilitySetting 
+                    providerId={provider._id} 
+                    providerData={provider} 
+                  />
+                ) : (
+                  <AvailabilityCalendar 
+                    providerId={provider._id} 
+                    currentUser={currentUser} 
+                    providerData={provider}
+                    selectedDate={bookingDate}
+                    setSelectedDate={setBookingDate}
+                  />
+                )}
                 
                 <Heading size="md" mt={8} mb={4}>Contact Information</Heading>
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={6}>
