@@ -74,7 +74,7 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
       </Box>
       
       {/* Log out button */}
-      <IconButton onClick={toggleAuth} variant="outline">
+      <IconButton onClick={logout} variant="outline">
         <LuLogOut />
       </IconButton>
     </HStack>

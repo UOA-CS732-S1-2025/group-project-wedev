@@ -25,6 +25,7 @@ import { useConversationStore } from '../store/conversationStore';
 import { FaRegCalendarAlt, FaMapMarkerAlt, FaStar, FaRegClock, FaEnvelope, FaPhone, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import AvailabilityCalendar from '../components/AvailabilityCalendar';
 import AvailabilitySetting from '../components/AvailabilitySetting';
+import { toaster } from "@/components/ui/toaster";
 
 export default function ProviderDetailPage() {
   const { id } = useParams();
@@ -36,7 +37,7 @@ export default function ProviderDetailPage() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingDate, setBookingDate] = useState('');
-  const [error, setError] = useState(null);
+  let error = null;
   
   // Color mode values
   const bgColor = 'white';
@@ -55,7 +56,7 @@ export default function ProviderDetailPage() {
         .catch((err) => {
           console.error('Error fetching provider:', err);
           setLoading(false);
-          setError(err.message || 'Failed to load provider information');
+          toaster.create({ title: err.message || 'Failed to load provider information' });
         });
     }
   }, [id]);
@@ -69,27 +70,13 @@ export default function ProviderDetailPage() {
   }
 
   if (error || !provider) {
-    return (
-      <Container maxW="container.lg" py={8}>
-        <Box 
-          status="error" 
-          borderRadius="md" 
-          p={4} 
-          bg="red.100" 
-          color="red.800" 
-          borderLeft="4px" 
-          borderLeftColor="red.500"
-        >
-          <Heading size="md" mb={2}>Error</Heading>
-          <Text>{error || 'Provider information not found'}</Text>
-        </Box>
-      </Container>
-    );
+    toaster.create({ title: error || 'Provider information not found' });
+    return null;
   }
 
   const handleContactProvider = async () => {
     if (!currentUser || !provider || !provider._id) {
-      setError("User or provider information is missing");
+      toaster.create({ title: "User or provider information is missing" });
       return;
     }
 
@@ -119,19 +106,28 @@ export default function ProviderDetailPage() {
       navigate('/profile?tab=messages');
 
     } catch (error) {
-      console.error('Error contacting provider:', error);
-      setError(error.message || 'An error occurred while trying to contact the provider');
+      toaster.create({ title: error.message || "An error occurred while trying to contact the provider" });
     }
   };
 
   const handleBooking = async () => {
     if (!bookingDate) {
-      setError('Please select a date first');
+      toaster.create({ title: 'Please select a date first' });
       return;
     }
 
     if (!currentUser || !provider || !provider._id) {
-      setError("Please log in first or provider information is missing");
+      toaster.create({ title: 'Please log in first or provider information is missing' });
+      return;
+    }
+    
+    // Verify user address information
+    if (!currentUser.address || !currentUser.address.city || !currentUser.address.street) {
+      toaster.create({ 
+        title: 'Address information missing', 
+        description: 'Please update your address information in your profile before booking'
+      });
+      navigate('/profile?tab=profile');
       return;
     }
 
@@ -159,12 +155,18 @@ export default function ProviderDetailPage() {
         .map(slot => `${slot.start} - ${slot.end}`)
         .join(', ');
       
+      // Add customer address information to booking message
+      const customerAddress = currentUser.address ? 
+        `${currentUser.address.street || ''}, ${currentUser.address.suburb || ''}, ${currentUser.address.city || ''}, ${currentUser.address.state || ''}, ${currentUser.address.postalCode || ''}, ${currentUser.address.country || ''}` :
+        'No address provided';
+      
       const bookingMessage = `Booking Confirmation:\n` +
         `Customer: ${currentUser.firstName} ${currentUser.lastName} (${currentUser.email})\n` +
         `Provider: ${provider.firstName} ${provider.lastName}\n` +
         `Service Type: ${formatServiceType(provider.serviceType)}\n` +
         `Booking Date: ${formattedDate}\n` +
         (formattedTime ? `Booking Time: ${formattedTime}\n` : '') +
+        `Customer Address: ${customerAddress}\n` +
         `Rate: $${provider.hourlyRate || 'Not specified'}/hour`;
 
       // 3. Send booking message
@@ -198,8 +200,7 @@ export default function ProviderDetailPage() {
       navigate('/profile?tab=messages');
 
     } catch (error) {
-      console.error('Booking error:', error);
-      setError(error.message || 'An error occurred during booking');
+      toaster.create({ title: error.message || "An error occurred during booking" });
     }
   };
 
@@ -542,20 +543,6 @@ export default function ProviderDetailPage() {
                 <Text fontSize="sm" color="gray.500" mt={2} textAlign="center">
                   You cannot start a conversation with yourself.
                 </Text>
-              )}
-              
-              {error && (
-                <Box 
-                  mt={4} 
-                  p={3} 
-                  bg="red.50" 
-                  color="red.600" 
-                  borderRadius="md" 
-                  borderLeft="4px" 
-                  borderLeftColor="red.500"
-                >
-                  <Text>{error}</Text>
-                </Box>
               )}
 
               {/* Moderate Cancellation Policy */}

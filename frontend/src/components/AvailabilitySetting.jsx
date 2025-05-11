@@ -28,10 +28,11 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
   
   // Selection state for range picking
   const [selectionStart, setSelectionStart] = useState(null);
-  const [selectionEnd, setSelectionEnd] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
   const [selectedDates, setSelectedDates] = useState([]);
   const [pendingChanges, setPendingChanges] = useState(false);
+  // 选择模式: 'add' 或 'remove'
+  const [selectionMode, setSelectionMode] = useState('add');
   
   // Initialize current month and next month
   const today = new Date();
@@ -43,64 +44,114 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
   const nextMonth = nextMonthDate.getMonth();
   const nextYear = nextMonthDate.getFullYear();
 
-  // Load availability data
+  // Helper function to initialize selectedDates from backend data sources
+  const initializeSelectedDatesFromSource = (sourceSpecialDates, sourceDateRanges) => {
+    const initialSelectedDateTimes = new Set();
+    (sourceSpecialDates || []).forEach(sd => {
+      if (sd.isAvailable) {
+        const date = new Date(sd.date);
+        date.setHours(0, 0, 0, 0);
+        initialSelectedDateTimes.add(date.getTime());
+      }
+    });
+    (sourceDateRanges || []).forEach(dr => {
+      if (dr.isAvailable) {
+        let currentDateIterator = new Date(dr.startDate);
+        const endDate = new Date(dr.endDate);
+        currentDateIterator.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        while (currentDateIterator <= endDate) {
+          initialSelectedDateTimes.add(currentDateIterator.getTime());
+          currentDateIterator.setDate(currentDateIterator.getDate() + 1);
+        }
+      }
+    });
+    const initialSelectedDatesArray = Array.from(initialSelectedDateTimes)
+      .map(time => new Date(time))
+      .sort((a, b) => a.getTime() - b.getTime());
+    setSelectedDates(initialSelectedDatesArray);
+  };
+
   useEffect(() => {
     if (providerId) {
       setLoading(true);
-      
-      // If we already have provider data passed in, use it
+      // Clear previous selections when providerId changes or on initial load with providerId
+      setSelectedDates([]); 
+      setSelectionStart(null);
+      setHoveredDate(null);
+      setSelectionMode('add');
+      setPendingChanges(false);
+
       if (providerData) {
-        setAvailability(providerData.availability || []);
-        setSpecialDates(providerData.specialDates || []);
-        setDateRanges(providerData.dateRanges || []);
+        const currentAvailability = providerData.availability || [];
+        const currentSpecialDates = providerData.specialDates || [];
+        const currentDateRanges = providerData.dateRanges || [];
+
+        setAvailability(currentAvailability);
+        setSpecialDates(currentSpecialDates);
+        setDateRanges(currentDateRanges);
+        initializeSelectedDatesFromSource(currentSpecialDates, currentDateRanges);
         setLoading(false);
-        return;
-      }
-      
-      // Otherwise fetch it
-      const token = localStorage.getItem("token");
-      
-      fetch(`/api/users/providers/${providerId}/availability`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setAvailability(data.availability || []);
-            setSpecialDates(data.specialDates || []);
-            setDateRanges(data.dateRanges || []);
-          } else {
-            setError(data.message || 'Failed to load availability data');
-          }
-          setLoading(false);
+      } else {
+        const token = localStorage.getItem("token");
+        fetch(`/api/users/providers/${providerId}/availability`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .catch(err => {
-          console.error('Error fetching availability:', err);
-          setError('Failed to load availability data');
-          setLoading(false);
-        });
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const fetchedAvailability = data.availability || [];
+              const fetchedSpecialDates = data.specialDates || [];
+              const fetchedDateRanges = data.dateRanges || [];
+
+              setAvailability(fetchedAvailability);
+              setSpecialDates(fetchedSpecialDates);
+              setDateRanges(fetchedDateRanges);
+              initializeSelectedDatesFromSource(fetchedSpecialDates, fetchedDateRanges);
+            } else {
+              setError(data.message || 'Failed to load availability data');
+            }
+            setLoading(false);
+          })
+          .catch(err => {
+            console.error('Error fetching availability:', err);
+            setError(data.message || 'Failed to load availability data');
+            setLoading(false);
+          });
+      }
+    } else {
+      setAvailability([]);
+      setSpecialDates([]);
+      setDateRanges([]);
+      setSelectedDates([]);
+      setLoading(false);
+      setError(null);
+      setPendingChanges(false);
+      setSelectionMode('add');
+      setSelectionStart(null);
+      setHoveredDate(null);
     }
   }, [providerId, providerData]);
 
   // Handle month navigation
   const goToNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
+    setCurrentMonth(prevMonth => {
+      if (prevMonth === 11) {
+        setCurrentYear(prevYear => prevYear + 1);
+        return 0;
+      }
+      return prevMonth + 1;
+    });
   };
 
   const goToPrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
+    setCurrentMonth(prevMonth => {
+      if (prevMonth === 0) {
+        setCurrentYear(prevYear => prevYear - 1);
+        return 11;
+      }
+      return prevMonth - 1;
+    });
   };
 
   // Get the first day of month
@@ -113,22 +164,47 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     return new Date(year, month + 1, 0).getDate();
   };
 
-  // Check if a date is included in pending selection range
-  const isInSelectionRange = (date) => {
-    if (!selectionStart) return false;
-    
-    const start = selectionStart;
-    const end = selectionEnd || hoveredDate;
-    
-    if (!end) return isSameDay(date, start);
-    
-    return date >= new Date(Math.min(start.getTime(), end.getTime())) && 
-           date <= new Date(Math.max(start.getTime(), end.getTime()));
+  // 检查两个日期是否是同一天
+  const isSameDay = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return (
+      date1.getDate() === date2.getDate() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear()
+    );
   };
 
-  // Check if a date is in the selected pending dates
+  // 检查日期是否在选择范围内
+  const isInSelectionRange = (date) => {
+    if (!selectionStart || !hoveredDate) return false;
+    
+    const start = new Date(Math.min(selectionStart.getTime(), hoveredDate.getTime()));
+    const end = new Date(Math.max(selectionStart.getTime(), hoveredDate.getTime()));
+    
+    return date >= start && date <= end;
+  };
+
+  // 检查日期是否在已选择的日期中
   const isInSelectedDates = (date) => {
     return selectedDates.some(selectedDate => isSameDay(selectedDate, date));
+  };
+
+  // Check if a date is part of the current visual selection process (between selectionStart and hoveredDate)
+  const isDateInCurrentSelectionRange = (date) => {
+    if (!selectionStart || !hoveredDate) return false;
+    const rangeStartTime = Math.min(selectionStart.getTime(), hoveredDate.getTime());
+    const rangeEndTime = Math.max(selectionStart.getTime(), hoveredDate.getTime());
+    const dateTime = date.getTime();
+    // Ensure the date is on or after the start of rangeStartTime and on or before the end of rangeEndTime
+    const checkDate = new Date(dateTime);
+    checkDate.setHours(0,0,0,0);
+
+    const compareRangeStart = new Date(rangeStartTime);
+    compareRangeStart.setHours(0,0,0,0);
+    const compareRangeEnd = new Date(rangeEndTime);
+    compareRangeEnd.setHours(0,0,0,0);
+
+    return checkDate.getTime() >= compareRangeStart.getTime() && checkDate.getTime() <= compareRangeEnd.getTime();
   };
 
   // Check if a date is available based on current settings
@@ -162,189 +238,175 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     return weeklyAvailability ? weeklyAvailability.isAvailable : false;
   };
 
-  // Check if two dates are the same day
-  const isSameDay = (date1, date2) => {
-    return date1.getDate() === date2.getDate() && 
-           date1.getMonth() === date2.getMonth() && 
-           date1.getFullYear() === date2.getFullYear();
-  };
-
-  // Handle date click for selection
+  // 处理日期点击事件
   const handleDateClick = (day, month, year) => {
     const clickedDate = new Date(year, month, day);
-    
-    // Ensure we're not selecting dates in the past
-    if (clickedDate < new Date(today.setHours(0, 0, 0, 0))) return;
-    
+    clickedDate.setHours(0,0,0,0); // Normalize to start of day for comparison
+
+    const todayBoundary = new Date(today);
+    todayBoundary.setHours(0, 0, 0, 0);
+    if (clickedDate < todayBoundary) return;
+
     if (!selectionStart) {
-      // Start a new selection
+      // First click: Start a new selection
       setSelectionStart(clickedDate);
-      setSelectionEnd(null);
-      setSelectedDates([clickedDate]);
-    } else if (isSameDay(clickedDate, selectionStart)) {
-      // Clicked on the same date again, just select this one day
-      setSelectionEnd(clickedDate);
-      setSelectedDates([clickedDate]);
+      setHoveredDate(clickedDate); 
+      if (isInSelectedDates(clickedDate)) {
+        setSelectionMode('remove');
+      } else {
+        setSelectionMode('add');
+      }
+      setPendingChanges(true);
     } else {
-      // Finish the selection
-      setSelectionEnd(clickedDate);
-      
-      // Calculate all dates in the range
-      const start = new Date(Math.min(selectionStart.getTime(), clickedDate.getTime()));
-      const end = new Date(Math.max(selectionStart.getTime(), clickedDate.getTime()));
-      
-      const datesInRange = [];
-      const currentDate = new Date(start);
-      
-      while (currentDate <= end) {
-        datesInRange.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
+      // Second click: Finalize the selection range
+      const rangeStart = new Date(Math.min(selectionStart.getTime(), clickedDate.getTime()));
+      rangeStart.setHours(0,0,0,0);
+      const rangeEnd = new Date(Math.max(selectionStart.getTime(), clickedDate.getTime()));
+      rangeEnd.setHours(0,0,0,0);
+
+      const datesToProcess = [];
+      let currentDateInRange = new Date(rangeStart);
+      while (currentDateInRange <= rangeEnd) {
+        datesToProcess.push(new Date(currentDateInRange)); // Store new Date objects
+        currentDateInRange.setDate(currentDateInRange.getDate() + 1);
+      }
+
+      if (selectionMode === 'add') {
+        setSelectedDates(prevSelectedDates => {
+          const newDatesSet = new Set(prevSelectedDates.map(d => d.getTime()));
+          datesToProcess.forEach(d => newDatesSet.add(d.getTime()));
+          return Array.from(newDatesSet).map(time => new Date(time)).sort((a,b) => a.getTime() - b.getTime());
+        });
+      } else { // selectionMode === 'remove'
+        setSelectedDates(prevSelectedDates => {
+          const datesToProcessTimes = new Set(datesToProcess.map(d => d.getTime()));
+          return prevSelectedDates.filter(d => !datesToProcessTimes.has(d.getTime())).sort((a,b) => a.getTime() - b.getTime());
+        });
       }
       
-      setSelectedDates(datesInRange);
+      setSelectionStart(null);
+      setHoveredDate(null);
+      // selectionMode will be reset by the next first click, so no need to reset here
     }
-    
-    setPendingChanges(true);
   };
 
-  // Handle mouse hover for range preview
+  // 处理鼠标悬停事件
   const handleDateHover = (day, month, year) => {
     if (selectionStart) {
-      setHoveredDate(new Date(year, month, day));
+      const hovered = new Date(year, month, day);
+      hovered.setHours(0,0,0,0);
+      setHoveredDate(hovered);
     }
   };
 
   // Apply pending changes to availability
   const applyChanges = async () => {
-    if (!selectedDates.length) return;
-    
+    if (!pendingChanges && selectedDates.length === 0 && !selectionStart) { // check selectionStart too
+        toaster.create({ title: "No changes to apply", description: "Please select or modify dates first.", });
+        return;
+    }
     setIsSaving(true);
-    
-    // Determine if we're making these dates available or unavailable
-    // If all selected dates are already available, we'll make them unavailable (toggling)
-    const makeAvailable = !selectedDates.every(date => isDateAvailable(date));
-    
-    // Create a new date range for the current selection
-    let newDateRange = null;
-    
-    // For multiple dates, create a date range
-    if (selectedDates.length > 1) {
-      // Sort dates to find min/max
-      const sortedDates = [...selectedDates].sort((a, b) => a - b);
-      
-      newDateRange = {
-        startDate: sortedDates[0].toISOString(),
-        endDate: sortedDates[sortedDates.length - 1].toISOString(),
-        isAvailable: makeAvailable
-      };
-    } 
-    // For single date, create a special date
-    else if (selectedDates.length === 1) {
-      const specialDate = {
-        date: selectedDates[0].toISOString(),
-        isAvailable: makeAvailable
-      };
-      
-      // Check if we already have this special date
-      const existingIndex = specialDates.findIndex(sd => 
-        new Date(sd.date).toISOString().split('T')[0] === 
-        new Date(specialDate.date).toISOString().split('T')[0]
-      );
-      
-      if (existingIndex >= 0) {
-        // Update existing special date
-        const updatedSpecialDates = [...specialDates];
-        updatedSpecialDates[existingIndex] = specialDate;
-        setSpecialDates(updatedSpecialDates);
-      } else {
-        // Add new special date
-        setSpecialDates([...specialDates, specialDate]);
-      }
+
+    // The `selectedDates` state should now accurately reflect ALL dates that should be available.
+    // We will convert this flat list into specialDates and dateRanges to send to the backend.
+    // All dates in `selectedDates` are considered `isAvailable: true`.
+    // Any date *not* in `selectedDates` that was previously available (based on initial load or previous state)
+    // and falls within a modified range implicitly becomes `isAvailable: false`.
+    // Backend should be prepared to handle a list of available dates/ranges and infer unavailabilities, or be sent explicit unavailabilities.
+
+    const newAvailableSpecialDates = [];
+    const newAvailableDateRanges = [];
+
+    if (selectedDates.length > 0) {
+        const sortedSelectedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
+        let rangeStartIndex = 0;
+        for (let i = 1; i <= sortedSelectedDates.length; i++) {
+            const isEndOfContiguousRange = (i === sortedSelectedDates.length) || 
+                                           (sortedSelectedDates[i].getTime() !== sortedSelectedDates[i-1].getTime() + (24 * 60 * 60 * 1000));
+
+            if (isEndOfContiguousRange) {
+                const rangeStartDate = sortedSelectedDates[rangeStartIndex];
+                const rangeEndDate = sortedSelectedDates[i-1];
+                if (isSameDay(rangeStartDate, rangeEndDate)) {
+                    newAvailableSpecialDates.push({
+                        date: rangeStartDate.toISOString(),
+                        isAvailable: true 
+                    });
+                } else {
+                    newAvailableDateRanges.push({
+                        startDate: rangeStartDate.toISOString(),
+                        endDate: rangeEndDate.toISOString(),
+                        isAvailable: true 
+                    });
+                }
+                rangeStartIndex = i;
+            }
+        }
     }
     
-    // For date ranges, we need to handle overlaps
-    if (newDateRange) {
-      // Remove any existing date ranges that overlap with this one
-      const nonOverlappingRanges = dateRanges.filter(range => {
-        const rangeStart = new Date(range.startDate);
-        const rangeEnd = new Date(range.endDate);
-        const newStart = new Date(newDateRange.startDate);
-        const newEnd = new Date(newDateRange.endDate);
-        
-        // Check if there's no overlap
-        return rangeEnd < newStart || rangeStart > newEnd;
-      });
-      
-      setDateRanges([...nonOverlappingRanges, newDateRange]);
-    }
-    
-    // Update the server
+    // For dates that were previously available but are no longer in selectedDates due to a remove operation,
+    // we might need to send them as `isAvailable: false`. This part is complex and depends on backend expectations.
+    // A simpler approach for now: send only the list of currently selected (i.e., available) dates/ranges.
+    // The backend would then be responsible for updating its state based on this complete list of availabilities.
+
+    const dataToSend = {
+        specialDates: newAvailableSpecialDates, 
+        dateRanges: newAvailableDateRanges,
+        // Consider if weekly `availability` also needs to be sent if it can be modified by this UI.
+    };
+
+    const token = localStorage.getItem("token");
     try {
-      let dataToSend = {};
-      
-      if (newDateRange) {
-        dataToSend = { 
-          dateRanges: [...dateRanges.filter(range => {
-            const rangeStart = new Date(range.startDate);
-            const rangeEnd = new Date(range.endDate);
-            const newStart = new Date(newDateRange.startDate);
-            const newEnd = new Date(newDateRange.endDate);
-            
-            // Filter out overlapping ranges
-            return rangeEnd < newStart || rangeStart > newEnd;
-          }), newDateRange] 
-        };
-      } else {
-        dataToSend = { specialDates };
-      }
-      
-      // 获取存储在本地的token
-      const token = localStorage.getItem("token");
-      
       const response = await fetch(`/api/users/providers/${providerId}/availability`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(dataToSend)
       });
-      
       const responseData = await response.json();
-      
       if (responseData.success) {
-        toaster.create({
-          title: "Availability updated",
-          description: "Availability updated successfully",
-        })
-        ;
-        
-        // Reset selection
-        setSelectionStart(null);
-        setSelectionEnd(null);
-        setHoveredDate(null);
-        setSelectedDates([]);
+        toaster.create({ title: "Availability updated", description: "Successfully updated." });
+        if (responseData.data) { 
+            const returnedSpecialDates = responseData.data.specialDates || [];
+            const returnedDateRanges = responseData.data.dateRanges || [];
+            // Also update local `specialDates` and `dateRanges` states for general UI consistency
+            setSpecialDates(returnedSpecialDates);
+            setDateRanges(returnedDateRanges);
+            // CRITICAL: Re-initialize selectedDates from the authoritative data returned by the backend
+            initializeSelectedDatesFromSource(returnedSpecialDates, returnedDateRanges);
+        } else {
+            // If backend doesn't return the full updated data, we might need to re-fetch or
+            // assume the `selectedDates` state as sent was successful and re-initialize from that.
+            // For robustness, backend should return the new state.
+            // Fallback: if no data, re-init from what we *think* is now selected (current `selectedDates`)
+            initializeSelectedDatesFromSource(newAvailableSpecialDates.map(sd => ({...sd, date: new Date(sd.date)})), 
+                                                newAvailableDateRanges.map(dr => ({...dr, startDate: new Date(dr.startDate), endDate: new Date(dr.endDate)})));
+        }
         setPendingChanges(false);
+        setSelectionStart(null);
+        setHoveredDate(null);
+        setSelectionMode('add'); 
       } else {
         throw new Error(responseData.message || 'Failed to update availability');
       }
-    } catch (error) {
-      console.error('Error updating availability:', error);
-      toaster.create({
-        title: "Error updating availability",
-        description: error.message,
-      });
+    } catch (err) { 
+      console.error('Error updating availability:', err);
+      toaster.create({ title: "Error updating", description: err.message });
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Clear selection
-  const clearSelection = () => {
+  const cancelUnappliedChangesAndUiGesture = () => {
+    // Revert selectedDates to the last persisted state by re-initializing
+    // from specialDates and dateRanges which hold the last successfully saved data or initial providerData.
+    initializeSelectedDatesFromSource(specialDates, dateRanges);
+    
+    // Reset UI gesture state
     setSelectionStart(null);
-    setSelectionEnd(null);
     setHoveredDate(null);
-    setSelectedDates([]);
+    setSelectionMode('add'); // Reset to default mode
+    
+    // Reset pendingChanges as we've reverted to the last saved state
     setPendingChanges(false);
   };
 
@@ -398,9 +460,25 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
       const date = new Date(year, month, day);
       const isPastDay = isInPast(day, month, year);
       const available = isDateAvailable(date);
-      const isSelected = isInSelectionRange(date) || isInSelectedDates(date);
+      const isSelected = isInSelectedDates(date);
+      const isSelecting = isInSelectionRange(date);
       const isTodayDay = isToday(day, month, year);
       
+      let bgColor = "transparent";
+      if (isSelecting) {
+        bgColor = selectionMode === 'remove' ? "red.100" : "blue.100";
+      } else if (isSelected) {
+        bgColor = "blue.100";
+      } else if (available) {
+        bgColor = "blue.50";
+      }
+      
+      let hoverBorderColor = selectionMode === 'remove' ? "red.200" : "blue.200";
+      let textColor = isPastDay ? "gray.400" : "black";
+      if (isSelecting && selectionMode === 'remove') {
+        textColor = "red.700";
+      }
+
       days.push(
         <GridItem 
           key={`day-${day}-${month}`}
@@ -413,11 +491,11 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
           height="36px"
           cursor={isPastDay ? "not-allowed" : "pointer"}
           borderRadius="full"
-          bg={isSelected ? "blue.100" : available ? "blue.50" : "transparent"}
+          bg={bgColor}
           opacity={isPastDay ? 0.5 : 1}
           _hover={{
-            bg: !isPastDay && !isSelected ? "blue.50" : undefined,
-            _before: !isPastDay && !isSelected ? {
+            bg: !isPastDay && !isSelecting && !isSelected ? (selectionMode === 'remove' ? "red.50" : "blue.50") : undefined,
+            _before: !isPastDay && !isSelecting && !isSelected ? {
               content: '""',
               position: "absolute",
               top: "0",
@@ -426,13 +504,13 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
               bottom: "0",
               borderRadius: "full",
               border: "2px solid",
-              borderColor: "blue.200"
+              borderColor: hoverBorderColor
             } : undefined
           }}
         >
           <Text 
             fontWeight={isTodayDay ? "bold" : "normal"} 
-            color={isPastDay ? "gray.400" : "black"}
+            color={textColor}
           >
             {day}
           </Text>
@@ -458,27 +536,41 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
 
   // Render selection info
   const renderSelectionInfo = () => {
-    if (selectedDates.length === 0) return null;
+    if (selectedDates.length === 0 && !selectionStart) return null;
     
-    const sorted = [...selectedDates].sort((a, b) => a - b);
-    const startDate = sorted[0];
-    const endDate = sorted[sorted.length - 1];
-    const makeAvailable = !selectedDates.every(date => isDateAvailable(date));
+    let infoText = "";
     
+    if (selectedDates.length > 0) {
+      const sorted = [...selectedDates].sort((a,b) => a.getTime() - b.getTime());
+      if (sorted.length === 1) {
+        infoText = `Selected: ${sorted[0].toLocaleDateString()}`;
+      } else {
+        infoText = `Selected Range: ${sorted[0].toLocaleDateString()} - ${sorted[sorted.length-1].toLocaleDateString()} (${sorted.length} days)`;
+      }
+    }
+    
+    const actionDescription = selectionStart 
+        ? (selectionMode === 'remove' ? "Current operation: REMOVE dates in highlighted range." : "Current operation: ADD dates in highlighted range.")
+        : (selectedDates.length > 0 ? `Total ${selectedDates.length} day(s) selected.` : "Click a date to start selecting a range.");
+
     return (
       <Box mt={6} p={4} borderWidth="1px" borderRadius="md" borderColor="gray.200">
-        <Heading size="sm" mb={3}>
-          Selection
+        <Heading size="sm" mb={3} display="flex" alignItems="center">
+          Selection Status
+          {selectionStart && (
+            <Text 
+              as="span" 
+              fontSize="sm" 
+              color={selectionMode === 'remove' ? "red.500" : "blue.500"}
+              ml={2}
+            >
+              (Mode: {selectionMode === 'remove' ? "REMOVE" : "ADD"})
+            </Text>
+          )}
         </Heading>
-        <Text mb={2}>
-          {selectedDates.length === 1 
-            ? `Selected: ${startDate.toLocaleDateString()}`
-            : `Selected Range: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()} (${selectedDates.length} days)`
-          }
-        </Text>
-        <Text>
-          Action: {makeAvailable ? "Make Available" : "Make Unavailable"}
-        </Text>
+        
+        {infoText && <Text mb={1}>{infoText}</Text>}
+        <Text fontSize="sm" color="gray.600">{actionDescription}</Text>
       </Box>
     );
   };
@@ -488,7 +580,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
       <HStack justifyContent="space-between">
         <Heading size="md" mb={4}>Availability Settings</Heading>
         <Box>
-          {pendingChanges && (
+          {(pendingChanges || selectedDates.length > 0) && (
             <HStack spacing={2}>
               <Button 
                 size="sm" 
@@ -498,15 +590,15 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
                 isLoading={isSaving}
                 loadingText="Saving"
               >
-                Apply
+                Apply Changes
               </Button>
               <Button 
                 size="sm" 
                 variant="ghost" 
                 colorScheme="gray" 
-                onClick={clearSelection}
+                onClick={cancelUnappliedChangesAndUiGesture}
               >
-                Cancel
+                Cancel Changes
               </Button>
             </HStack>
           )}
@@ -544,17 +636,12 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
           <Box mt={4} p={4} bg="gray.50" borderRadius="md">
             <Heading size="sm" mb={2}>Instructions</Heading>
             <Text fontSize="sm">
-              Click on a day to select it. Click and drag or click on two different days to select a range.
-              <br />
-              <br />
-              • Blue background: Days you are available
-              <br />
-              • White background: Days you are not available
-              <br />
-              • Light blue selection: Your current selection
-              <br />
-              <br />
-              Click "Apply" to save your changes.
+              - Click a date to start selecting a range. Click a second date to complete the range.<br/>
+              - If your first click is on an already selected date, you will enter <strong>REMOVE MODE</strong> for that range operation.<br/>
+              - Otherwise, you are in <strong>ADD MODE</strong>.<br/>
+              - Selected dates are shown with a solid blue background.<br/>
+              - Dates being actively selected for ADDITION are light blue. Dates for REMOVAL are light red.<br/>
+              - Click "Apply Changes" to save. "Cancel Current Selection" clears the dates highlighted for the current operation and resets the mode.
             </Text>
           </Box>
         </VStack>

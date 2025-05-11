@@ -19,6 +19,7 @@ import { useConversationStore } from '../store/conversationStore';
 import CachedAvatar from './CachedAvatar';
 import { Link as RouterLink } from 'react-router-dom';
 import { updateBookingStatus } from '../services/messageService';
+import { toaster } from "@/components/ui/toaster";
 
 const ConversationView = ({ conversation, user }) => {
   const { activeMessages, messageLoading, fetchMessages, sendMessage, updateLocalMessage } = useConversationStore();
@@ -85,11 +86,16 @@ const ConversationView = ({ conversation, user }) => {
     const messageToSend = newMessage;
     setNewMessage('');
     
-    await sendMessage(conversation._id, user._id, messageToSend);
-    
-    // Use smooth scrolling for new messages
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    try {
+      await sendMessage(conversation._id, user._id, messageToSend);
+      
+      // Use smooth scrolling for new messages
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toaster.create({ title: 'Failed to send message', description: error.message });
     }
   }, [newMessage, user?._id, conversation?._id, sendMessage]);
   
@@ -149,9 +155,8 @@ const ConversationView = ({ conversation, user }) => {
       setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
     } catch (error) {
       console.error('Error updating booking status:', error);
-      // 如果出错，可以重新获取消息恢复原状态
+      toaster.create({ title: 'Failed to update booking status', description: error.message });
       fetchMessages(conversation._id);
-      // 清除更新状态
       setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
     }
   };
@@ -235,7 +240,7 @@ const ConversationView = ({ conversation, user }) => {
                             message.bookingStatus === 'rejected' ? 'red.50' : 'gray.50'}
                         my={3}
                         minW="280px"
-                        maxW="450px"
+                        maxW="600px"
                         boxShadow="md"
                         position="relative"
                         transition="all 0.2s"
@@ -327,6 +332,7 @@ const ConversationView = ({ conversation, user }) => {
                               { label: "Provider", regex: /Provider:?\s*([^,\n]+)/ },
                               { label: "Service", regex: /Service Type:?\s*([^,\n]+)/ },
                               { label: "Date", regex: /Booking Date:?\s*([^,\n]+)/ },
+                              { label: "Address", regex: /Customer Address:?\s*([^\n]+)/ },
                               { label: "Rate", regex: /Rate:?\s*([^,\n]+)/ }
                             ];
                             

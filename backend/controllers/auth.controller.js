@@ -240,3 +240,47 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
+
+// Update current user profile
+export const updateCurrentUser = async (req, res) => {
+  try {
+    const allowed = [
+      "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
+      "serviceType", "hourlyRate"
+    ];
+    const updateFields = {};
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) updateFields[key] = req.body[key];
+    });
+    // Merge address if present
+    if (req.body.address) {
+      const user = await User.findById(req.userId);
+      updateFields.address = {
+        ...(user?.address?.toObject ? user.address.toObject() : user?.address || {}),
+        ...req.body.address,
+      };
+    }
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+      message: "Profile updated"
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      success: false,
+      message: "Update failed", 
+      error: err.message 
+    });
+  }
+};

@@ -12,13 +12,17 @@ import {
   Alert,
   Grid,
   GridItem,
+  EmptyState,
+  Link,
 } from '@chakra-ui/react';
 import { FaCircle } from 'react-icons/fa';
+import { CiMail } from 'react-icons/ci';
 import { useConversationStore } from '../store/conversationStore';
 import { useChatDialogStore } from '../store/chatDialogStore';
 import useAuthStore from '../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import ConversationView from './ConversationView'; // We'll create this component next
+import { useNavigate } from 'react-router-dom';
 
 const UserInbox = () => {
   const { user } = useAuthStore();
@@ -32,6 +36,7 @@ const UserInbox = () => {
   
   const { openDialog, conversationId: targetConversationIdFromStore } = useChatDialogStore();
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?._id) {
@@ -194,7 +199,26 @@ const UserInbox = () => {
             />
           ) : (
             <Center h="100%">
-              <Text color="gray.500">Select a conversation to start messaging</Text>
+              <EmptyState.Root size="lg">
+                <EmptyState.Content>
+                  <EmptyState.Indicator>
+                    <CiMail />
+                  </EmptyState.Indicator>
+                  <VStack textAlign="center">
+                    <EmptyState.Title>Select a conversation to start messaging</EmptyState.Title>
+                    <EmptyState.Description>
+                      or <Link 
+                          color="blue.600"
+                          _hover={{ textDecoration: 'underline' }}
+                          onClick={() => navigate('/booking')}
+                          cursor="pointer"
+                        >
+                          book a new service
+                        </Link>
+                    </EmptyState.Description>
+                  </VStack>
+                </EmptyState.Content>
+              </EmptyState.Root>
             </Center>
           )}
         </GridItem>
