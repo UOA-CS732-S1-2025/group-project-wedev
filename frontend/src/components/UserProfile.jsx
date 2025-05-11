@@ -51,7 +51,7 @@ const UserProfile = () => {
                 borderRadius="md"
                 fontSize="sm"
               >
-                {user?.role === 'provider' ? 'Service Provider' : 'Customer'}
+                {user?.role === 'provider' ? 'Service Provider' : (user?.role === 'customer' ? 'Customer': 'Admin') }
               </Text>
             </VStack>
           </HStack>
