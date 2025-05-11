@@ -245,7 +245,8 @@ export const verifyEmail = async (req, res) => {
 export const updateCurrentUser = async (req, res) => {
   try {
     const allowed = [
-      "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address"
+      "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
+      "serviceType", "hourlyRate"
     ];
     const updateFields = {};
     allowed.forEach((key) => {

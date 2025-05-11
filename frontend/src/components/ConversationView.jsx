@@ -240,7 +240,7 @@ const ConversationView = ({ conversation, user }) => {
                             message.bookingStatus === 'rejected' ? 'red.50' : 'gray.50'}
                         my={3}
                         minW="280px"
-                        maxW="450px"
+                        maxW="600px"
                         boxShadow="md"
                         position="relative"
                         transition="all 0.2s"
@@ -332,6 +332,7 @@ const ConversationView = ({ conversation, user }) => {
                               { label: "Provider", regex: /Provider:?\s*([^,\n]+)/ },
                               { label: "Service", regex: /Service Type:?\s*([^,\n]+)/ },
                               { label: "Date", regex: /Booking Date:?\s*([^,\n]+)/ },
+                              { label: "Address", regex: /Customer Address:?\s*([^\n]+)/ },
                               { label: "Rate", regex: /Rate:?\s*([^,\n]+)/ }
                             ];
                             

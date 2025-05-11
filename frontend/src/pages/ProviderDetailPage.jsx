@@ -120,6 +120,16 @@ export default function ProviderDetailPage() {
       toaster.create({ title: 'Please log in first or provider information is missing' });
       return;
     }
+    
+    // Verify user address information
+    if (!currentUser.address || !currentUser.address.city || !currentUser.address.street) {
+      toaster.create({ 
+        title: 'Address information missing', 
+        description: 'Please update your address information in your profile before booking'
+      });
+      navigate('/profile?tab=profile');
+      return;
+    }
 
     try {
       // 1. Find or create conversation
@@ -145,12 +155,18 @@ export default function ProviderDetailPage() {
         .map(slot => `${slot.start} - ${slot.end}`)
         .join(', ');
       
+      // Add customer address information to booking message
+      const customerAddress = currentUser.address ? 
+        `${currentUser.address.street || ''}, ${currentUser.address.suburb || ''}, ${currentUser.address.city || ''}, ${currentUser.address.state || ''}, ${currentUser.address.postalCode || ''}, ${currentUser.address.country || ''}` :
+        'No address provided';
+      
       const bookingMessage = `Booking Confirmation:\n` +
         `Customer: ${currentUser.firstName} ${currentUser.lastName} (${currentUser.email})\n` +
         `Provider: ${provider.firstName} ${provider.lastName}\n` +
         `Service Type: ${formatServiceType(provider.serviceType)}\n` +
         `Booking Date: ${formattedDate}\n` +
         (formattedTime ? `Booking Time: ${formattedTime}\n` : '') +
+        `Customer Address: ${customerAddress}\n` +
         `Rate: $${provider.hourlyRate || 'Not specified'}/hour`;
 
       // 3. Send booking message
