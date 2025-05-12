@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import ServiceSelector from './ServiceSelector';
 import LocationSelector from './LocationSelector';
 import DateSelector from './DateSelector';
-import { useUserStore } from '../store/user';
+import { useUserStore } from '../store/userStore';
 
 const HomeFilter = () => {
   const navigate = useNavigate();
