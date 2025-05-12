@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
-  // Get token from request headers
+  // 从请求头获取token
   const token = req.header("x-auth-token") || (req.header("Authorization") && req.header("Authorization").split(" ")[1]);
 
-  // Check if token exists
+  // 检查是否有token
   if (!token) {
     return res.status(401).json({ 
       success: false,
@@ -13,10 +13,10 @@ export const authMiddleware = (req, res, next) => {
   }
 
   try {
-    // Verify token
+    // 验证token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Add user ID and role to the request object
+    // 将用户ID和角色添加到请求对象中
     req.userId = decoded.id;
     req.userRole = decoded.role;
     
@@ -29,7 +29,7 @@ export const authMiddleware = (req, res, next) => {
   }
 };
 
-// Check if user is of a specific role
+// 检查是否为特定角色的中间件
 // export const checkRole = (role) => {
 //   return (req, res, next) => {
 //     if (req.userRole !== role) {

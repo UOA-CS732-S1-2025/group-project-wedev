@@ -1,5 +1,5 @@
-import Booking from '../models/booking.model.js';
-import User from '../models/user.model.js'; // Assuming user model for validation and roles
+import Booking from '../models/booking.model';
+import User from '../models/user.model'; // Assuming user model for validation and roles
 // const { sendNotification } = require('../utils/notificationService'); // Example notification service
 
 // Helper function to handle errors
@@ -19,120 +19,57 @@ const handleError = (res, error, statusCode = 500, message = 'Server error') => 
 // @desc    Create a new booking
 // @route   POST /api/bookings
 // @access  Private (Customer)
-export const createBooking = async (req, res) => {
+exports.createBooking = async (req, res) => {
     try {
-        const customerId = req.userId; // 使用中间件设置的 userId
+        const customerId = req.user?.id; // Assuming req.user is populated by auth middleware
         if (!customerId) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'User not authenticated.' 
-            });
+            return res.status(401).json({ message: 'User not authenticated.' });
         }
-
-        console.log('Booking request received:', req.body);
 
         const {
             providerId,
             serviceType,
-            serviceAddress,
+            serviceAddress, // Expects { street, city, postalCode, country, ... }
             startTime,
             endTime,
             hourlyRate, 
             notes
         } = req.body;
 
-        // 检查必填字段
-        const missingFields = [];
-        if (!providerId) missingFields.push('providerId');
-        if (!serviceType) missingFields.push('serviceType');
-        if (!serviceAddress) missingFields.push('serviceAddress');
-        if (!startTime) missingFields.push('startTime');
-        if (!endTime) missingFields.push('endTime');
-        if (hourlyRate == null || hourlyRate === undefined) missingFields.push('hourlyRate');
-
-        if (missingFields.length > 0) {
-            console.error('Missing booking fields:', missingFields);
-            return res.status(400).json({ 
-                success: false, 
-                message: `Missing required booking fields: ${missingFields.join(', ')}. Ensure providerId, serviceType, serviceAddress, startTime, endTime, and hourlyRate are provided.` 
-            });
+        if (!providerId || !serviceType || !serviceAddress || !startTime || !endTime || hourlyRate == null) {
+            return res.status(400).json({ message: 'Missing required booking fields. Ensure providerId, serviceType, serviceAddress, startTime, endTime, and hourlyRate are provided.' });
         }
 
-        // 检查 serviceAddress 字段
-        if (typeof serviceAddress !== 'object') {
-            console.error('Invalid serviceAddress format:', serviceAddress);
-            return res.status(400).json({ 
-                success: false, 
-                message: 'serviceAddress must be an object' 
-            });
-        }
-
-        // 确保 serviceAddress 至少有基本字段
-        const addressMissingFields = [];
-        if (!serviceAddress.street) addressMissingFields.push('street');
-        if (!serviceAddress.city) addressMissingFields.push('city');
-
-        if (addressMissingFields.length > 0) {
-            console.warn('Address missing some fields:', addressMissingFields);
-            // 不返回错误，只记录警告
-        }
-
-        // 验证 provider 存在
+        // Validate provider exists (and is a provider, if you have roles)
         const provider = await User.findById(providerId);
-        if (!provider) {
-            console.error('Provider not found:', providerId);
-            return res.status(404).json({ 
-                success: false,
-                message: 'Provider not found.' 
-            });
+        if (!provider) { // Add role check: && provider.role === 'provider'
+            return res.status(404).json({ message: 'Provider not found or is not a valid provider.' });
         }
+        // Ideally, further validation: does this provider offer this serviceType at this hourlyRate?
+        // This might involve checking a Service model or provider's service offerings.
 
-        // 验证 provider 角色 (可选验证，如果 provider 不是服务提供者角色也允许继续)
-        if (provider.role !== 'provider') {
-            console.warn('User is not a provider:', provider.role);
-            // 继续处理，只记录警告
-        }
-
-        // 创建 booking 记录
         const newBooking = new Booking({
             customer: customerId,
             provider: providerId,
             serviceType,
-            serviceAddress: {
-                street: serviceAddress.street || '',
-                city: serviceAddress.city || '',
-                state: serviceAddress.state || '',
-                postalCode: serviceAddress.postalCode || '',
-                country: serviceAddress.country || '',
-                additionalDetails: serviceAddress.additionalDetails || ''
-            },
+            serviceAddress,
             startTime: new Date(startTime),
             endTime: new Date(endTime),
             hourlyRate: parseFloat(hourlyRate),
-            notes: notes || `Booking created on ${new Date().toLocaleString()}`,
-            status: 'pending_confirmation', // 初始状态
-        });
-        
-        console.log('Creating booking with data:', {
-            customer: customerId,
-            provider: providerId,
-            serviceType,
-            serviceAddress: newBooking.serviceAddress,
-            startTime: newBooking.startTime,
-            endTime: newBooking.endTime,
-            hourlyRate: newBooking.hourlyRate
+            notes,
+            status: 'pending_confirmation', // Initial status
+            // estimatedTotalCost will be calculated by pre-save hook
         });
         
         const savedBooking = await newBooking.save();
-        console.log('Booking created successfully:', savedBooking._id);
 
-        res.status(201).json({
-            success: true,
-            message: 'Booking created successfully',
-            booking: savedBooking
-        });
+        // Example: Send notification to provider
+        // if (sendNotification) {
+        //    await sendNotification(providerId, `New booking request for ${serviceType} from customer ${req.user.username}.`);
+        // }
+
+        res.status(201).json(savedBooking);
     } catch (error) {
-        console.error('Error creating booking:', error);
         handleError(res, error, 500, 'Error creating booking.');
     }
 };
@@ -140,19 +77,16 @@ export const createBooking = async (req, res) => {
 // @desc    Get bookings for the logged-in customer
 // @route   GET /api/bookings/my-bookings
 // @access  Private (Customer)
-export const getCustomerBookings = async (req, res) => {
+exports.getCustomerBookings = async (req, res) => {
     try {
-        const customerId = req.userId;
+        const customerId = req.user?.id;
         if (!customerId) return res.status(401).json({ message: 'User not authenticated.' });
 
         const bookings = await Booking.find({ customer: customerId })
-            .populate('provider', 'firstName lastName username profilePictureUrl email phoneNumber') 
-            .populate('customer', 'firstName lastName username profilePictureUrl') // Optional, as it's the current user
+            .populate('provider', 'username profilePictureUrl contactInfo professionalInfo') 
+            .populate('customer', 'username profilePictureUrl') // Optional, as it's the current user
             .sort({ startTime: -1 });
-        res.status(200).json({
-            success: true,
-            bookings
-        });
+        res.status(200).json(bookings);
     } catch (error) {
         handleError(res, error, 500, 'Error fetching customer bookings.');
     }
@@ -161,20 +95,17 @@ export const getCustomerBookings = async (req, res) => {
 // @desc    Get bookings for the logged-in provider
 // @route   GET /api/bookings/provider-bookings
 // @access  Private (Provider)
-export const getProviderBookings = async (req, res) => {
+exports.getProviderBookings = async (req, res) => {
     try {
-        const providerId = req.userId;
+        const providerId = req.user?.id;
         if (!providerId) return res.status(401).json({ message: 'User not authenticated.' });
         // Add role check: if(req.user.role !== 'provider') return res.status(403).json({ message: 'Forbidden'});
 
         const bookings = await Booking.find({ provider: providerId })
-            .populate('customer', 'firstName lastName username profilePictureUrl email phoneNumber address')
-            .populate('provider', 'firstName lastName username profilePictureUrl') // Optional
+            .populate('customer', 'username profilePictureUrl contactInfo billingAddress')
+            .populate('provider', 'username profilePictureUrl') // Optional
             .sort({ startTime: -1 });
-        res.status(200).json({
-            success: true,
-            bookings
-        });
+        res.status(200).json(bookings);
     } catch (error) {
         handleError(res, error, 500, 'Error fetching provider bookings.');
     }
@@ -183,14 +114,14 @@ export const getProviderBookings = async (req, res) => {
 // @desc    Get a single booking by ID
 // @route   GET /api/bookings/:id
 // @access  Private (Customer/Provider involved or Admin)
-export const getBookingById = async (req, res) => {
+exports.getBookingById = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user?.id;
         if (!userId) return res.status(401).json({ message: 'User not authenticated.' });
 
         const booking = await Booking.findById(req.params.id)
-            .populate('customer', 'firstName lastName username profilePictureUrl email phoneNumber address')
-            .populate('provider', 'firstName lastName username profilePictureUrl email phoneNumber serviceType hourlyRate');
+            .populate('customer', 'username profilePictureUrl contactInfo billingAddress')
+            .populate('provider', 'username profilePictureUrl contactInfo professionalInfo');
 
         if (!booking) {
             return res.status(404).json({ message: 'Booking not found.' });
@@ -205,10 +136,7 @@ export const getBookingById = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to view this booking.' });
         }
 
-        res.status(200).json({
-            success: true,
-            booking
-        });
+        res.status(200).json(booking);
     } catch (error) {
         handleError(res, error, 500, 'Error fetching booking by ID.');
     }
@@ -217,10 +145,10 @@ export const getBookingById = async (req, res) => {
 // @desc    Update booking status
 // @route   PATCH /api/bookings/:id/status
 // @access  Private (Provider or Customer, depending on action and current status)
-export const updateBookingStatus = async (req, res) => {
-    const { status, cancellationReason } = req.body;
+exports.updateBookingStatus = async (req, res) => {
+    const { status, cancellationReason, cancelledByUserId } = req.body; // cancelledByUserId should be req.user.id
     const bookingId = req.params.id;
-    const userId = req.userId;
+    const userId = req.user?.id;
 
     if (!userId) return res.status(401).json({ message: 'User not authenticated.' });
     if (!status) return res.status(400).json({ message: 'New status is required.' });
@@ -254,10 +182,6 @@ export const updateBookingStatus = async (req, res) => {
                     return res.status(403).json({ message: 'Cannot cancel a confirmed booking less than 24 hours before start time.'});
                 }
             }
-            // Allow customer to mark a completed booking as reviewed
-            if (oldStatus === 'completed' && status === 'reviewed') {
-                canUpdate = true;
-            }
             // Add more customer transitions
         } /* else if (isAdmin) { canUpdate = true; } */
 
@@ -279,10 +203,7 @@ export const updateBookingStatus = async (req, res) => {
         const updatedBooking = await booking.save();
         // Example: Send notifications about status change
         // if (sendNotification) { ... }
-        res.status(200).json({
-            success: true,
-            booking: updatedBooking
-        });
+        res.status(200).json(updatedBooking);
     } catch (error) {
         handleError(res, error, 500, 'Error updating booking status.');
     }
@@ -292,9 +213,9 @@ export const updateBookingStatus = async (req, res) => {
 // @desc    Update booking details (general update)
 // @route   PUT /api/bookings/:id
 // @access  Private (Admin, or Customer/Provider for specific fields & conditions)
-export const updateBooking = async (req, res) => {
+exports.updateBooking = async (req, res) => {
     const bookingId = req.params.id;
-    const userId = req.userId;
+    const userId = req.user?.id;
     const updates = req.body;
 
     if (!userId) return res.status(401).json({ message: 'User not authenticated.' });
@@ -349,10 +270,7 @@ export const updateBooking = async (req, res) => {
         // e.g., paymentDetails updates should be through a dedicated payment route/controller
 
         const updatedBooking = await booking.save();
-        res.status(200).json({
-            success: true,
-            booking: updatedBooking
-        });
+        res.status(200).json(updatedBooking);
     } catch (error) {
         handleError(res, error, 500, 'Error updating booking.');
     }
@@ -362,9 +280,9 @@ export const updateBooking = async (req, res) => {
 // @desc    Delete a booking
 // @route   DELETE /api/bookings/:id
 // @access  Private (Admin, or Customer/Provider under specific conditions)
-export const deleteBooking = async (req, res) => {
+exports.deleteBooking = async (req, res) => {
     const bookingId = req.params.id;
-    const userId = req.userId;
+    const userId = req.user?.id;
 
     if (!userId) return res.status(401).json({ message: 'User not authenticated.' });
 
@@ -390,10 +308,7 @@ export const deleteBooking = async (req, res) => {
         }
 
         await booking.deleteOne(); // Mongoose v6+ uses deleteOne()
-        res.status(200).json({ 
-            success: true,
-            message: 'Booking deleted successfully.' 
-        });
+        res.status(200).json({ message: 'Booking deleted successfully.' });
     } catch (error) {
         handleError(res, error, 500, 'Error deleting booking.');
     }
