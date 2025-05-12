@@ -16,6 +16,7 @@ import {
   Spinner,
   Alert,
   SimpleGrid,
+  CloseButton, Dialog, Portal
 } from "@chakra-ui/react";
 import {
   FaCalendarAlt,
@@ -30,6 +31,7 @@ import useAuthStore from "../store/authStore";
 import { format, isPast, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
+import ReviewDialog from "./ReviewDialog";
 
 // Utility function: format time
 const formatTime = (dateTime) => {
@@ -64,6 +66,7 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
   const statusProps = getStatusBadgeProps(booking.status);
   const isPastBooking = isPast(new Date(booking.endTime));
   const isTodayBooking = isToday(new Date(booking.startTime));
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   // Actions available to customer (based on booking status)
   const customerActions = () => {
@@ -82,13 +85,41 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
       );
     } else if (booking.status === "completed") {
       return (
-        <Button
-          size="sm"
-          colorScheme="purple"
-          onClick={() => onStatusChange(booking._id, "reviewed")}
-        >
-          Review Service
-        </Button>
+        <Dialog.Root open={reviewOpen} onOpenChange={setReviewOpen}>
+          <Dialog.Trigger asChild>
+            <Button
+              size="sm"
+              colorScheme="purple"
+              onClick={() => setReviewOpen(true)}
+            >
+              Review Service
+            </Button>
+          </Dialog.Trigger>
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Review Service</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <ReviewDialog
+                    bookingId={booking._id}
+                    providerId={booking.provider._id}
+                    onSuccess={() => {
+                      setReviewOpen(false);
+                      onStatusChange(booking._id, "reviewed");
+                    }}
+                  />
+                </Dialog.Body>
+                <Dialog.Footer />
+                <Dialog.CloseTrigger asChild>
+                  <CloseButton size="sm" />
+                </Dialog.CloseTrigger>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
       );
     }
     return null;
