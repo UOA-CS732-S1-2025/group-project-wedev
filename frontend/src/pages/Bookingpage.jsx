@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Box, VStack, Heading, Spinner, Alert, Center, Flex, Text } from "@chakra-ui/react";
-import { useUserStore } from "../store/user";
+import { useUserStore } from "../store/userStore";
 import ProviderCard from "../components/ProviderCard";
 import AdvancedFilter from "../components/AdvancedFilter";
 import { useLocation } from "react-router-dom";

@@ -24,7 +24,7 @@ import {
   FaDollarSign,
 } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
-import { useUserStore } from "../store/user";
+import { useUserStore } from "../store/userStore";
 import ServiceSelector from "./ServiceSelector";
 import LocationSelector from "./LocationSelector";
 import DateSelector from "./DateSelector";
