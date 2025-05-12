@@ -121,45 +121,6 @@ const ConversationView = ({ conversation, user }) => {
     });
   }, [activeMessages, user?._id]);
   
-  const handleBookingAction = async (messageId, action) => {
-    try {
-      // 设置消息为更新中状态
-      setUpdatingMessageIds(prev => [...prev, messageId]);
-      
-      // 首先找到要更新的消息
-      const messageToUpdate = processedMessages.find(msg => msg.id === messageId);
-      if (!messageToUpdate) {
-        setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-        return;
-      }
-      
-      // 在本地先更新消息状态，实现即时反馈
-      const updatedMessage = {
-        ...messageToUpdate,
-        bookingStatus: action,
-        senderDisplayText: action === 'accepted' 
-          ? 'Your booking has been accepted!' 
-          : 'Your booking was rejected.',
-        receiverDisplayText: action === 'accepted'
-          ? 'You have accepted this booking.'
-          : 'You have declined this booking.'
-      };
-      
-      // 更新本地状态
-      updateLocalMessage(updatedMessage);
-      
-      // 然后向后端发送请求
-      await updateBookingStatus(messageId, action);
-      
-      // 操作完成，从更新列表中移除
-      setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-    } catch (error) {
-      console.error('Error updating booking status:', error);
-      toaster.create({ title: 'Failed to update booking status', description: error.message });
-      fetchMessages(conversation._id);
-      setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-    }
-  };
   
   if (!conversation) return null;
 
@@ -390,33 +351,7 @@ const ConversationView = ({ conversation, user }) => {
                           {message.isCurrentUserSender ? message.senderDisplayText : message.receiverDisplayText}
                         </Box>
                         
-                        {/* Action Buttons */}
-                        {message.bookingStatus === 'pending' && !message.isCurrentUserSender && (
-                          <Box mt={4} display="flex" gap={3} justifyContent="flex-end">
-                            <Button
-                              colorScheme="green"
-                              size="sm"
-                              onClick={() => handleBookingAction(message.id, 'accepted')}
-                              leftIcon={<Icon as={LuCheck} />}
-                              isLoading={updatingMessageIds.includes(message.id)}
-                              loadingText="Accepting"
-                              _hover={{ transform: 'translateY(-2px)' }}
-                              transition="all 0.2s"
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              colorScheme="red"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleBookingAction(message.id, 'rejected')}
-                              isDisabled={updatingMessageIds.includes(message.id)}
-                              _hover={{ bg: 'red.50' }}
-                            >
-                              Decline
-                            </Button>
-                          </Box>
-                        )}
+
                       </Box>
                     ) : (
                       <Span fontWeight="medium">{message.content}</Span>
