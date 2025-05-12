@@ -11,19 +11,9 @@ import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
 import adminReportRoutes from "./routes/admin/report.admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 import paymentRoutes from "./routes/payment.route.js";
-import bookingRoutes from "./routes/booking.routes.js";
+import bookingRoutes from "./routes/booking.route.js";
+import reviewRoutes from "./routes/review.route.js";
 import cors from "cors";
-
-
-
-
-
-
-
-
-
-
-
 
 dotenv.config();
 
@@ -50,6 +40,7 @@ app.use(cors({
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/reviews", reviewRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/users", adminUserRoutes);
