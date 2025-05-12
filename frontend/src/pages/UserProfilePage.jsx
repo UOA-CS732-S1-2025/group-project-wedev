@@ -28,6 +28,7 @@ const UserProfilePage = ({ defaultTab = "profile" }) => {
               <Tabs.Trigger value="admin">Admin</Tabs.Trigger>
             )}
 
+
             <Tabs.Indicator rounded="l2" />
           </Tabs.List>
 
