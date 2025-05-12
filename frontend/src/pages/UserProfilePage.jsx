@@ -8,6 +8,7 @@ import BookingsView from "../components/BookingsView";
 import AdminView from "../components/AdminView";
 import useAuthStore from "../store/authStore";
 
+
 const UserProfilePage = ({ defaultTab = "profile" }) => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
@@ -22,9 +23,11 @@ const UserProfilePage = ({ defaultTab = "profile" }) => {
             <Tabs.Trigger value="messages">Messages</Tabs.Trigger>
             <Tabs.Trigger value="profile">Profile</Tabs.Trigger>
             <Tabs.Trigger value="orders">My Orders</Tabs.Trigger>
+
             {user?.role === "admin" && (
               <Tabs.Trigger value="admin">Admin</Tabs.Trigger>
             )}
+
             <Tabs.Indicator rounded="l2" />
           </Tabs.List>
 
