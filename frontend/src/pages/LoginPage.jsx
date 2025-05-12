@@ -19,8 +19,8 @@ useEffect(() => {
     navigate("/"); // 已登录直接跳首页或 profile
   }
 }, [user, navigate]);
- 
- 
+
+
 
 
   const handleLogin = async (e) => {
@@ -31,7 +31,7 @@ useEffect(() => {
       newErrors.comtent = 'Please enter your email.';
       setErrors(newErrors);
       return;
-    } 
+    }
     if (!password) {
       newErrors.comtent = 'Please enter your password.';
       setErrors(newErrors);
@@ -62,9 +62,9 @@ useEffect(() => {
       setErrors(newErrors);
       return;
     }
-  
-    
-  
+
+
+
     if (newErrors.comtent) {
       newErrors.comtent = 'Some Wrong? Contact Servise Team!';
       setErrors(newErrors);
@@ -100,7 +100,7 @@ useEffect(() => {
         insetStart: "2",
       },
     })
-    
+
   return (
     <Box
       position="relative"
@@ -128,18 +128,18 @@ useEffect(() => {
         bg="white"
         borderRadius="2xl"
         boxShadow="xl"
-        
+
       >
         {/* Logo */}
         <Box textAlign="center" mb={4}>
           <Image
-            src="https://cdn-icons-png.flaticon.com/512/809/809957.png"
+            src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/Urban+easelogo.svg"
             alt="Urban Ease Logo"
-            boxSize="60px"
+            boxSize="auto"
             mx="auto"
             mb={2}
           />
-          <Heading size="md" color="green.600">Urban Ease</Heading>
+
         </Box>
 
         {/* Form */}
@@ -147,37 +147,37 @@ useEffect(() => {
           <VStack spacing={10} >
 
           <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="text"//Don't use email, HTML5 features will affect the display
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             />
             <Field.Label css={floatingStyles}>Email</Field.Label>
-            
+
           </Field.Root>
 
           <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             />
             <Field.Label css={floatingStyles}>Password</Field.Label>
-            
+
           </Field.Root>
           <Field.Root w="100%" mb={1} visibility={errors.comtent ? "visible" : "hidden"}>
             <Text mt={1} fontSize="sm" color="red.500">
-              {errors.comtent || "space"} 
+              {errors.comtent || "space"}
             </Text>
           </Field.Root>
             <Button type="submit" colorScheme="green" width="100%">
               Login
             </Button>
-          
+
             <Text fontSize="xs" textAlign="center">
               New here?{' '}
               <Link to="/signup" style={{ color: '#2F855A', fontWeight: 'bold' }}>
@@ -185,7 +185,7 @@ useEffect(() => {
               </Link>
             </Text>
           </VStack>
-        </form> 
+        </form>
       </Box>
     </Box>
   );

@@ -49,7 +49,7 @@ const SignupPage = () => {
       navigate("/"); // 已登录直接跳首页或 profile
     }
   }, [user, navigate]);
-  
+
   const handleSignup = async (e) => {
     e.preventDefault();
     const newErrors = { comtent: ''};
@@ -58,7 +58,7 @@ const SignupPage = () => {
       newErrors.comtent = 'Please enter your first name.';
       setErrors(newErrors);
       return;
-    } 
+    }
     if (!lastname) {
       newErrors.comtent = 'Please enter your last name.';
       setErrors(newErrors);
@@ -68,7 +68,7 @@ const SignupPage = () => {
       newErrors.comtent = 'Please enter your email.';
       setErrors(newErrors);
       return;
-    } 
+    }
     if (!password) {
       newErrors.comtent = 'Please enter your password.';
       setErrors(newErrors);
@@ -99,9 +99,9 @@ const SignupPage = () => {
       setErrors(newErrors);
       return;
     }
-  
-    
-  
+
+
+
     if (newErrors.comtent) {
       newErrors.comtent = 'Some Wrong? Contact Servise Team!';
       setErrors(newErrors);
@@ -126,7 +126,7 @@ const SignupPage = () => {
   };
   return (
 
-    
+
     <Box
       position="relative"
       minH="90vh"
@@ -157,12 +157,13 @@ const SignupPage = () => {
         {/* Logo */}
         <Box textAlign="center" mb={4}>
           <Image
-            src="https://cdn-icons-png.flaticon.com/512/809/809957.png"
+            src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/Urban+easelogo.svg"
             alt="Urban Ease Logo"
-            boxSize="60px"
+            boxSize="auto"
             mx="auto"
             mb={2}
           />
+
         </Box>
 
         {/* Signup Form */}
@@ -170,9 +171,9 @@ const SignupPage = () => {
         <Toaster />
           <VStack spacing={4}>
           <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="text"
             value={firstname}
             onChange={(e) => {
@@ -181,14 +182,14 @@ const SignupPage = () => {
             }}
             />
             <Field.Label css={floatingStyles}>First Name</Field.Label>
-            
+
           </Field.Root>
-          
-          
+
+
           <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="text"
             value={lastname}
             onChange={(e) => {
@@ -197,41 +198,41 @@ const SignupPage = () => {
             }}
             />
             <Field.Label css={floatingStyles}>Last Name</Field.Label>
-            
+
           </Field.Root>
             <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="text"//Don't use email, HTML5 features will affect the display
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             />
             <Field.Label css={floatingStyles}>Email</Field.Label>
-            
+
           </Field.Root>
-          
+
           <Field.Root w="100%" mb={3}>
-            <Input 
-            className="peer" 
-            placeholder="" 
+            <Input
+            className="peer"
+            placeholder=""
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             />
             <Field.Label css={floatingStyles}>Password</Field.Label>
-            
+
           </Field.Root>
           <Field.Root w="100%" mb={1} visibility={errors.comtent ? "visible" : "hidden"}>
             <Text mt={1} fontSize="sm" color="red.500">
-              {errors.comtent || "space"} 
+              {errors.comtent || "space"}
             </Text>
           </Field.Root>
 
             <Button colorScheme="green" type="submit" width="100%">
               Signup
             </Button>
-            
+
             <Text fontSize="sm" textAlign="center">
               Already have an account?{' '}
               <Link to="/login" style={{ color: '#2F855A', fontWeight: 'bold' }}>
@@ -240,10 +241,10 @@ const SignupPage = () => {
             </Text>
           </VStack>
         </form>
-        
+
       </Box>
     </Box>
-    
+
   );
 };
 
