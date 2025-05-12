@@ -10,7 +10,8 @@ import SignupPage from './pages/SignupPage'
 import UserProfilePage from './pages/UserProfilePage'
 import useAuthStore, { initAuthSync } from "./store/authStore";
 import ProtectedRoute from './components/ProtectedRoute';
-import ProviderDetailPage from './pages/ProviderDetailPage'
+import ProviderDetailPage from './pages/ProviderDetailPage';
+import PaymentPage from './pages/PaymentPage';
 import {
   ChakraProvider,
   createSystem,
@@ -61,6 +62,7 @@ const App = () => {
         <Route path='/inbox' element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
         <Route path='/profile' element={<ProtectedRoute><UserProfilePage defaultTab="profile" /></ProtectedRoute>} />
          <Route path='/providerDetail/:id' element={<ProviderDetailPage />} />
+         <Route path="/payment/:bookingId" element={<PaymentPage />} />
       </Routes>
       <Toaster />
 

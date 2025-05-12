@@ -27,7 +27,7 @@ const paymentSchema = new mongoose.Schema({
   },
   method: {
     type: String,
-    enum: ["credit_card", "paypal", "bank_transfer", "other"],
+    enum: ["credit_card", "paypal", "bank_transfer", "null", "mastercard", "visa", "american_express"],
     default: "credit_card",
   },
   paidAt: {
