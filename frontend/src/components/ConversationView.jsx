@@ -121,9 +121,6 @@ const ConversationView = ({ conversation, user }) => {
     });
   }, [activeMessages, user?._id]);
   
-<<<<<<< HEAD
-
-=======
   const handleBookingAction = async (messageId, action) => {
     try {
       // 设置消息为更新中状态
@@ -163,7 +160,6 @@ const ConversationView = ({ conversation, user }) => {
       setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
     }
   };
->>>>>>> origin/develop
   
   if (!conversation) return null;
 
@@ -394,7 +390,33 @@ const ConversationView = ({ conversation, user }) => {
                           {message.isCurrentUserSender ? message.senderDisplayText : message.receiverDisplayText}
                         </Box>
                         
-
+                        {/* Action Buttons */}
+                        {message.bookingStatus === 'pending' && !message.isCurrentUserSender && (
+                          <Box mt={4} display="flex" gap={3} justifyContent="flex-end">
+                            <Button
+                              colorScheme="green"
+                              size="sm"
+                              onClick={() => handleBookingAction(message.id, 'accepted')}
+                              leftIcon={<Icon as={LuCheck} />}
+                              isLoading={updatingMessageIds.includes(message.id)}
+                              loadingText="Accepting"
+                              _hover={{ transform: 'translateY(-2px)' }}
+                              transition="all 0.2s"
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              colorScheme="red"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleBookingAction(message.id, 'rejected')}
+                              isDisabled={updatingMessageIds.includes(message.id)}
+                              _hover={{ bg: 'red.50' }}
+                            >
+                              Decline
+                            </Button>
+                          </Box>
+                        )}
                       </Box>
                     ) : (
                       <Span fontWeight="medium">{message.content}</Span>

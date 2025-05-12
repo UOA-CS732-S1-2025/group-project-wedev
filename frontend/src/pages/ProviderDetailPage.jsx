@@ -16,7 +16,6 @@ import {
   VStack,
   Badge,
   Input,
-  Field,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
@@ -38,7 +37,6 @@ export default function ProviderDetailPage() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingDate, setBookingDate] = useState('');
-  const [bookingTime, setBookingTime] = useState('9'); // Default booking time to 9 AM
   let error = null;
   
   // Color mode values
@@ -113,145 +111,28 @@ export default function ProviderDetailPage() {
   };
 
   const handleBooking = async () => {
-    // Validate date
     if (!bookingDate) {
-      toaster.create({ title: 'Please select a booking date' });
-      return;
-    }
-
-    // Validate time
-    if (!bookingTime || bookingTime === '') {
-      toaster.create({ title: 'Please enter booking time' });
-      return;
-    }
-
-    // Validate time is between 0-24
-    const timeValue = parseInt(bookingTime, 10);
-    console.log('[DEBUG] timeValue:', timeValue, 'bookingTime:', bookingTime);
-    if (isNaN(timeValue) || timeValue < 0 || timeValue > 24) {
-      toaster.create({ title: 'Booking time must be between 0-24' });
+      toaster.create({ title: 'Please select a date first' });
       return;
     }
 
     if (!currentUser || !provider || !provider._id) {
-      toaster.create({ title: 'Please login or provider information is missing' });
+      toaster.create({ title: 'Please log in first or provider information is missing' });
       return;
     }
     
-    if (!currentUser._id) {
-      toaster.create({ title: 'User authentication failed, please login again' });
-      return;
-    }
-    
-    // Validate address information
+    // Verify user address information
     if (!currentUser.address || !currentUser.address.city || !currentUser.address.street) {
       toaster.create({ 
-        title: 'Missing address information', 
-        description: 'Please update your address in your profile before booking'
+        title: 'Address information missing', 
+        description: 'Please update your address information in your profile before booking'
       });
       navigate('/profile?tab=profile');
       return;
     }
-    
-    // Validate service type
-    if (!provider.serviceType) {
-      toaster.create({ title: 'Provider has not set a service type' });
-      return;
-    }
-    
-    // Validate hourly rate
-    if (provider.hourlyRate == null || provider.hourlyRate === undefined || isNaN(parseFloat(provider.hourlyRate))) {
-      toaster.create({ title: 'Provider has not set a valid hourly rate' });
-      return;
-    }
 
     try {
-      // Prepare booking time information
-      const selectedDate = new Date(bookingDate);
-      
-      // Use user input time to set start time
-      const startTime = new Date(selectedDate);
-      startTime.setHours(timeValue, 0, 0);
-      
-      // End time is default 2 hours after start time
-      const endTime = new Date(startTime);
-      endTime.setHours(startTime.getHours() + 2);
-      
-      // Validate that end time is after start time
-      if (endTime <= startTime) {
-        toaster.create({ 
-          title: 'Invalid time range', 
-          description: 'End time must be after start time' 
-        });
-        return;
-      }
-      
-      console.log('[DEBUG] Booking times:', {
-        bookingDate,
-        selectedDate,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        timeValue
-      });
-      
-      // Build serviceAddress object, ensure all required fields have values
-      const serviceAddress = {
-        street: currentUser.address?.street || 'Default Street',
-        city: currentUser.address?.city || 'Default City',
-        state: currentUser.address?.state || currentUser.address?.city || 'Default State',
-        postalCode: currentUser.address?.postalCode || '00000',
-        country: currentUser.address?.country || 'New Zealand',
-        additionalDetails: currentUser.address?.additionalDetails || ''
-      };
-      
-      // Prepare the booking data
-      const bookingData = {
-        providerId: provider._id,
-        serviceType: provider.serviceType,
-        serviceAddress,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        hourlyRate: parseFloat(provider.hourlyRate) || 0,
-        notes: `Booking created on ${new Date().toLocaleString()}`
-      };
-      
-      console.log('Creating booking with data:', bookingData);
-      
-      // 1. Create booking record
-      const bookingResponse = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(bookingData)
-      });
-      
-      console.log('[DEBUG] Booking response status:', bookingResponse.status, bookingResponse.ok);
-      
-      if (!bookingResponse.ok) {
-        const errorData = await bookingResponse.json();
-        console.error('Booking creation failed:', errorData);
-        throw new Error(errorData.message || 'Failed to create booking');
-      }
-      
-      const bookingResult = await bookingResponse.json();
-      console.log('[DEBUG] Booking data:', bookingResult);
-      
-      if (!bookingResult.success) {
-        console.error('Booking creation returned failure status:', bookingResult);
-        throw new Error(bookingResult.message || 'Failed to create booking');
-      }
-      
-      // Verify that we have a proper booking ID
-      if (!bookingResult.booking || !bookingResult.booking._id) {
-        console.error('Missing booking ID in response:', bookingResult);
-        throw new Error('Server did not return a valid booking ID');
-      }
-      
-      console.log('Booking created successfully:', bookingResult);
-      
-      // 2. Create conversation
+      // 1. Find or create conversation
       const conversationResponse = await fetch('/api/conversations/find-or-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -259,22 +140,20 @@ export default function ProviderDetailPage() {
         body: JSON.stringify({ userId1: currentUser._id, userId2: provider._id }),
       });
 
-      console.log('[DEBUG] Conversation response status:', conversationResponse.status, conversationResponse.ok);
-      
       if (!conversationResponse.ok) {
         const errData = await conversationResponse.json().catch(() => ({}));
         throw new Error(errData.message || 'Failed to create conversation');
       }
       const conversationData = await conversationResponse.json();
-      console.log('[DEBUG] Conversation data:', conversationData);
-      
       if (!conversationData.success) {
         throw new Error(conversationData.message || 'Failed to create conversation');
       }
       
-      // 3. Prepare booking message content
+      // 2. Prepare booking message content
       const formattedDate = new Date(bookingDate).toLocaleDateString();
-      const formattedTime = `${timeValue}:00`;
+      const formattedTime = getTimeSlotsForDate(new Date(bookingDate))
+        .map(slot => `${slot.start} - ${slot.end}`)
+        .join(', ');
       
       // Add customer address information to booking message
       const customerAddress = currentUser.address ? 
@@ -282,16 +161,15 @@ export default function ProviderDetailPage() {
         'No address provided';
       
       const bookingMessage = `Booking Confirmation:\n` +
-        `Booking ID: ${bookingResult.booking._id}\n` +
         `Customer: ${currentUser.firstName} ${currentUser.lastName} (${currentUser.email})\n` +
-        `Service Provider: ${provider.firstName} ${provider.lastName}\n` +
+        `Provider: ${provider.firstName} ${provider.lastName}\n` +
         `Service Type: ${formatServiceType(provider.serviceType)}\n` +
         `Booking Date: ${formattedDate}\n` +
-        `Booking Time: ${formattedTime}\n` +
+        (formattedTime ? `Booking Time: ${formattedTime}\n` : '') +
         `Customer Address: ${customerAddress}\n` +
         `Rate: $${provider.hourlyRate || 'Not specified'}/hour`;
 
-      // 4. Send booking message
+      // 3. Send booking message
       const messageResponse = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -303,44 +181,26 @@ export default function ProviderDetailPage() {
           messageType: 'booking',
           bookingStatus: 'pending',
           senderDisplayText: `You have sent a booking request to ${provider.firstName} ${provider.lastName}, waiting for confirmation.`,
-          receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} has sent you a booking request, please review.`
+          receiverDisplayText: `${currentUser.firstName} ${currentUser.lastName} has sent you a booking request, please review it.`
         })
       });
-      
-      console.log('[DEBUG] Message response status:', messageResponse.status, messageResponse.ok);
-      
       if (!messageResponse.ok) {
         const errData = await messageResponse.json().catch(() => ({}));
         throw new Error(errData.message || 'Failed to send booking message');
       }
-      
-      // 5. Open dialog
-      if (conversationData.conversationId && conversationData.otherUser) {
-        openDialog(conversationData.conversationId, conversationData.otherUser);
-      } else {
-        console.error('Missing conversation data:', conversationData);
-      }
+      // 4. Open the conversation
+      openDialog(conversationData.conversationId, conversationData.otherUser);
 
-      // 6. Refresh conversation list
+      // 5. Refresh conversation list if needed
       if (conversationData.isNew && currentUser?._id) {
         await refreshUserConversations(currentUser._id);
       }
       
-      // 7. Show success message
-      toaster.create({
-        title: "Booking Created Successfully",
-        description: "Your booking has been created and a message has been sent to the service provider."
-      });
-      
-      // Clear form fields after successful booking
-      setBookingTime('');
-      
-      // 8. Navigate to orders page
-      navigate('/profile?tab=orders');
+      // 6. Navigate to inbox
+      navigate('/profile?tab=messages');
 
     } catch (error) {
-      console.error('Error during booking process:', error);
-      toaster.create({ title: error.message || "Error occurred during booking" });
+      toaster.create({ title: error.message || "An error occurred during booking" });
     }
   };
 
@@ -351,58 +211,44 @@ export default function ProviderDetailPage() {
     const dayOfWeek = date.getDay();
     const dateString = date.toISOString().split('T')[0];
     
-    // 1. Check special date settings
+    // Check special dates
     const specialDates = provider.specialDates || [];
-    const specialDate = specialDates.find(sd => {
-      const sdDate = sd.date ? new Date(sd.date) : null;
-      return sdDate && sdDate.toISOString().split('T')[0] === dateString;
-    });
+    const specialDate = specialDates.find(sd => 
+      new Date(sd.date).toISOString().split('T')[0] === dateString
+    );
     
     if (specialDate) {
-      if (specialDate.isAvailable === false) return []; // Marked as unavailable
+      if (!specialDate.isAvailable) return [];
       if (specialDate.startTime && specialDate.endTime) {
         return [{ start: specialDate.startTime, end: specialDate.endTime }];
       }
     }
     
-    // 2. Check date range settings
+    // Check date ranges
     const dateRanges = provider.dateRanges || [];
     for (const range of dateRanges) {
-      if (!range.startDate || !range.endDate) continue;
-      
       const startDate = new Date(range.startDate);
       const endDate = new Date(range.endDate);
-      const currentDate = new Date(date);
       
-      // Reset time part for date comparison only
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-      currentDate.setHours(12, 0, 0, 0);
-      
-      if (currentDate >= startDate && currentDate <= endDate) {
-        if (range.isAvailable === false) return []; // Marked as unavailable
+      if (date >= startDate && date <= endDate) {
+        if (!range.isAvailable) return [];
         if (range.startTime && range.endTime) {
           return [{ start: range.startTime, end: range.endTime }];
         }
       }
     }
     
-    // 3. Check weekly availability settings
+    // Check weekly availability
     const availability = provider.availability || [];
     const weeklyAvailability = availability.find(a => a.dayOfWeek === dayOfWeek);
-    if (weeklyAvailability) {
-      if (weeklyAvailability.isAvailable === false) return []; // Marked as unavailable
-      if (weeklyAvailability.startTime && weeklyAvailability.endTime) {
-        return [{ 
-          start: weeklyAvailability.startTime, 
-          end: weeklyAvailability.endTime 
-        }];
-      }
+    if (weeklyAvailability && weeklyAvailability.isAvailable) {
+      return [{ 
+        start: weeklyAvailability.startTime, 
+        end: weeklyAvailability.endTime 
+      }];
     }
     
-    // 4. If none of the above matched or no settings, use default time slot
-    // Default working hours 9:00 - 17:00
-    return [{ start: "09:00", end: "17:00" }];
+    return [];
   };
 
   // Format service type display
@@ -662,37 +508,13 @@ export default function ProviderDetailPage() {
               )}
               
               <Box mb={6}>
-                <Field.Root mb={4}>
-                  <Field.Label>Booking Date <Box as="span" color="red.500">*</Box></Field.Label>
-                  <Input
-                    type="text"
-                    value={bookingDate ? new Date(bookingDate).toLocaleDateString() : ''}
-                    readOnly
-                    placeholder="Please select a date from the calendar"
-                  />
-                  {!bookingDate && (
-                    <Field.ErrorText>Date selection is required</Field.ErrorText>
-                  )}
-                </Field.Root>
-                
-                <Field.Root mb={4}>
-                  <Field.Label>Booking Time (hour, 0-24) <Box as="span" color="red.500">*</Box></Field.Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="24"
-                    value={bookingTime}
-                    onChange={(e) => {
-                      setBookingTime(e.target.value);
-                    }}
-                    placeholder="Please enter an integer between 0-24"
-                    isRequired
-                  />
-                  {bookingTime && (parseInt(bookingTime, 10) < 0 || parseInt(bookingTime, 10) > 24 || isNaN(parseInt(bookingTime, 10))) && (
-                    <Field.ErrorText>Please enter an integer between 0-24</Field.ErrorText>
-                  )}
-                </Field.Root>
-                
+                <Input
+                  type="text"
+                  value={bookingDate ? new Date(bookingDate).toLocaleDateString() : ''}
+                  readOnly
+                  mb={4}
+                  placeholder="Please select a date from the calendar"
+                />
                 <Button 
                   colorScheme="blue" 
                   size="lg" 

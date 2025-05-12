@@ -31,7 +31,7 @@ import { format, isPast, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 
-// Utility function: format time
+// 工具函数：格式化时间
 const formatTime = (dateTime) => {
   if (!dateTime) return "N/A";
   try {
@@ -41,7 +41,7 @@ const formatTime = (dateTime) => {
   }
 };
 
-// Get badge color and text based on status
+// 获取状态对应的徽章颜色和文本
 const getStatusBadgeProps = (status) => {
   const statusMap = {
     pending_confirmation: { colorScheme: "yellow", text: "Pending Confirmation" },
@@ -53,19 +53,18 @@ const getStatusBadgeProps = (status) => {
     paid: { colorScheme: "green", text: "Paid" },
     rescheduled_pending: { colorScheme: "purple", text: "Reschedule Pending" },
     disputed: { colorScheme: "red", text: "Disputed" },
-    reviewed: { colorScheme: "purple", text: "Reviewed" },
   };
   return statusMap[status] || { colorScheme: "gray", text: status };
 };
 
-// Booking card component
+// 预订卡片组件
 const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
   const otherParty = isCustomer ? booking.provider : booking.customer;
   const statusProps = getStatusBadgeProps(booking.status);
   const isPastBooking = isPast(new Date(booking.endTime));
   const isTodayBooking = isToday(new Date(booking.startTime));
 
-  // Actions available to customer (based on booking status)
+  // 客户可执行的操作 (根据预订状态)
   const customerActions = () => {
     if (
       booking.status === "pending_confirmation" ||
@@ -75,26 +74,16 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
         <Button
           size="sm"
           colorScheme="red"
-          onClick={() => onStatusChange(booking._id, "cancelled_by_customer")}
+          onClick={() => handleStatusChange("cancelled_by_customer")}
         >
           Cancel Booking
-        </Button>
-      );
-    } else if (booking.status === "completed") {
-      return (
-        <Button
-          size="sm"
-          colorScheme="purple"
-          onClick={() => onStatusChange(booking._id, "reviewed")}
-        >
-          Review Service
         </Button>
       );
     }
     return null;
   };
 
-  // Actions available to service provider (based on booking status)
+  // 服务提供者可执行的操作 (根据预订状态)
   const providerActions = () => {
     switch (booking.status) {
       case "pending_confirmation":
@@ -103,40 +92,65 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
             <Button
               size="sm"
               colorScheme="green"
-              onClick={() => onStatusChange(booking._id, "confirmed")}
+              onClick={() => handleStatusChange("confirmed")}
             >
               Confirm
             </Button>
             <Button
               size="sm"
               colorScheme="red"
-              onClick={() => onStatusChange(booking._id, "cancelled_by_provider")}
+              onClick={() => handleStatusChange("cancelled_by_provider")}
             >
               Decline
             </Button>
           </HStack>
         );
       case "confirmed":
-        return (
-          <HStack spacing={3}>
+        if (isPastBooking) {
+          return (
             <Button
               size="sm"
               colorScheme="blue"
-              onClick={() => onStatusChange(booking._id, "completed")}
+              onClick={() => handleStatusChange("completed")}
             >
-              Mark as Finished
+              Mark Completed
             </Button>
+          );
+        } else {
+          return (
             <Button
               size="sm"
               colorScheme="red"
-              onClick={() => onStatusChange(booking._id, "cancelled_by_provider")}
+              onClick={() => handleStatusChange("cancelled_by_provider")}
             >
               Cancel Booking
             </Button>
-          </HStack>
-        );
+          );
+        }
       default:
         return null;
+    }
+  };
+
+  // 处理状态变更的函数
+  const handleStatusChange = async (newStatus) => {
+    try {
+      // 这里应该调用API更新预订状态
+      // 模拟API调用，真实环境中替换为实际API请求
+      console.log(`Updating booking ${booking._id} status to ${newStatus}`);
+
+      // 成功后通知父组件更新状态
+      onStatusChange(booking._id, newStatus);
+
+      toaster.create({
+        title: "Status Updated",
+        description: `Booking is now ${getStatusBadgeProps(newStatus).text}`,
+      });
+    } catch (error) {
+      toaster.create({
+        title: "Update Failed",
+        description: error.message || "Could not update booking status. Please try again.",
+      });
     }
   };
 
@@ -152,7 +166,7 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
       transition="all 0.2s"
       
     >
-      {/* Status badge - top right */}
+      {/* 状态徽章 - 右上角 */}
       <Badge
         colorScheme={statusProps.colorScheme}
         position="absolute"
@@ -166,7 +180,7 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
         {statusProps.text}
       </Badge>
 
-      {/* Today marker */}
+      {/* 今日标记 */}
       {isTodayBooking && (
         <Badge
           colorScheme="blue"
@@ -183,13 +197,13 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
       )}
 
       <VStack align="start" spacing={4} pt={7}>
-        {/* Service type */}
+        {/* 服务类型 */}
         <Heading size="md">
           <Icon as={FaTools} mr={2} color="blue.500" />
           {booking.serviceType}
         </Heading>
 
-        {/* User/provider information */}
+        {/* 用户/服务商信息 */}
         <HStack spacing={3}>
           <Avatar.Root>
             <Avatar.Image src={otherParty?.profilePictureUrl || null} />
@@ -202,15 +216,15 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
 
         <Separator />
 
-        {/* Booking time */}
+        {/* 预订时间 */}
         <HStack spacing={3}>
           <Icon as={FaCalendarAlt} color="gray.500" />
           <Text fontSize="sm">
-            {formatTime(booking.startTime)}
+            {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
           </Text>
         </HStack>
 
-        {/* Address information */}
+        {/* 地址信息 */}
         {booking.serviceAddress && (
           <HStack spacing={3}>
             <Icon as={FaMapMarkerAlt} color="gray.500" />
@@ -226,15 +240,18 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
           </HStack>
         )}
 
-        {/* Cost information */}
+        {/* 费用信息 */}
         <HStack spacing={3}>
           <Icon as={FaDollarSign} color="gray.500" />
           <Text fontSize="sm">
-            ${booking.hourlyRate}/hr
+            ${booking.hourlyRate}/hr (
+            {booking.estimatedTotalCost &&
+              `Est. Total: $${booking.estimatedTotalCost}`}
+            )
           </Text>
         </HStack>
 
-        {/* Notes */}
+        {/* 备注信息 */}
         {booking.notes && (
           <Box mt={2} p={3} bg="gray.50" w="100%" borderRadius="md">
             <Text fontSize="sm" fontStyle="italic">
@@ -243,7 +260,7 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
           </Box>
         )}
 
-        {/* Action buttons area */}
+        {/* 操作按钮区域 */}
         <Flex w="100%" justify="flex-end" mt={3}>
           {isCustomer ? customerActions() : providerActions()}
         </Flex>
@@ -252,7 +269,7 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
   );
 };
 
-// Main component
+// 主组件
 const BookingsView = () => {
   const { user } = useAuthStore();
   const [bookings, setBookings] = useState([]);
@@ -260,11 +277,8 @@ const BookingsView = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("all"); // 'all', 'upcoming', 'past'
   const navigate = useNavigate();
-  
-  // Determine user role (simplified - in a real app this would come from auth store)
-  const userRole = user?.role || "customer"; // Default to customer if role not specified
 
-  // Fetch bookings
+  // 获取预订记录
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user?._id) {
@@ -276,29 +290,105 @@ const BookingsView = () => {
       setError(null);
 
       try {
-        // Get booking data based on user role
-        const endpoint = user.role === 'provider' ? '/api/bookings/provider-bookings' : '/api/bookings/my-bookings';
-        
-        const response = await fetch(endpoint, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch bookings: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-          throw new Error(data.message || 'Failed to fetch bookings');
-        }
-        
-        setBookings(data.bookings || []);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-        setError(error.message || "Could not load bookings. Please try again.");
+        // 模拟API请求，实际应用中替换为真实的API调用
+        // 如: const response = await api.get('/bookings/my-bookings');
+        // const providerResponse = await api.get('/bookings/provider-bookings');
+
+        // 模拟数据
+        const mockBookings = [
+          {
+            _id: "1",
+            customer: {
+              _id: user._id,
+              username: "测试客户",
+              profilePictureUrl: "",
+            },
+            provider: {
+              _id: "681b52440af860bb5c6aee1f",
+              username: "Provider19 Auckland19",
+              profilePictureUrl: "",
+            },
+            serviceType: "Plumbing",
+            startTime: new Date(new Date().setDate(new Date().getDate() - 7)),
+            endTime: new Date(
+              new Date().setDate(new Date().getDate() - 7) + 2 * 60 * 60 * 1000
+            ),
+            status: "paid",
+            hourlyRate: 65,
+            estimatedTotalCost: 130,
+            serviceAddress: {
+              street: "7 New Windsor Road",
+              city: "Auckland",
+              state: "Auckland",
+              postalCode: "0600",
+              country: "New Zealand",
+            },
+            notes: "水龙头修理工作",
+          },
+          {
+            _id: "2",
+            customer: {
+              _id: "681b55fd0af860bb5c6aee37",
+              username: "admin one",
+              profilePictureUrl: "",
+            },
+            provider: {
+              _id: user._id,
+              username: "测试服务商",
+              profilePictureUrl: "",
+            },
+            serviceType: "Gardening",
+            startTime: new Date(new Date().setDate(new Date().getDate() + 1)),
+            endTime: new Date(
+              new Date().setDate(new Date().getDate() + 1) + 3 * 60 * 60 * 1000
+            ),
+            status: "confirmed",
+            hourlyRate: 50,
+            estimatedTotalCost: 150,
+            serviceAddress: {
+              street: "45 Garden Street",
+              city: "Auckland",
+              state: "Auckland",
+              postalCode: "0615",
+              country: "New Zealand",
+            },
+            notes: "花园修剪和除草服务",
+          },
+          {
+            _id: "3",
+            customer: {
+              _id: user._id,
+              username: "测试客户",
+              profilePictureUrl: "",
+            },
+            provider: {
+              _id: "681b52440af860bb5c6aee1f",
+              username: "Provider19 Auckland19",
+              profilePictureUrl: "",
+            },
+            serviceType: "Cleaning",
+            startTime: new Date(new Date().setDate(new Date().getDate() + 3)),
+            endTime: new Date(
+              new Date().setDate(new Date().getDate() + 3) + 4 * 60 * 60 * 1000
+            ),
+            status: "pending_confirmation",
+            hourlyRate: 45,
+            estimatedTotalCost: 180,
+            serviceAddress: {
+              street: "12 Clean Avenue",
+              city: "Auckland",
+              state: "Auckland",
+              postalCode: "0620",
+              country: "New Zealand",
+            },
+            notes: "全屋清洁",
+          },
+        ];
+
+        setBookings(mockBookings);
+      } catch (err) {
+        console.error("Failed to fetch bookings:", err);
+        setError("获取预订记录失败，请重试");
       } finally {
         setIsLoading(false);
       }
@@ -307,7 +397,18 @@ const BookingsView = () => {
     fetchBookings();
   }, [user]);
 
-  // Filter bookings based on active tab
+  // 处理状态变更
+  const handleStatusChange = (bookingId, newStatus) => {
+    // 在实际应用中，这里应该调用API更新状态
+    // 现在我们只是更新本地状态
+    setBookings(
+      bookings.map((booking) =>
+        booking._id === bookingId ? { ...booking, status: newStatus } : booking
+      )
+    );
+  };
+
+  // 根据tab过滤预订
   const filteredBookings = bookings.filter((booking) => {
     const bookingDate = new Date(booking.startTime);
     if (activeTab === "upcoming") {
@@ -318,60 +419,13 @@ const BookingsView = () => {
     return true; // 'all' tab
   });
 
-  // Sort bookings by start time from earliest to latest
-  const sortedBookings = [...filteredBookings].sort((a, b) => {
-    return new Date(a.startTime) - new Date(b.startTime);
-  });
-
-  // Filter bookings based on user role
-  const asCustomerBookings = sortedBookings.filter(
+  // 根据用户角色分类预订
+  const asCustomerBookings = filteredBookings.filter(
     (booking) => booking.customer._id === user?._id
   );
-  const asProviderBookings = sortedBookings.filter(
+  const asProviderBookings = filteredBookings.filter(
     (booking) => booking.provider._id === user?._id
   );
-
-  // Handle status change function
-  const handleStatusChange = async (bookingId, newStatus) => {
-    try {
-      // Call API to update booking status
-      const response = await fetch(`/api/bookings/${bookingId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to update booking status');
-      }
-      
-      // Update local state
-      setBookings(
-        bookings.map((booking) =>
-          booking._id === bookingId ? { ...booking, status: newStatus } : booking
-        )
-      );
-
-      toaster.create({
-        title: "Status Updated",
-        description: `Booking is now ${getStatusBadgeProps(newStatus).text}`,
-      });
-    } catch (error) {
-      toaster.create({
-        title: "Update Failed",
-        description: error.message || "Could not update booking status. Please try again.",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -405,20 +459,19 @@ const BookingsView = () => {
     );
   }
 
-  // No bookings found message
-  const noBookingsMessage = (role) => (
-    <Box p={5} textAlign="center">
-      <Heading size="md" mb={4}>
-        No Bookings Found
-      </Heading>
-      <Text mb={4}>You don't have any bookings yet.</Text>
-      {role === "customer" && (
+  if (bookings.length === 0) {
+    return (
+      <Box p={5} textAlign="center">
+        <Heading size="md" mb={4}>
+          No Bookings Found
+        </Heading>
+        <Text mb={4}>You don't have any bookings yet.</Text>
         <Button colorScheme="blue" onClick={() => navigate("/booking")}>
           Book a Service
         </Button>
-      )}
-    </Box>
-  );
+      </Box>
+    );
+  }
 
   return (
     <Box p={4}>
@@ -426,7 +479,7 @@ const BookingsView = () => {
         My Bookings
       </Heading>
 
-      {/* Tab controls */}
+      {/* Tab 控制 */}
       <Tabs.Root defaultValue="all" mb={6}>
         <Tabs.List>
           <Tabs.Trigger value="all" onClick={() => setActiveTab("all")}>
@@ -445,48 +498,41 @@ const BookingsView = () => {
         </Tabs.List>
       </Tabs.Root>
 
-      {/* Display bookings based on user role */}
-      {userRole === "customer" ? (
-        // Customer view
+      {/* 作为客户的预订 */}
+      {asCustomerBookings.length > 0 && (
         <Box mb={10}>
           <Heading size="md" mb={5}>
             Services I Booked
           </Heading>
-          {asCustomerBookings.length > 0 ? (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-              {asCustomerBookings.map((booking) => (
-                <BookingCard
-                  key={booking._id}
-                  booking={booking}
-                  isCustomer={true}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
-            </SimpleGrid>
-          ) : (
-            noBookingsMessage("customer")
-          )}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
+            {asCustomerBookings.map((booking) => (
+              <BookingCard
+                key={booking._id}
+                booking={booking}
+                isCustomer={true}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </SimpleGrid>
         </Box>
-      ) : (
-        // Provider view
-        <Box mb={10}>
+      )}
+
+      {/* 作为服务提供者的预订 */}
+      {asProviderBookings.length > 0 && (
+        <Box>
           <Heading size="md" mb={5}>
             Bookings I Received
           </Heading>
-          {asProviderBookings.length > 0 ? (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-              {asProviderBookings.map((booking) => (
-                <BookingCard
-                  key={booking._id}
-                  booking={booking}
-                  isCustomer={false}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
-            </SimpleGrid>
-          ) : (
-            noBookingsMessage("provider")
-          )}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+            {asProviderBookings.map((booking) => (
+              <BookingCard
+                key={booking._id}
+                booking={booking}
+                isCustomer={false}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </SimpleGrid>
         </Box>
       )}
     </Box>
