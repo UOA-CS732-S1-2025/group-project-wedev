@@ -10,7 +10,12 @@ import adminBookingRoutes from "./routes/admin/booking.admin.route.js";
 import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
 import adminReportRoutes from "./routes/admin/report.admin.route.js";
 import authRoutes from "./routes/auth.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 import cors from "cors";
+
+
+
+
 
 
 
@@ -51,6 +56,7 @@ app.use("/api/admin/bookings", adminBookingRoutes);
 app.use("/api/admin/payments", adminPaymentRoutes);
 app.use("/api/admin/reports", adminReportRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 //Only used to test whether the backend is actually started, delete before deployment
