@@ -299,3 +299,105 @@ export const getProviderById = async (req, res) => {
         });
     }
 };
+
+// 添加新方法，用于更新提供商的可用性设置
+export const updateProviderAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { availability, specialDates, dateRanges } = req.body;
+
+    // 验证用户身份（确保用户只能更新自己的可用性）
+    // 这里使用中间件设置的已认证用户ID
+    if (req.userId !== id) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "You can only update your own availability" 
+      });
+    }
+
+    // 要更新的数据对象
+    const updateData = {};
+
+    // 只更新提供的字段
+    if (availability !== undefined) {
+      updateData.availability = availability;
+    }
+    
+    if (specialDates !== undefined) {
+      updateData.specialDates = specialDates;
+    }
+    
+    if (dateRanges !== undefined) {
+      updateData.dateRanges = dateRanges;
+    }
+
+    // 如果没有任何要更新的内容，返回错误
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "No valid update data provided" 
+      });
+    }
+
+    // 更新用户文档
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Provider not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Availability updated successfully",
+      data: {
+        availability: updatedUser.availability,
+        specialDates: updatedUser.specialDates,
+        dateRanges: updatedUser.dateRanges
+      }
+    });
+  } catch (error) {
+    console.error("Error updating provider availability:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error updating availability",
+      error: error.message
+    });
+  }
+};
+
+// 添加新方法，用于获取提供商的可用性设置
+export const getProviderAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const provider = await User.findById(id);
+    
+    if (!provider) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Provider not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      availability: provider.availability || [],
+      specialDates: provider.specialDates || [],
+      dateRanges: provider.dateRanges || []
+    });
+  } catch (error) {
+    console.error("Error fetching provider availability:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error fetching availability",
+      error: error.message
+    });
+  }
+};

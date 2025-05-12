@@ -12,7 +12,14 @@ import adminPaymentRoutes from "./routes/admin/payment.admin.route.js";
 import adminReportRoutes from "./routes/admin/report.admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 import reviewRoutes from "./routes/review.route.js";
+import paymentRoutes from "./routes/payment.route.js";
+import bookingRoutes from "./routes/booking.routes.js";
+
 import cors from "cors";
+
+
+
+
 
 
 
@@ -40,13 +47,12 @@ console.log(process.env.MONGO_URI);
 app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173", // 允许前端访问的源
-  credentials: true // 如果你未来会使用 cookies 或认证头
+  credentials: true // 如果使用 cookies 或认证头
 }));
 
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingsRoutes);
 app.use("/api/review", reviewRoutes);
-
 app.use("/api/messages", messageRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/reports", reportRoutes);
@@ -55,6 +61,7 @@ app.use("/api/admin/bookings", adminBookingRoutes);
 app.use("/api/admin/payments", adminPaymentRoutes);
 app.use("/api/admin/reports", adminReportRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 //Only used to test whether the backend is actually started, delete before deployment

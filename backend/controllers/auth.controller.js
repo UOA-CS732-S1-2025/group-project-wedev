@@ -20,6 +20,57 @@ export const registerUser = async (req, res) => {
       });
     }
 
+    if (!email){
+      return res.status(400).json({ 
+        success: false,
+        message: "Email is null" 
+      });
+    }
+
+    if (!password){
+      return res.status(400).json({ 
+        success: false,
+        message: "Password is null" 
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid email format" 
+      });
+    }
+
+    if (password.length <= 8) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must be longer than 8 characters" 
+      });
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one uppercase letter" 
+      });
+    }
+
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one lowercase letter" 
+      });
+    }
+
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Password must include at least one number" 
+      });
+    }
+    
+
     // 检查邮箱是否已经存在
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -187,5 +238,49 @@ export const verifyEmail = async (req, res) => {
   } catch (error) {
     console.error("Email verification error:", error);
     res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// Update current user profile
+export const updateCurrentUser = async (req, res) => {
+  try {
+    const allowed = [
+      "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
+      "serviceType", "hourlyRate"
+    ];
+    const updateFields = {};
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) updateFields[key] = req.body[key];
+    });
+    // Merge address if present
+    if (req.body.address) {
+      const user = await User.findById(req.userId);
+      updateFields.address = {
+        ...(user?.address?.toObject ? user.address.toObject() : user?.address || {}),
+        ...req.body.address,
+      };
+    }
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+      message: "Profile updated"
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      success: false,
+      message: "Update failed", 
+      error: err.message 
+    });
   }
 };

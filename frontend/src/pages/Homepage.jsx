@@ -163,7 +163,7 @@ const Homepage = () => {
               <Text fontSize="lg" maxW="700px">
                 Book your first service today and experience the convenience of professional home services at your fingertips.
               </Text>
-              <Button colorScheme="whiteAlpha" size="lg">Book a Service Now</Button>
+              <Button colorScheme="whiteAlpha" size="lg" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Book a Service Now</Button>
             </VStack>
           </Center>
         </Container>
@@ -220,11 +220,19 @@ const ServiceCard = ({ icon, title, description }) => {
       align="start"
       _hover={{ boxShadow: "lg", transform: "translateY(-5px)" }}
       transition="all 0.3s"
+      minH="300px"
+     
     >
-      <Icon as={icon} boxSize={10} color="blue.500" />
-      <Heading size="md">{title}</Heading>
+      <Box >
+      <Icon as={icon} boxSize={10} color="blue.500"  />
+      <Heading size="md" >{title}</Heading>
       <Text color="gray.600">{description}</Text>
-      <Button variant="link" colorScheme="blue">Learn More →</Button>
+      </Box>
+      <Box mt="auto" w="100%" textAlign="right" >
+        <Button variant="link" colorScheme="blue" >
+          Learn More →
+        </Button>
+      </Box>
     </VStack>
   );
 };
