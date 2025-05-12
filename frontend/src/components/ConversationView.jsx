@@ -121,49 +121,6 @@ const ConversationView = ({ conversation, user }) => {
     });
   }, [activeMessages, user?._id]);
   
-<<<<<<< HEAD
-
-=======
-  const handleBookingAction = async (messageId, action) => {
-    try {
-      // 设置消息为更新中状态
-      setUpdatingMessageIds(prev => [...prev, messageId]);
-      
-      // 首先找到要更新的消息
-      const messageToUpdate = processedMessages.find(msg => msg.id === messageId);
-      if (!messageToUpdate) {
-        setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-        return;
-      }
-      
-      // 在本地先更新消息状态，实现即时反馈
-      const updatedMessage = {
-        ...messageToUpdate,
-        bookingStatus: action,
-        senderDisplayText: action === 'accepted' 
-          ? 'Your booking has been accepted!' 
-          : 'Your booking was rejected.',
-        receiverDisplayText: action === 'accepted'
-          ? 'You have accepted this booking.'
-          : 'You have declined this booking.'
-      };
-      
-      // 更新本地状态
-      updateLocalMessage(updatedMessage);
-      
-      // 然后向后端发送请求
-      await updateBookingStatus(messageId, action);
-      
-      // 操作完成，从更新列表中移除
-      setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-    } catch (error) {
-      console.error('Error updating booking status:', error);
-      toaster.create({ title: 'Failed to update booking status', description: error.message });
-      fetchMessages(conversation._id);
-      setUpdatingMessageIds(prev => prev.filter(id => id !== messageId));
-    }
-  };
->>>>>>> origin/develop
   
   if (!conversation) return null;
 
