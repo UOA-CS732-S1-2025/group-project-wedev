@@ -1,4 +1,5 @@
 import express from "express";
+import { createUser, getUsers, deleteUser, getUserById, updateUserById } from "../controllers/user.controller.js";
 
 // import { createUser, getUsers, deleteUser } from "../controllers/user.controller.js";
 import { 
@@ -12,9 +13,11 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// router.post("/", createUser);
-// router.get("/", getUsers);
-// router.delete("/:id", deleteUser);
+router.post("/", createUser);
+router.get("/", getUsers);
+router.delete("/:id", deleteUser);
+router.get("/profile/:id", getUserById);
+router.put("/profile/:id", updateUserById);
 
 router.get("/providers", getProviders); // GET /api/providers
 router.post('/providers/search', searchProviders);

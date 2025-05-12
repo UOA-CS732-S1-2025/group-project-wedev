@@ -213,6 +213,76 @@ export const searchProviders = async (req, res) => {
     }
 };
 
+export const getUserById = async (req, res) => {
+    try {
+      const userId = req.params.id;
+  
+      // 查询用户信息
+      const user = await User.findById(userId).select('-password'); // 不返回密码字段
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      res.status(200).json(user);
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+  export const updateUserById = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const updateData = req.body;
+  
+      // 确保不更新密码字段
+      if (updateData.password) {
+        return res.status(400).json({ error: 'Password update is not allowed here' });
+      }
+  
+      // 更新用户资料
+      const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true });
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      res.status(200).json(updatedUser);
+    } catch (err) {
+      console.error('Error updating user profile:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+  export const updateAvailability = async (req, res) => {
+    try {
+      const { availability, specialDates, dateRanges } = req.body;
+      if (availability === undefined && specialDates === undefined && dateRanges === undefined) {
+        return res.status(400).json({ message: "At least one field must be provided" });
+      }
+  
+      const update = {};
+      if (availability !== undefined) update.availability = availability;
+      if (specialDates !== undefined) update.specialDates = specialDates;
+      if (dateRanges !== undefined) update.dateRanges = dateRanges;
+  
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        update,
+        { new: true, select: "availability specialDates dateRanges" }
+      );
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        availability: user.availability,
+        specialDates: user.specialDates,
+        dateRanges: user.dateRanges
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
 
 export const getProviderById = async (req, res) => {
     try {
