@@ -56,7 +56,8 @@ const bookingSchema = new Schema({
             'payment_pending',      // Service completed, awaiting payment
             'paid',                 // Payment successful
             'rescheduled_pending',  // Reschedule requested, awaiting confirmation
-            'disputed'              // Booking has an issue
+            'disputed',             // Booking has an issue
+            'reviewed'              // Customer has reviewed the service
         ],
         default: 'pending_confirmation'
     },
@@ -99,7 +100,7 @@ const bookingSchema = new Schema({
         newEndTime: { type: Date },
         rescheduleStatus: { type: String, enum: ['pending', 'confirmed', 'rejected'] },
         // adminNotes: { type: String }
-    }]
+    }],
     // Future considerations:
     // attachments: [{ fileName: String, url: String }]
     // feedback: { customerRating: Number, customerComment: String, providerRating: Number, providerComment: String }
