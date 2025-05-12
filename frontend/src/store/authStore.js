@@ -5,6 +5,7 @@ import api from "../lib/api";
 const useAuthStore = create((set) => ({
   user: null,
   token: localStorage.getItem("token") || null,
+  isLoaded: false,
 
   login: async (email, password) => {
     localStorage.removeItem("token");
@@ -13,7 +14,7 @@ const useAuthStore = create((set) => ({
       const { user, token } = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("login", Date.now().toString());
-      set({ user, token });
+      set({ user, token, isLoaded: true });
       return { success: true };
     } catch (error) {
       console.error("Login failed:", error);
@@ -53,7 +54,7 @@ const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem("token");
     localStorage.setItem("logout", Date.now().toString());
-    set({ user: null, token: null });
+    set({ user: null, token: null, isLoaded: true });
   },
 
 
@@ -68,11 +69,11 @@ const useAuthStore = create((set) => ({
         },
       });
   
-      set({ user: res.data.user, token });
+      set({ user: res.data.user, token , isLoaded: true});
     } catch (err) {
       console.error("Fetch user failed:", err);
       localStorage.removeItem("token");
-      set({ user: null, token: null });
+      set({ user: null, token: null , isLoaded: true});
     }
   },
   
