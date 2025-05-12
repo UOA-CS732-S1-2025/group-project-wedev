@@ -1,11 +1,7 @@
 import express from 'express';
 const router = express.Router();
-<<<<<<< HEAD
 import * as bookingController from '../controllers/booking.controller.js';
 import { authMiddleware } from "../middleware/auth.middleware.js";
-=======
-import bookingController from '../controllers/booking.controller';
->>>>>>> origin/develop
 // Assuming you have an auth middleware, e.g., protect, to secure routes
 // const { protect, authorizeProvider, authorizeCustomerOrProvider } = require('../middleware/auth.middleware'); 
 // For simplicity in this setup, I'll just use a placeholder 'protect' if I uncomment its usage.
@@ -14,7 +10,6 @@ import bookingController from '../controllers/booking.controller';
 // Example: const { protect } = require('../middleware/auth.middleware'); 
 
 // Create a new booking (typically by a customer)
-<<<<<<< HEAD
 router.post('/', authMiddleware, bookingController.createBooking);
 
 // Get all bookings for the logged-in customer
@@ -36,29 +31,6 @@ router.put('/:id', authMiddleware, bookingController.updateBooking);
 
 // Delete a booking (typically admin, or customer/provider under specific conditions like 'pending')
 router.delete('/:id', authMiddleware, bookingController.deleteBooking); 
-=======
-router.post('/', /* protect, */ bookingController.createBooking);
-
-// Get all bookings for the logged-in customer
-router.get('/my-bookings', /* protect, */ bookingController.getCustomerBookings);
-
-// Get all bookings for the logged-in provider
-router.get('/provider-bookings', /* protect, */ bookingController.getProviderBookings); // Provider needs to be identified via req.user
-
-// Get a single booking by ID (accessible by customer/provider involved, or admin)
-router.get('/:id', /* protect, */ bookingController.getBookingById);
-
-// Update booking status (e.g., provider confirms/completes, customer cancels)
-// Specific roles might be required for specific status changes.
-router.patch('/:id/status', /* protect, */ bookingController.updateBookingStatus);
-
-// General update for a booking (e.g., notes, agreed upon time changes by admin/involved parties)
-// Be cautious with what fields are updatable and by whom.
-router.put('/:id', /* protect, */ bookingController.updateBooking);
-
-// Delete a booking (typically admin, or customer/provider under specific conditions like 'pending')
-router.delete('/:id', /* protect, */ bookingController.deleteBooking); 
->>>>>>> origin/develop
 
 
 // --- More specific/advanced routes you might consider later ---
@@ -75,8 +47,4 @@ router.delete('/:id', /* protect, */ bookingController.deleteBooking);
 // // Search or filter bookings (e.g., by date range, status, admin view)
 // router.get('/search', /* protect, authorizeAdmin, */ bookingController.searchBookings);
 
-<<<<<<< HEAD
 export default router; 
-=======
-module.exports = router; 
->>>>>>> origin/develop
