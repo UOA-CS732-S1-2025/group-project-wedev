@@ -6,11 +6,14 @@ import { useSearchParams } from "react-router-dom";
 import UserDashboard from "../components/UserDashboard";
 import BookingsView from "../components/BookingsView";
 import AdminView from "../components/AdminView";
+import useAuthStore from "../store/authStore";
+
 
 const UserProfilePage = ({ defaultTab = "profile" }) => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
   const effectiveTab = tabFromUrl || defaultTab;
+  const { user  } = useAuthStore();
   return (
     <Box bg="gray.50" minH="calc(100vh - 80px)" pt="20px">
       <Box w="95%" maxW="1200px" mx="auto" pb={4}>
@@ -20,7 +23,11 @@ const UserProfilePage = ({ defaultTab = "profile" }) => {
             <Tabs.Trigger value="messages">Messages</Tabs.Trigger>
             <Tabs.Trigger value="profile">Profile</Tabs.Trigger>
             <Tabs.Trigger value="orders">My Orders</Tabs.Trigger>
-            <Tabs.Trigger value="admin">Admin</Tabs.Trigger>
+
+            {user?.role === "admin" && (
+              <Tabs.Trigger value="admin">Admin</Tabs.Trigger>
+            )}
+
             <Tabs.Indicator rounded="l2" />
           </Tabs.List>
 
@@ -82,7 +89,7 @@ const UserProfilePage = ({ defaultTab = "profile" }) => {
           >
             <BookingsView />
           </Tabs.Content>
-
+            {user?.role === "admin" && (
           <Tabs.Content
             value="admin"
             w="full"
@@ -97,6 +104,7 @@ const UserProfilePage = ({ defaultTab = "profile" }) => {
           >
             <AdminView />
           </Tabs.Content>
+          )}
         </Tabs.Root>
       </Box>
     </Box>
