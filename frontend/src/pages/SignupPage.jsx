@@ -163,7 +163,6 @@ const SignupPage = () => {
             mx="auto"
             mb={2}
           />
-          <Heading size="md" color="green.600">Urban Ease</Heading>
         </Box>
 
         {/* Signup Form */}
