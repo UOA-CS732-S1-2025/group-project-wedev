@@ -106,7 +106,7 @@ const LoginPage = () => {
          overflow="hidden"
        >
          <Image
-           src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/blob.png"
+           src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/back+ground+log.png"
            alt="Background Blob"
            position="absolute"
            top="0"
@@ -115,7 +115,7 @@ const LoginPage = () => {
            h="100%"
            objectFit="cover"
            zIndex={0}
-           opacity={0.4}
+           opacity={0.15}
          />
 
       <Box
