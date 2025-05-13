@@ -119,7 +119,6 @@ useEffect(() => {
         </svg>
       </Box>
 
-      {/* Login Card */}
       <Box
         zIndex={1}
         w="100%"
