@@ -34,7 +34,7 @@ export const createReview = async (req, res) => {
       serviceType: booking.serviceType,
     });
 
-    res.status(201).json({ success: true, review });
+    res.status(201).json({ success: true, data: review });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -42,7 +42,56 @@ export const createReview = async (req, res) => {
 };
 
 export const getReviews = async (req, res) => {
-  const { bookingId } = req.params;
-  const reviews = await Review.find({ bookingId });
-  res.status(200).json(reviews);
+  try {
+    const { bookingId } = req.params;
+    
+    if (!bookingId) {
+      return res.status(400).json({ success: false, message: "Booking ID is required" });
+    }
+    
+    const reviews = await Review.find({ bookingId });
+    
+    res.status(200).json({ 
+      success: true, 
+      data: reviews 
+    });
+  } catch (err) {
+    console.error("Error fetching booking reviews:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// 新增获取指定服务提供者的所有评价的方法
+export const getProviderReviews = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    
+    if (!providerId) {
+      return res.status(400).json({ success: false, message: "Provider ID is required" });
+    }
+    
+    // 查找该服务提供者的所有评价，按创建时间降序排列（最新的评价排在前面）
+    const reviews = await Review.find({ providerId })
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // 计算平均评分
+    let averageRating = 0;
+    if (reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      averageRating = totalRating / reviews.length;
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      data: {
+        reviews,
+        count: reviews.length,
+        averageRating
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching provider reviews:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
