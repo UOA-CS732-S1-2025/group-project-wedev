@@ -155,23 +155,9 @@ const ProviderCard = ({ user }) => {
               <Text ml={2} fontWeight="bold">{user.averageRating?.toFixed(1)}</Text>
               <Text ml={1} color="gray.500">({user.reviewCount} reviews)</Text>
             </Flex>
-            <Flex align="center">
-              <Icon as={FaSyncAlt} color="gray.500" />
-              <Text ml={1} color="gray.500">{user.recurringGuests} recurring guests</Text>
-            </Flex>
+
           </HStack>
 
-          {/* 预订 & 联系信息 */}
-          <HStack spacing={4}>
-            <Flex align="center">
-              <Icon as={FaCalendar} color="blue.500" />
-              <Text ml={1} color="gray.500">Last booked {user.lastBookedDays} days ago</Text>
-            </Flex>
-            <Flex align="center">
-              <Icon as={FaEnvelope} color="gray.500" />
-              <Text ml={1} color="gray.500">Last contacted {user.lastContactedDays} days ago</Text>
-            </Flex>
-          </HStack>
         </VStack>
 
         {/* 价格 */}
