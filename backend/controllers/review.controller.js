@@ -2,6 +2,10 @@ import Review from "../models/review.model.js";
 import Booking from "../models/booking.model.js";
 
 export const createReview = async (req, res) => {
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/develop
   try {
     const { bookingId, providerId, customerId, rating, comment } = req.body;
 
@@ -37,6 +41,10 @@ export const createReview = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/develop
 };
 
 export const getReviews = async (req, res) => {

@@ -66,7 +66,13 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
   const statusProps = getStatusBadgeProps(booking.status);
   const isPastBooking = isPast(new Date(booking.endTime));
   const isTodayBooking = isToday(new Date(booking.startTime));
+<<<<<<< HEAD
   const [reviewOpen, setReviewOpen] = useState(false);
+=======
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+>>>>>>> origin/develop
 
   // Actions available to customer (based on booking status)
   const customerActions = () => {
@@ -134,7 +140,37 @@ const BookingCard = ({ booking, isCustomer, onStatusChange }) => {
             <Button
               size="sm"
               colorScheme="green"
-              onClick={() => onStatusChange(booking._id, "confirmed")}
+              isLoading={isConfirming}
+              loadingText="Confirming"
+              onClick={async  ()  => {
+              setIsConfirming(true);
+              await onStatusChange(booking._id, "confirmed");
+
+              try {
+                const res = await fetch("/api/payments", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                  body: JSON.stringify({
+                    customer: booking.customer._id,
+                    provider: booking.provider._id,
+                    booking: booking._id,
+                    amount: booking.hourlyRate,
+                    method: "credit_card",
+                    status: "pending",
+                  }),
+                });
+
+                if (!res.ok) throw new Error("Failed to create payment");
+              } catch (err) {
+                
+              }
+              finally{
+                setIsConfirming(false);
+              }
+            }}
             >
               Confirm
             </Button>
