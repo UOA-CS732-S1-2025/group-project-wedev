@@ -100,17 +100,16 @@ export const registerUser = async (req, res) => {
       profilePictureUrl: "https://avatar.iran.liara.run/public", // 默认头像
       emailVerified: false,
       emailVerifyToken,
-      location: location || {
-        type: "Point",
-        coordinates: [174.7682, -36.8523]
-      }
+      location: location?.coordinates?.length === 2
+        ? location
+        : { type: "Point", coordinates: [174.7682, -36.8523] }
     });
 
     await newUser.save();
 
 
     // 构造验证链接
-    const verifyUrl = `http://localhost:3000/api/auth/verify-email?token=${emailVerifyToken}`;
+    const verifyUrl = `http://localhost:5173/verify-email?token=${emailVerifyToken}`;
 
     // 模拟发送验证邮件（建议改用 nodemailer）
     await sendVerificationEmail(email, verifyUrl);
@@ -231,7 +230,7 @@ export const verifyEmail = async (req, res) => {
     }
 
     user.emailVerified = true;
-    user.emailVerifyToken = undefined;
+    //user.emailVerifyToken = undefined;
     await user.save();
 
     res.status(200).json({ success: true, message: "Email verified successfully" });
