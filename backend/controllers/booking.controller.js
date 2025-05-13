@@ -218,76 +218,71 @@ export const getBookingById = async (req, res) => {
 // @route   PATCH /api/bookings/:id/status
 // @access  Private (Provider or Customer, depending on action and current status)
 export const updateBookingStatus = async (req, res) => {
-    const { status, cancellationReason } = req.body;
-    const bookingId = req.params.id;
-    const userId = req.userId;
-
-    if (!userId) return res.status(401).json({ message: 'User not authenticated.' });
-    if (!status) return res.status(400).json({ message: 'New status is required.' });
-
     try {
-        const booking = await Booking.findById(bookingId);
-        if (!booking) return res.status(404).json({ message: 'Booking not found.' });
+        const { id } = req.params;
+        const { status } = req.body;
 
-        const isProvider = booking.provider.toString() === userId;
-        const isCustomer = booking.customer.toString() === userId;
-        // const isAdmin = req.user.role === 'admin';
-        
-        // --- Complex Authorization Logic for status changes needed here ---
-        // This is a simplified placeholder. Real-world rules are more granular.
-        // Example: Provider can confirm. Customer can cancel if booking is X hours away.
-        let canUpdate = false;
-        const oldStatus = booking.status;
-
-        if (isProvider) {
-            if (oldStatus === 'pending_confirmation' && status === 'confirmed') canUpdate = true;
-            if ((oldStatus === 'confirmed' || oldStatus === 'pending_confirmation') && status === 'cancelled_by_provider') canUpdate = true;
-            if (oldStatus === 'confirmed' && status === 'completed') canUpdate = true;
-            // Add more provider transitions
-        } else if (isCustomer) {
-            if ((oldStatus === 'pending_confirmation' || oldStatus === 'confirmed') && status === 'cancelled_by_customer') {
-                // Example: Allow cancellation if > 24h before start, or if pending
-                const hoursBeforeStart = (new Date(booking.startTime).getTime() - Date.now()) / (1000 * 60 * 60);
-                if (oldStatus === 'pending_confirmation' || hoursBeforeStart > 24) {
-                    canUpdate = true;
-                } else {
-                    return res.status(403).json({ message: 'Cannot cancel a confirmed booking less than 24 hours before start time.'});
-                }
-            }
-            // Allow customer to mark a completed booking as reviewed
-            if (oldStatus === 'completed' && status === 'reviewed') {
-                canUpdate = true;
-            }
-            // Add more customer transitions
-        } /* else if (isAdmin) { canUpdate = true; } */
-
-        if (!canUpdate && ! (false /*isAdmin*/)) { // Allow admin to override if implemented
-             return res.status(403).json({ message: `User not authorized to change status from ${oldStatus} to ${status}.` });
+        // Validate if status is a valid enum value
+        const booking = await Booking.findById(id);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
         }
+
+        // Additional validation based on user role or business rules
+        // For example: Only provider can confirm or complete a booking
+        // Or only the customer who created the booking can cancel it
 
         booking.status = status;
-        if (status.startsWith('cancelled_')) {
+        
+        // If status is cancelled, record who cancelled
+        if (status === 'cancelled_by_customer' || status === 'cancelled_by_provider') {
             booking.cancellationDetails = {
-                cancelledBy: userId, // The user making the request
-                reason: cancellationReason || 'No reason provided.',
+                cancelledBy: req.userId,
+                reason: req.body.reason || 'No reason provided',
                 cancelledAt: new Date()
             };
-        } else {
-            booking.cancellationDetails = undefined; // Clear if not cancelled
         }
 
-        const updatedBooking = await booking.save();
-        // Example: Send notifications about status change
-        // if (sendNotification) { ... }
-        res.status(200).json({
-            success: true,
-            booking: updatedBooking
-        });
+        await booking.save();
+        return res.json({ success: true, booking });
     } catch (error) {
-        handleError(res, error, 500, 'Error updating booking status.');
+        console.error("Error updating booking status:", error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 
+// Update booking payment status
+export const updateBookingPayment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { paymentStatus, paymentMethod, paidAmount, paymentDate } = req.body;
+
+        const booking = await Booking.findById(id);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+
+        // Ensure the user is the customer of this booking
+        if (booking.customer.toString() !== req.userId) {
+            return res.status(403).json({ success: false, message: 'Not authorized to update payment status' });
+        }
+
+        // Update payment details
+        booking.paymentDetails = {
+            ...booking.paymentDetails,
+            paymentStatus,
+            paymentMethod,
+            paidAmount,
+            paymentDate
+        };
+
+        await booking.save();
+        return res.json({ success: true, booking });
+    } catch (error) {
+        console.error("Error updating payment status:", error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
 
 // @desc    Update booking details (general update)
 // @route   PUT /api/bookings/:id

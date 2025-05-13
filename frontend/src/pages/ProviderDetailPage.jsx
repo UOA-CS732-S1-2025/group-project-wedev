@@ -293,6 +293,41 @@ export default function ProviderDetailPage() {
 
       console.log("Booking created successfully:", bookingResult);
 
+      // 新增：创建支付记录
+      try {
+        const paymentData = {
+          provider: provider._id,
+          booking: bookingResult.booking._id,
+          amount: parseFloat(provider.hourlyRate) || 0,
+          method: "credit_card" // 默认支付方式
+        };
+        
+        console.log("Creating payment record with data:", paymentData);
+        
+        const paymentResponse = await fetch("/api/payments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(paymentData),
+        });
+        
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+          console.error("Payment record creation failed:", errorData);
+          // 不中断流程，继续执行后续步骤
+          console.warn("Continuing without payment record");
+        } else {
+          const paymentResult = await paymentResponse.json();
+          console.log("Payment record created successfully:", paymentResult);
+        }
+      } catch (error) {
+        console.error("Error creating payment record:", error);
+        // 不中断流程，继续执行后续步骤
+        console.warn("Continuing without payment record");
+      }
+
       // 2. Create conversation
       const conversationResponse = await fetch(
         "/api/conversations/find-or-create",
@@ -389,14 +424,14 @@ export default function ProviderDetailPage() {
       toaster.create({
         title: "Booking Created Successfully",
         description:
-          "Your booking has been created and a message has been sent to the service provider.",
+          "Your booking has been created and a message has been sent to the service provider. Please complete the payment.",
       });
 
       // Clear form fields after successful booking
       setBookingTime("");
 
-      // 8. Navigate to orders page
-      navigate("/profile?tab=orders");
+      // 8. Navigate to payment page instead of orders page
+      navigate(`/payment/${bookingResult.booking._id}`);
     } catch (error) {
       console.error("Error during booking process:", error);
       toaster.create({

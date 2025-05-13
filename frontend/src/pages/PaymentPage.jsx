@@ -24,6 +24,7 @@ import api from "../lib/api";
 import useAuthStore from "../store/authStore";
 import { RiPaypalFill, RiBankCardFill, RiMastercardLine , RiVisaLine   } from "react-icons/ri";
 import { SiAmericanexpress    } from "react-icons/si";
+import { toaster } from "@/components/ui/toaster";
 
 const PaymentPage = () => {
   const { bookingId } = useParams();
@@ -31,60 +32,107 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const [method, setMethod] = useState("");
   const [paymentInfo, setPaymentInfo] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-  const fetchPayment = async () => {
-    try {
-      const res = await api.get(`/payments/booking/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPaymentInfo(res.data);
-    } catch (err) {
-      console.error("Failed to fetch payment info:", err);
-    }
+    const fetchPayment = async () => {
+      try {
+        const res = await api.get(`/payments/booking/${bookingId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setPaymentInfo(res.data);
+      } catch (err) {
+        console.error("Failed to fetch payment info:", err);
+        toaster.create({
+          title: "Error",
+          description: "Failed to fetch payment information",
+        });
+      }
+    };
+    fetchPayment();
+  }, [bookingId, token]);
+
+  const handleCancel = () => {
+    navigate("/profile?tab=orders");
   };
-  fetchPayment();
-}, [bookingId, token]);
 
-  const handleCancel = async() =>{
-    navigate("/profile");
-  }
   const handleSubmit = async () => {
-  try {
-    // Step 1: 获取与当前 bookingId 对应的 payment
-    const res = await api.get(`/payments/booking/${bookingId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const payment = res.data;
-    
-
-    if (!payment || !payment._id) {
-      throw new Error("No payment record found for this booking.");
+    if (!method) {
+      toaster.create({
+        title: "Payment Method Required",
+        description: "Please select a payment method",
+      });
+      return;
     }
-
-    // Step 2: 更新 payment 的状态、支付时间和方式
-    await api.patch(
-      `/payments/${payment._id}`,
-      {
-        status: "paid",
-        paidAt: new Date().toISOString(),
-        method: method,
-      },
-      {
+    
+    setIsProcessing(true);
+    try {
+      // 1. Update the payment record
+      const paymentRes = await api.get(`/payments/booking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      });
+      
+      const payment = paymentRes.data;
+      
+      if (!payment || !payment._id) {
+        throw new Error("No payment record found for this booking.");
       }
-    );
-
-    navigate("/profile");
-  } catch (err) {
-    console.error("Failed to update payment:", err);
-  }
-};
+      
+      // 2. Update payment status
+      await api.patch(
+        `/payments/${payment._id}`,
+        {
+          status: "paid",
+          paidAt: new Date().toISOString(),
+          method: method,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      // 3. Update booking payment details
+      const bookingUpdateRes = await fetch(`/api/bookings/${bookingId}/payment`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          paymentStatus: "succeeded",
+          paymentMethod: method,
+          paidAmount: payment.amount,
+          paymentDate: new Date().toISOString(),
+        }),
+      });
+      
+      if (!bookingUpdateRes.ok) {
+        throw new Error("Failed to update booking payment status");
+      }
+      
+      toaster.create({
+        title: "Payment Successful",
+        description: "Your payment has been processed successfully",
+      });
+      
+      // Redirect to profile page with orders tab selected
+      navigate("/profile?tab=orders");
+    } catch (err) {
+      console.error("Failed to update payment:", err);
+      toaster.create({
+        title: "Payment Failed",
+        description: err.message || "Failed to process payment",
+      });
+      // Still redirect to orders tab even if payment fails
+      navigate("/profile?tab=orders");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
       <Container maxW="lg" py={8}>
@@ -314,6 +362,8 @@ const PaymentPage = () => {
     size="lg"
     w="220px" 
     onClick={handleSubmit}
+    isLoading={isProcessing}
+    loadingText="Processing"
   >
     Pay Now
   </Button>

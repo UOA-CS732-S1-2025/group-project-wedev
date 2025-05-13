@@ -25,6 +25,9 @@ router.get('/:id', authMiddleware, bookingController.getBookingById);
 // Specific roles might be required for specific status changes.
 router.patch('/:id/status', authMiddleware, bookingController.updateBookingStatus);
 
+// Update booking payment status
+router.patch('/:id/payment', authMiddleware, bookingController.updateBookingPayment);
+
 // General update for a booking (e.g., notes, agreed upon time changes by admin/involved parties)
 // Be cautious with what fields are updatable and by whom.
 router.put('/:id', authMiddleware, bookingController.updateBooking);
