@@ -1,15 +1,15 @@
 import React from 'react';
-import { 
-  Flex, 
-  Center, 
-  Box, 
-  Heading, 
-  Text, 
-  Image, 
-  SimpleGrid, 
-  Container, 
-  Icon, 
-  Button, 
+import {
+  Flex,
+  Center,
+  Box,
+  Heading,
+  Text,
+  Image,
+  SimpleGrid,
+  Container,
+  Icon,
+  Button,
   VStack,
   HStack,
   Badge,
@@ -22,20 +22,20 @@ const Homepage = () => {
   return (
     <Box>
       {/* Hero Section */}
-      <Box 
-        bgImage="url('https://www.skmowing.co.nz/wp-content/uploads/2025/01/steptodown.com375273-1024x683.jpg')"
+      <Box
+        bgImage="url('https://urbaneaseproject.s3.us-east-1.amazonaws.com/ubbb.svg')"
         bgPosition="center"
         bgRepeat="no-repeat"
         bgSize="cover"
         h="750px"
         position="relative"
       >
-        <Box 
-          position="absolute" 
-          top="0" 
-          left="0" 
-          w="100%" 
-          h="100%" 
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          w="100%"
+          h="100%"
           bg="rgba(0,0,0,0.6)"
         >
           <Center h="100%">
@@ -62,36 +62,36 @@ const Homepage = () => {
                 Whatever your home needs, we've got you covered with our extensive range of professional services.
               </Text>
             </Box>
-            
+
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="40px">
-              <ServiceCard 
-                icon={FaWrench} 
-                title="Plumbing" 
+              <ServiceCard
+                icon={FaWrench}
+                title="Plumbing"
                 description="From leaky faucets to complete pipe replacements, our licensed plumbers solve all your water problems."
               />
-              <ServiceCard 
-                icon={FaLeaf} 
-                title="Garden & Lawn Care" 
+              <ServiceCard
+                icon={FaLeaf}
+                title="Garden & Lawn Care"
                 description="Keep your outdoor space beautiful with our expert gardening, landscaping, and lawn maintenance services."
               />
-              <ServiceCard 
-                icon={FaTools} 
-                title="Home Repairs" 
+              <ServiceCard
+                icon={FaTools}
+                title="Home Repairs"
                 description="Quick and efficient repair services for all areas of your home by skilled handymen."
               />
-              <ServiceCard 
-                icon={FaBroom} 
-                title="House Cleaning" 
+              <ServiceCard
+                icon={FaBroom}
+                title="House Cleaning"
                 description="Professional deep cleaning services that leave your home spotless and fresh."
               />
-              <ServiceCard 
-                icon={FaPaintRoller} 
-                title="Painting" 
+              <ServiceCard
+                icon={FaPaintRoller}
+                title="Painting"
                 description="Transform your space with our expert painting services for interior and exterior walls."
               />
-              <ServiceCard 
-                icon={FaWrench} 
-                title="Appliance Repair" 
+              <ServiceCard
+                icon={FaWrench}
+                title="Appliance Repair"
                 description="Fast, reliable repairs for all major household appliances by certified technicians."
               />
             </SimpleGrid>
@@ -105,19 +105,19 @@ const Homepage = () => {
           <VStack spacing={12}>
             <Heading textAlign="center">How It Works</Heading>
             <SimpleGrid columns={{ base: 1, md: 3 }} gap="40px">
-              <StepCard 
-                number="1" 
-                title="Choose Your Service" 
+              <StepCard
+                number="1"
+                title="Choose Your Service"
                 description="Browse our extensive selection of home services and select what you need."
               />
-              <StepCard 
-                number="2" 
-                title="Book a Professional" 
+              <StepCard
+                number="2"
+                title="Book a Professional"
                 description="Select a time that works for you and book a verified professional."
               />
-              <StepCard 
-                number="3" 
-                title="Get the Job Done" 
+              <StepCard
+                number="3"
+                title="Get the Job Done"
                 description="Relax while our experts take care of your home service needs efficiently."
               />
             </SimpleGrid>
@@ -131,19 +131,19 @@ const Homepage = () => {
           <VStack spacing={12}>
             <Heading textAlign="center">What Our Customers Say</Heading>
             <SimpleGrid columns={{ base: 1, md: 3 }} gap="40px">
-              <TestimonialCard 
+              <TestimonialCard
                 name="Sarah Johnson"
                 image="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
                 text="The plumber was professional and fixed our leak in no time. Great service!"
                 rating={5}
               />
-              <TestimonialCard 
+              <TestimonialCard
                 name="Mark Thompson"
                 image="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
                 text="I've been using their gardening services for months. My yard has never looked better!"
                 rating={5}
               />
-              <TestimonialCard 
+              <TestimonialCard
                 name="Emily Chen"
                 image="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
                 text="Quick booking, fair prices, and excellent house cleaning service. Highly recommend!"
@@ -221,7 +221,7 @@ const ServiceCard = ({ icon, title, description }) => {
       _hover={{ boxShadow: "lg", transform: "translateY(-5px)" }}
       transition="all 0.3s"
       minH="300px"
-     
+
     >
       <Box >
       <Icon as={icon} boxSize={10} color="blue.500"  />
@@ -247,12 +247,12 @@ const StepCard = ({ number, title, description }) => {
       spacing={4}
       align="center"
     >
-      <Center 
-        bg="blue.500" 
-        color="white" 
-        h="60px" 
-        w="60px" 
-        borderRadius="full" 
+      <Center
+        bg="blue.500"
+        color="white"
+        h="60px"
+        w="60px"
+        borderRadius="full"
         fontSize="2xl"
         fontWeight="bold"
       >
@@ -286,7 +286,7 @@ const TestimonialCard = ({ name, image, text, rating }) => {
             {Array(5)
               .fill("")
               .map((_, i) => (
-                <Icon 
+                <Icon
                   key={i}
                   as={FaStar}
                   color={i < rating ? "yellow.400" : "gray.300"}
