@@ -41,7 +41,7 @@ const Navbar = () => {
                     pos: "absolute",
                     top: 0, left: 0, bottom: 0,
                     width: "0%",
-                    bg: "green.600",
+                    bg: "blue.500",
                     transition: "width 0.1s ease",
                     zIndex: 0,
                   }}
@@ -66,7 +66,7 @@ const Navbar = () => {
                     pos: "absolute",
                     top: 0, left: 0, bottom: 0,
                     width: "0%",
-                    bg: "green.600",
+                    bg: "blue.500",
                     transition: "width 0.2s ease",
                     zIndex: 0,
                   }}

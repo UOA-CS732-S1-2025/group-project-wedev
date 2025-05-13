@@ -176,7 +176,7 @@ const LoginPage = () => {
                 left: 0,
                 bottom: 0,
                 w: "0%",
-                bg: "green.600",
+                bg: "blue.500",
                 transition: "width 0.3s ease",
                 zIndex: 0,
               }}
