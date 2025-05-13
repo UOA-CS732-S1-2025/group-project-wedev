@@ -8,7 +8,7 @@ const Navbar = () => {
   const { user, login, logout } = useAuthStore();
 
   const navigate = useNavigate();
-  
+
   return (
     <Container maxW="1920px" px={4} bg="gray.100" py={4}>
       <Flex
@@ -26,12 +26,61 @@ const Navbar = () => {
 
         {/* Right side */}
         <HStack spacing={4}>
-          {!user ? (
-            <>
-              <Button as={RouterLink} to="/login">Log in</Button>
-              <Button as={RouterLink} to="/signup">Sign up</Button>
-            </>
-          ) : <UserNavActions user={user} logout={logout}  />}
+            {!user ? (
+              <>
+                <Button
+                  as={RouterLink}
+                  to="/login"
+                  pos="relative"              // added for animation context
+                  overflow="hidden"           // clip the swipe
+                  bg="black"
+                  color="white"
+                  transition="color 0.2s ease"
+                  _before={{                  // swipe layer
+                    content: '""',
+                    pos: "absolute",
+                    top: 0, left: 0, bottom: 0,
+                    width: "0%",
+                    bg: "green.600",
+                    transition: "width 0.1s ease",
+                    zIndex: 0,
+                  }}
+                  _active={{                  // trigger on click
+                    _before: { width: "100%" },
+                    color: "white",
+                  }}
+                >
+                  <Box pos="relative" zIndex={1}>Log in</Box>
+                </Button>
+
+                <Button
+                  as={RouterLink}
+                  to="/signup"
+                  pos="relative"
+                  overflow="hidden"
+                  bg="black"
+                  color="White"
+                  transition="color 0.1s ease"
+                  _before={{
+                    content: '""',
+                    pos: "absolute",
+                    top: 0, left: 0, bottom: 0,
+                    width: "0%",
+                    bg: "green.600",
+                    transition: "width 0.2s ease",
+                    zIndex: 0,
+                  }}
+                  _active={{
+                    _before: { width: "100%" },
+                    color: "white",
+                  }}
+                >
+                  <Box pos="relative" zIndex={1}>Sign up</Box>
+                </Button>
+              </>
+            ) : (
+              <UserNavActions user={user} logout={logout} />
+            )}
         </HStack>
       </Flex>
     </Container>
