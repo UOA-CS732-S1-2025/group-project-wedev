@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -24,6 +24,7 @@ import {
   Select,
   createListCollection,
   NumberInput,
+  FileUpload,
 } from "@chakra-ui/react";
 import { LuUser, LuMapPin, LuCalendarClock, LuSettings } from "react-icons/lu";
 import useAuthStore from "../store/authStore";
@@ -31,6 +32,8 @@ import api from "../lib/api";
 import { toaster } from "@/components/ui/toaster";
 import AvailabilitySetting from "./AvailabilitySetting";
 import { LuBriefcase } from "react-icons/lu";
+import { MdOutlineFileUpload } from "react-icons/md";
+
 const UserProfile = () => {
   const { user, fetchCurrentUser } = useAuthStore();
   const [value, setValue] = useState();
@@ -61,6 +64,7 @@ const UserProfile = () => {
     },
   });
   const [loading, setLoading] = useState(false);
+  const [imageUploadLoading, setImageUploadLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -87,6 +91,47 @@ const UserProfile = () => {
       }));
     }
   }, [user]);
+
+  const handleProfilePictureUpload = async (acceptedFiles) => {
+    if (!acceptedFiles || acceptedFiles.length === 0) {
+      toaster.create({
+        title: "No file selected",
+        description: "Please select an image file to upload.",
+      });
+      return;
+    }
+    const file = acceptedFiles[0];
+    setImageUploadLoading(true);
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
+    try {
+      // The user router is typically mounted at /api/users on the backend.
+      // So, the actual request will be PUT /api/users/me/profile-picture
+      const response = await api.put("/users/me/profile-picture", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toaster.create({
+        title: "Profile picture updated",
+        description: "Your new profile picture has been uploaded successfully.",
+      });
+      if (fetchCurrentUser) {
+        fetchCurrentUser(); // Refresh user data to get new URL and publicId
+      }
+    } catch (err) {
+      console.error("Profile picture upload failed:", err);
+      toaster.create({
+        title: "Upload failed",
+        description:
+          err.response?.data?.message ||
+          "Could not upload profile picture. Please try again.",
+      });
+    } finally {
+      setImageUploadLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -149,27 +194,34 @@ const UserProfile = () => {
         >
           {/* User basic info section */}
           <Box>
-            <VStack spacing={6}>
-              <AvatarGroup>
-                <Avatar.Root size="xl">
-                  <Avatar.Fallback>{displayName.charAt(0)}</Avatar.Fallback>
-                  <Avatar.Image
-                    src={
-                      user?.profilePictureUrl || "https://bit.ly/sage-adebayo"
-                    }
-                  />
-                </Avatar.Root>
-              </AvatarGroup>
+            <VStack spacing={6} alignItems="center" mb={8}>
+              <HStack spacing={{ base: 4, md: 8 }} alignItems="center">
+                <VStack spacing={3} alignItems="center">
+                  <AvatarGroup>
+                    <Avatar.Root size="2xl">
+                      <Avatar.Fallback>{displayName.charAt(0)}</Avatar.Fallback>
+                      <Avatar.Image
+                        src={user?.profilePictureUrl}
+                        alt={displayName}
+                      />
+                    </Avatar.Root>
+                  </AvatarGroup>
+                </VStack>
 
-              <VStack>
-                <Heading size="lg">{displayName}</Heading>
-                <Text color="gray.600">{user?.email}</Text>
-                {user?.role && (
-                  <Text color="blue.600" fontSize="sm" fontWeight="medium">
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </Text>
-                )}
-              </VStack>
+                {/* Right side: User Text Info */}
+                <VStack
+                  alignItems={{ base: "center", md: "flex-start" }}
+                  spacing={1}
+                >
+                  <Heading size="lg">{displayName}</Heading>
+                  <Text color="gray.600">{user?.email}</Text>
+                  {user?.role && (
+                    <Text color="blue.600" fontSize="sm" fontWeight="medium">
+                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </Text>
+                  )}
+                </VStack>
+              </HStack>
             </VStack>
           </Box>
 
@@ -230,7 +282,14 @@ const UserProfile = () => {
 
                     {/* Right side: Form content */}
                     <GridItem colSpan={{ base: 1, md: 3 }}>
-                      <Tabs.Content value="personal" w="full">
+                      <Tabs.Content
+                        value="personal"
+                        w="full"
+                        _open={{
+                          animationName: "fade-in, scale-in",
+                          animationDuration: "300ms",
+                        }}
+                      >
                         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                           <GridItem>
                             <Field.Root>
@@ -266,15 +325,21 @@ const UserProfile = () => {
                             </Field.Root>
                           </GridItem>
                           <GridItem colSpan={{ base: 1, md: 2 }}>
-                            <Field.Root>
-                              <Field.Label>Profile Picture URL</Field.Label>
-                              <Input
-                                name="profilePictureUrl"
-                                value={form.profilePictureUrl}
-                                onChange={handleChange}
-                                size="md"
-                              />
-                            </Field.Root>
+                            <FileUpload.Root
+                              onFileAccept={(details) =>
+                                handleProfilePictureUpload(details.files)
+                              }
+                              maxFiles={1}
+                              accept="image/*"
+                            >
+                              <FileUpload.HiddenInput />
+                              <FileUpload.Trigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <MdOutlineFileUpload />
+                                  Change Avatar
+                                </Button>
+                              </FileUpload.Trigger>
+                            </FileUpload.Root>
                           </GridItem>
                         </SimpleGrid>
                         <Button
@@ -289,7 +354,18 @@ const UserProfile = () => {
                         </Button>
                       </Tabs.Content>
 
-                      <Tabs.Content value="address" w="full">
+                      <Tabs.Content
+                        value="address"
+                        w="full"
+                        _open={{
+                          animationName: "fade-in, scale-in",
+                          animationDuration: "300ms",
+                        }}
+                        _closed={{
+                          animationName: "fade-out, scale-out",
+                          animationDuration: "120ms",
+                        }}
+                      >
                         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
@@ -370,7 +446,18 @@ const UserProfile = () => {
                         </Button>
                       </Tabs.Content>
 
-                      <Tabs.Content value="becomeProfessional" w="full">
+                      <Tabs.Content
+                        value="becomeProfessional"
+                        w="full"
+                        _open={{
+                          animationName: "fade-in, scale-in",
+                          animationDuration: "300ms",
+                        }}
+                        _closed={{
+                          animationName: "fade-out, scale-out",
+                          animationDuration: "120ms",
+                        }}
+                      >
                         <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
@@ -380,9 +467,17 @@ const UserProfile = () => {
                                 width="full"
                                 value={value}
                                 onValueChange={(e) => {
-                                  console.log("Service type selected:", e.value, "Type:", typeof e.value);
+                                  console.log(
+                                    "Service type selected:",
+                                    e.value,
+                                    "Type:",
+                                    typeof e.value
+                                  );
                                   setValue(e.value);
-                                  setForm(prev => ({ ...prev, serviceType: e.value }));
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    serviceType: e.value,
+                                  }));
                                 }}
                               >
                                 <Select.HiddenSelect />
@@ -414,14 +509,19 @@ const UserProfile = () => {
                               </Select.Root>
                             </Field.Root>
                           </GridItem>
-                          
+
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
                               <Field.Label>Hourly Rate ($)</Field.Label>
                               <NumberInput.Root
                                 width="full"
                                 value={form.hourlyRate}
-                                onValueChange={(e) => setForm(prev => ({ ...prev, hourlyRate: e.value }))}
+                                onValueChange={(e) =>
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    hourlyRate: e.value,
+                                  }))
+                                }
                                 min={0}
                               >
                                 <NumberInput.Control />
@@ -429,7 +529,7 @@ const UserProfile = () => {
                               </NumberInput.Root>
                             </Field.Root>
                           </GridItem>
-                          
+
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
                               <Field.Label>Bio</Field.Label>
@@ -445,7 +545,7 @@ const UserProfile = () => {
                             </Field.Root>
                           </GridItem>
                         </SimpleGrid>
-                        
+
                         <Button
                           colorPalette="blue"
                           size="md"
@@ -457,40 +557,63 @@ const UserProfile = () => {
                             setLoading(true);
                             try {
                               // Remove nested objects from form spread to prevent unexpected issues
-                              const { firstName, lastName, phoneNumber, profilePictureUrl, bio } = form;
+                              const {
+                                firstName,
+                                lastName,
+                                phoneNumber,
+                                profilePictureUrl,
+                                bio,
+                              } = form;
                               const payload = {
                                 firstName,
                                 lastName,
                                 phoneNumber,
                                 profilePictureUrl,
                                 bio,
-                                role: 'provider',
-                                serviceType: typeof value === 'string' ? value : (value ? value.toString() : ''),
-                                hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
+                                role: "provider",
+                                serviceType:
+                                  typeof value === "string"
+                                    ? value
+                                    : value
+                                      ? value.toString()
+                                      : "",
+                                hourlyRate: form.hourlyRate
+                                  ? Number(form.hourlyRate)
+                                  : undefined,
                                 // Adding default values for required provider fields
                                 address: form.address,
                               };
-                              
+
                               console.log("Request payload:", payload);
-                              
+
                               // Submit update with provider role change - use dedicated endpoint
-                              const response = await api.put('/auth/me/become-provider', payload);
-                              
+                              const response = await api.put(
+                                "/auth/me/become-provider",
+                                payload
+                              );
+
                               console.log("Response data:", response.data);
-                              
-                              toaster.create({ 
-                                title: "Congratulations! You are now a service provider", 
-                                description: "Your professional profile has been successfully created"
+
+                              toaster.create({
+                                title:
+                                  "Congratulations! You are now a service provider",
+                                description:
+                                  "Your professional profile has been successfully created",
                               });
-                              
+
                               // Refresh user information
                               fetchCurrentUser && fetchCurrentUser();
                             } catch (err) {
                               console.error("Update failed:", err);
-                              console.error("Error details:", err.response?.data);
+                              console.error(
+                                "Error details:",
+                                err.response?.data
+                              );
                               toaster.create({
                                 title: "Update failed",
-                                description: err.response?.data?.message || "Please try again later"
+                                description:
+                                  err.response?.data?.message ||
+                                  "Please try again later",
                               });
                             } finally {
                               setLoading(false);
@@ -503,30 +626,48 @@ const UserProfile = () => {
 
                       {isProvider && (
                         <>
-                          <Tabs.Content value="service" w="full">
-                            <SimpleGrid columns={1} gap={6}>
-                              <Field.Root w="full">
-                                <Field.Label>Hourly Rate ($)</Field.Label>
-                                <NumberInput.Root
-                                  w="full"
-                                  value={form.hourlyRate}
-                                  onValueChange={(e) => setForm(prev => ({ ...prev, hourlyRate: e.value }))}
-                                  min={0}
-                                >
-                                  <NumberInput.Control />
-                                  <NumberInput.Input placeholder="Enter hourly rate" />
-                                </NumberInput.Root>
-                              </Field.Root>
+                          <Tabs.Content
+                            value="service"
+                            w="full"
+                            _open={{
+                              animationName: "fade-in, scale-in",
+                              animationDuration: "300ms",
+                            }}
+                          >
+                            <SimpleGrid columns={1} gap="40px">
+                              <GridItem>
+                                <Field.Root w="full">
+                                  <Field.Label>Hourly Rate ($)</Field.Label>
+                                  <NumberInput.Root
+                                    w="full"
+                                    value={form.hourlyRate}
+                                    onValueChange={(e) =>
+                                      setForm((prev) => ({
+                                        ...prev,
+                                        hourlyRate: e.value,
+                                      }))
+                                    }
+                                    min={0}
+                                  >
+                                    <NumberInput.Control />
+                                    <NumberInput.Input placeholder="Enter hourly rate" />
+                                  </NumberInput.Root>
+                                </Field.Root>
+                              </GridItem>
                             </SimpleGrid>
-                            <Field.Root w="full">
-                              <Field.Label>Bio</Field.Label>
-                              <Textarea
-                                name="bio"
-                                value={form.bio || ""}
-                                onChange={handleChange}
-                                placeholder="Tell customers about yourself and your services"
-                              />
-                            </Field.Root>
+                            <SimpleGrid columns={1} gap="40px">
+                              <GridItem>
+                                <Field.Root w="full">
+                                  <Field.Label>Bio</Field.Label>
+                                  <Textarea
+                                    name="bio"
+                                    value={form.bio || ""}
+                                    onChange={handleChange}
+                                    placeholder="Tell customers about yourself and your services"
+                                  />
+                                </Field.Root>
+                              </GridItem>
+                            </SimpleGrid>
 
                             <Button
                               type="submit"
@@ -540,7 +681,14 @@ const UserProfile = () => {
                             </Button>
                           </Tabs.Content>
 
-                          <Tabs.Content value="availability" w="full">
+                          <Tabs.Content
+                            value="availability"
+                            w="full"
+                            _open={{
+                              animationName: "fade-in, scale-in",
+                              animationDuration: "300ms",
+                            }}
+                          >
                             {user?._id && (
                               <AvailabilitySetting
                                 providerId={user._id}
