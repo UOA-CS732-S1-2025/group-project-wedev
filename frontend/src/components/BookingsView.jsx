@@ -224,7 +224,11 @@ const BookingCard = ({
                   await onStatusChange(booking._id, "confirmed");
 
                   try {
+<<<<<<< HEAD
                     const res = await fetch("/api/payments", {
+=======
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/payments`, {
+>>>>>>> origin/main
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",
@@ -332,7 +336,11 @@ const BookingCard = ({
       <VStack align="start" spacing={4} pt={7}>
         {/* Service type */}
         <Heading size="md">
+<<<<<<< HEAD
           <Icon as={FaTools} mr={2} color="blue.500" />
+=======
+          <Icon mr={2} color="blue.500"><FaTools /></Icon>
+>>>>>>> origin/main
           {booking.serviceType}
         </Heading>
 
@@ -353,14 +361,22 @@ const BookingCard = ({
 
         {/* Booking time */}
         <HStack spacing={3}>
+<<<<<<< HEAD
           <Icon as={FaCalendarAlt} color="gray.500" />
+=======
+          <Icon color="gray.500"><FaCalendarAlt /></Icon>
+>>>>>>> origin/main
           <Text fontSize="sm">{formatTime(booking.startTime)}</Text>
         </HStack>
 
         {/* Address information */}
         {booking.serviceAddress && (
           <HStack spacing={3}>
+<<<<<<< HEAD
             <Icon as={FaMapMarkerAlt} color="gray.500" />
+=======
+            <Icon color="gray.500"><FaMapMarkerAlt /></Icon>
+>>>>>>> origin/main
             <Text fontSize="sm">
               {[
                 booking.serviceAddress.street,
@@ -375,7 +391,11 @@ const BookingCard = ({
 
         {/* Cost information */}
         <HStack spacing={3}>
+<<<<<<< HEAD
           <Icon as={FaDollarSign} color="gray.500" />
+=======
+          <Icon color="gray.500"><FaDollarSign /></Icon>
+>>>>>>> origin/main
           <Text fontSize="sm">${booking.hourlyRate}/hr</Text>
                   {/* Payment Status badge - top right, to the left of status badge */}
         {booking.paymentDetails?.paymentStatus && (
@@ -430,8 +450,13 @@ const BookingsView = () => {
       // Get booking data based on user role
       const endpoint =
         user.role === "provider"
+<<<<<<< HEAD
           ? "/api/bookings/provider-bookings"
           : "/api/bookings/my-bookings";
+=======
+          ? `${import.meta.env.VITE_API_URL}/api/bookings/provider-bookings`
+          : `${import.meta.env.VITE_API_URL}/api/bookings/my-bookings`;
+>>>>>>> origin/main
 
       const response = await fetch(endpoint, {
         headers: {
@@ -511,7 +536,11 @@ const BookingsView = () => {
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
       // Call API to update booking status
+<<<<<<< HEAD
       const response = await fetch(`/api/bookings/${bookingId}/status`, {
+=======
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}/status`, {
+>>>>>>> origin/main
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -591,7 +620,11 @@ const BookingsView = () => {
   if (!user) {
     return (
       <Alert status="warning" borderRadius="md" my={5}>
+<<<<<<< HEAD
         <Icon as={FaExclamationCircle} mr={2} />
+=======
+        <Icon mr={2}><FaExclamationCircle /></Icon>
+>>>>>>> origin/main
         <Alert.Title mr={2}>Login Required</Alert.Title>
         <Alert.Description>
           Please login to view your bookings.
@@ -628,7 +661,11 @@ const BookingsView = () => {
             <Button 
               variant="outline" 
               size="md" 
+<<<<<<< HEAD
               rightIcon={<Icon as={FaCalendarAlt} />}
+=======
+              rightIcon={<Icon><FaCalendarAlt /></Icon>}
+>>>>>>> origin/main
               px={4}
               w="200px"
             >
@@ -645,7 +682,11 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("all")}
                 >
                   <Flex align="center">
+<<<<<<< HEAD
                     <Icon as={FaListAlt} color="gray.500" mr={2} />
+=======
+                    <Icon color="gray.500" mr={2}><FaListAlt /></Icon>
+>>>>>>> origin/main
                     All Bookings
                   </Flex>
                 </Menu.Item>
@@ -654,7 +695,11 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("upcoming")}
                 >
                   <Flex align="center">
+<<<<<<< HEAD
                     <Icon as={FaCalendarCheck} color="green.500" mr={2} />
+=======
+                    <Icon color="green.500" mr={2}><FaCalendarCheck /></Icon>
+>>>>>>> origin/main
                     Upcoming Bookings
                   </Flex>
                 </Menu.Item>
@@ -663,7 +708,11 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("past")}
                 >
                   <Flex align="center">
+<<<<<<< HEAD
                     <Icon as={FaHistory} color="purple.500" mr={2} />
+=======
+                    <Icon color="purple.500" mr={2}><FaHistory /></Icon>
+>>>>>>> origin/main
                     Past Bookings
                   </Flex>
                 </Menu.Item>

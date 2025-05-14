@@ -12,12 +12,15 @@ import useAuthStore, { initAuthSync } from "./store/authStore";
 import ProtectedRoute from './components/ProtectedRoute';
 import ProviderDetailPage from './pages/ProviderDetailPage';
 import PaymentPage from './pages/PaymentPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import {
   ChakraProvider,
   createSystem,
   defaultConfig,
   defineConfig,
 } from "@chakra-ui/react"
+import { APIProvider } from "@vis.gl/react-google-maps";
+
 const config = defineConfig({
   globalCss: {
     "html, body": {
@@ -52,21 +55,24 @@ const App = () => {
 
   return (
     <ChakraProvider value={system}>
-    <Box minH="100vh" >
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/signup' element={<SignupPage />} />
-        <Route path='/inbox' element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
-        <Route path='/profile' element={<ProtectedRoute><UserProfilePage defaultTab="profile" /></ProtectedRoute>} />
-         <Route path='/providerDetail/:id' element={<ProviderDetailPage />} />
-         <Route path="/payment/:bookingId" element={<PaymentPage />} />
-      </Routes>
-      <Toaster />
+      <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"} libraries={['places']} language="en">
+        <Box minH="100vh" >
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/signup' element={<SignupPage />} />
+            <Route path='/inbox' element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+            <Route path='/profile' element={<ProtectedRoute><UserProfilePage defaultTab="profile" /></ProtectedRoute>} />
+             <Route path='/providerDetail/:id' element={<ProtectedRoute><ProviderDetailPage /></ProtectedRoute>} />
+             <Route path="/payment/:bookingId" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+             <Route path="/verify-email" element={<VerifyEmailPage />} />
+          </Routes>
+          <Toaster />
 
-    </Box>
+        </Box>
+      </APIProvider>
     </ChakraProvider>
   )
 }

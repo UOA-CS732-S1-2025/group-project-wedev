@@ -229,7 +229,11 @@ const ServiceCard = ({ icon, title, description }) => {
       <Text color="gray.600">{description}</Text>
       </Box>
       <Box mt="auto" w="100%" textAlign="right" >
+<<<<<<< HEAD
         <Button variant="link" colorScheme="blue" >
+=======
+        <Button variant="link" colorScheme="blue" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+>>>>>>> origin/main
           Learn More →
         </Button>
       </Box>

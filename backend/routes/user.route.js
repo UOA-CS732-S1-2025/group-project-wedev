@@ -1,4 +1,9 @@
 import express from "express";
+<<<<<<< HEAD
+=======
+import upload from '../middleware/multerUpload.js';
+import { uploadProfilePicture } from '../controllers/user.controller.js';
+>>>>>>> origin/main
 
 // import { createUser, getUsers, deleteUser } from "../controllers/user.controller.js";
 import { 
@@ -24,4 +29,15 @@ router.get("/providers/:id", getProviderById);
 router.get("/providers/:id/availability", authMiddleware, getProviderAvailability);
 router.put("/providers/:id/availability", authMiddleware, updateProviderAvailability);
 
+<<<<<<< HEAD
+=======
+// User profile picture upload route (for the authenticated user)
+router.put(
+  '/me/profile-picture', 
+  authMiddleware, 
+  upload.single('profilePicture'), // 'profilePicture' should match the field name in the form-data
+  uploadProfilePicture
+);
+
+>>>>>>> origin/main
 export default router;
