@@ -58,12 +58,12 @@ app.get("/", (req, res) => {
 
 
 //Development environment
-// app.listen(PORT, () => {
-//   connectDB();
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
+app.listen(PORT, () => {
+  connectDB();
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
 
 
-export default app; // Test environment
+// export default app; // Test environment
 
 
