@@ -4,4 +4,4 @@ node_modules
 llms-components.txt
 .cursor/
 backend/seed.js
-deploy-frontend.yml
+.github/
