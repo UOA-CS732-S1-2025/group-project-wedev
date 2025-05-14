@@ -1,82 +1,135 @@
-name: Deploy Backend to Azure App Service (SPN)
+name: Deploy Fullstack Application (Backend SPN & Frontend SWA)
 
 on:
   push:
     branches: [ "develop" ] # 或者你的主部署分支，如 "main"
     paths:
+      - 'backend/**'   # 仅当 backend 文件夹下的文件发生变化时触发
+      - 'frontend/**'  # 仅当 frontend 文件夹下的文件发生变化时触发
   workflow_dispatch:    # 允许手动触发
 
 env:
-  AZURE_WEBAPP_NAME: 'wedev'       # 替换为你的 Azure App Service 名称
-  AZURE_WEBAPP_PACKAGE_PATH: './backend' # 指向你的后端代码文件夹
-  NODE_VERSION: '20.x'               # 替换为你的 Node.js 版本
+  # --- Backend Variables ---
+  AZURE_BACKEND_WEBAPP_NAME: 'wedev'       # 你的 Azure App Service (后端) 名称
+  AZURE_BACKEND_PACKAGE_PATH: './backend' # 指向你的后端代码文件夹
+  NODE_VERSION_BACKEND: '20.x'            # 后端 Node.js 版本
+
+  # --- Frontend Variables ---
+  FRONTEND_APP_LOCATION: './frontend'     # 指向你的前端代码文件夹
+  FRONTEND_OUTPUT_LOCATION: 'build'       # 前端构建输出的文件夹名 (例如 React 的 'build', Vue 的 'dist') - 相对于 FRONTEND_APP_LOCATION
+  NODE_VERSION_FRONTEND: '20.x'           # 前端构建所需的 Node.js 版本 (可以与后端不同)
 
 permissions:
-  contents: read # build job 需要读取代码
+  contents: read # 'build_backend' job 和 'deploy_frontend' (checkout step) 需要读取代码
 
 jobs:
-  build:
+  #====================================================================
+  # JOB 1: Build Backend
+  #====================================================================
+  build_backend:
     name: Build Backend Artifact
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js ${{ env.NODE_VERSION }}
+    - name: Set up Node.js for Backend ${{ env.NODE_VERSION_BACKEND }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ env.NODE_VERSION }}
+        node-version: ${{ env.NODE_VERSION_BACKEND }}
         cache: 'npm'
-        cache-dependency-path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/package-lock.json'
+        cache-dependency-path: '${{ env.AZURE_BACKEND_PACKAGE_PATH }}/package-lock.json'
 
-    - name: Install dependencies, build, and test in backend
-      working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Install backend dependencies, build, and test
+      working-directory: ${{ env.AZURE_BACKEND_PACKAGE_PATH }}
       run: |
         npm install
         npm run build --if-present # 如果你有构建脚本
         npm run test --if-present  # 如果你有测试脚本
 
-    - name: Upload artifact for deployment job
+    - name: Upload backend artifact for deployment job
       uses: actions/upload-artifact@v4
       with:
-        name: node-app # 构建产物的名称
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }} # 上传 backend 文件夹的内容
+        name: node-app-backend # 构建产物的名称 (后端)
+        path: ${{ env.AZURE_BACKEND_PACKAGE_PATH }} # 上传 backend 文件夹的内容
 
-  deploy:
-    name: Deploy Backend to Azure
+  #====================================================================
+  # JOB 2: Deploy Backend
+  #====================================================================
+  deploy_backend:
+    name: Deploy Backend to Azure App Service
     permissions:
-      contents: none # deploy job 不需要直接读取代码内容，它使用 artifact
-      # id-token: write # 如果未来使用 OIDC/Workload Identity Federation，则需要此权限
+      contents: none # Deploy job 不需要直接读取代码内容，它使用 artifact
     runs-on: ubuntu-latest
-    needs: build # 依赖 build 作业完成
+    needs: build_backend # 依赖 build_backend 作业完成
     environment:
-      name: 'Development' # 部署环境的名称
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }} # 部署后的 URL
+      name: 'Development_Backend' # 后端部署环境的名称
+      url: ${{ steps.deploy-to-backend-webapp.outputs.webapp-url }} # 部署后的 URL
 
     steps:
-    - name: Download artifact from build job
+    - name: Download backend artifact
       uses: actions/download-artifact@v4
       with:
-        name: node-app # 与 build job 中上传的产物名称一致
-        # 下载后，产物内容会直接放在当前工作目录的根
+        name: node-app-backend # 与 build_backend job 中上传的产物名称一致
 
     - name: Login to Azure using Service Principal
-      uses: azure/login@v2 # 使用 Azure Login Action
+      uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }} # **使用你存储 SPN JSON 的机密**
-        # enable-AzPSSession: true # 如果后续步骤需要 Azure PowerShell，可以启用
+        creds: ${{ secrets.AZURE_CREDENTIALS }} # 使用你存储 SPN JSON 的机密
 
-    - name: 'Deploy to Azure WebApp'
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v3 # 建议使用较新版本，如 v3
+    - name: 'Deploy to Azure WebApp (Backend)'
+      id: deploy-to-backend-webapp # 给步骤一个 id 以便引用其输出
+      uses: azure/webapps-deploy@v3
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: . # **部署当前工作目录的内容 (即下载的构建产物)**
-        # 注意：这里不再使用 publish-profile 参数
+        app-name: ${{ env.AZURE_BACKEND_WEBAPP_NAME }}
+        package: . # 部署当前工作目录的内容 (即下载的后端构建产物)
 
-    - name: Logout from Azure
-      # 部署完成后登出 Azure (可选但推荐，尤其是在共享 runner 上)
+    - name: Logout from Azure (Backend)
       run: |
         az logout
         az account clear
-      if: always() # 确保即使前面的步骤失败也执行登出
+      if: always()
+
+  #====================================================================
+  # JOB 3: Build and Deploy Frontend
+  #====================================================================
+  deploy_frontend:
+    name: Build and Deploy Frontend to Static Web Apps
+    runs-on: ubuntu-latest
+    # 'needs' 可以根据你的实际情况调整，如果前端构建不需要等待后端部署完成，可以去掉
+    # needs: deploy_backend # 例如，如果前端构建需要后端已部署的某些信息（不常见）
+    environment:
+      name: 'Development_Frontend' # 前端部署环境的名称
+      url: ${{ steps.deploy-to-swa.outputs.static_web_app_url }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js for Frontend Build ${{ env.NODE_VERSION_FRONTEND }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION_FRONTEND }}
+        cache: 'npm'
+        cache-dependency-path: '${{ env.FRONTEND_APP_LOCATION }}/package-lock.json'
+
+    - name: Install frontend dependencies and build
+      working-directory: ${{ env.FRONTEND_APP_LOCATION }}
+      env:
+        # 根据你的前端框架调整环境变量名称 (例如 Create React App 是 REACT_APP_前缀)
+        REACT_APP_API_URL: ${{ secrets.API_BASE_URL }} # **注入后端 API URL**
+      run: |
+        npm install
+        npm run build # 确保你的 frontend/package.json 中有这个 build 脚本
+
+    - name: Deploy to Azure Static Web Apps
+      id: deploy-to-swa
+      uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }} # **SWA的部署令牌机密**
+        repo_token: ${{ secrets.GITHUB_TOKEN }} # GitHub 自动提供的令牌
+        action: "upload"
+        # 以下路径相对于仓库根目录
+        app_location: ${{ env.FRONTEND_APP_LOCATION }}      # 前端应用的源文件路径
+        output_location: ${{ env.FRONTEND_OUTPUT_LOCATION }} # 构建输出的静态文件路径 (相对于 app_location)
+        # api_location: "" # 如果你的 API 是这个 SWA 的一部分 (Azure Functions)，这里是你的 API 路径。由于你的 API 是独立的 App Service，这里通常留空。
