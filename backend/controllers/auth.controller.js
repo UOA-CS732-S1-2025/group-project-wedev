@@ -244,14 +244,70 @@ export const verifyEmail = async (req, res) => {
 // Update current user profile
 export const updateCurrentUser = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
+    console.log("User ID from token:", req.userId);
+    
     const allowed = [
       "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
-      "serviceType", "hourlyRate"
+      "serviceType", "hourlyRate", "role"
     ];
+    
     const updateFields = {};
     allowed.forEach((key) => {
       if (req.body[key] !== undefined) updateFields[key] = req.body[key];
     });
+    
+    // Check if we're trying to change to provider role
+    const isBecomingProvider = req.body.role === 'provider';
+    
+    // If user is becoming a provider, ensure required fields are set
+    if (isBecomingProvider) {
+      // Fetch current user to check current role
+      const currentUser = await User.findById(req.userId);
+      if (!currentUser) {
+        return res.status(404).json({ 
+          success: false,
+          message: "User not found" 
+        });
+      }
+      
+      // Only allow customer->provider transition
+      if (currentUser.role !== 'customer') {
+        return res.status(400).json({
+          success: false,
+          message: "Only customers can become providers"
+        });
+      }
+      
+      // Ensure serviceType is a string
+      if (req.body.serviceType) {
+        if (Array.isArray(req.body.serviceType)) {
+          updateFields.serviceType = req.body.serviceType[0];
+          console.log("Converted serviceType from array to string:", updateFields.serviceType);
+        } else if (typeof req.body.serviceType !== 'string') {
+          updateFields.serviceType = String(req.body.serviceType);
+          console.log("Converted serviceType to string:", updateFields.serviceType);
+        }
+      }
+      
+      // Validate required provider fields
+      if (!updateFields.serviceType) {
+        return res.status(400).json({
+          success: false, 
+          message: "Service type is required to become a provider"
+        });
+      }
+      
+      // Set default values for provider fields if not provided
+      if (!updateFields.hourlyRate) {
+        updateFields.hourlyRate = 0; // Default hourly rate
+      }
+      
+      console.log("User is becoming a provider with fields:", updateFields);
+    }
+    
+    console.log("Final update fields:", updateFields);
+    
     // Merge address if present
     if (req.body.address) {
       const user = await User.findById(req.userId);
@@ -260,27 +316,37 @@ export const updateCurrentUser = async (req, res) => {
         ...req.body.address,
       };
     }
-    const user = await User.findByIdAndUpdate(
-      req.userId,
-      { $set: updateFields },
-      { new: true, runValidators: true }
-    ).select("-password");
-    if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        message: "User not found" 
+    
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.userId,
+        { $set: updateFields },
+        { new: true, runValidators: true }
+      ).select("-password");
+      
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: "User not found" 
+        });
+      }
+      
+      res.status(200).json({
+        success: true,
+        user,
+        message: isBecomingProvider ? "Successfully became a provider" : "Profile updated"
       });
+    } catch (updateError) {
+      console.error("Database update error:", updateError);
+      throw updateError;  // Rethrow to be caught by outer catch
     }
-    res.status(200).json({
-      success: true,
-      user,
-      message: "Profile updated"
-    });
   } catch (err) {
+    console.error("Full error details:", err);
     res.status(500).json({ 
       success: false,
       message: "Update failed", 
-      error: err.message 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 };
