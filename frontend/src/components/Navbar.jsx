@@ -22,8 +22,8 @@ const Navbar = () => {
             src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/UEase.png"
             alt="UrbanEase Logo"
             w="120px"
-            h="auto"          // adjust size to whatever fits
-            objectFit="contain"         // preserves aspect ratio
+            h="auto"
+            objectFit="contain"
             cursor="pointer"
             onClick={() => navigate("/")}
           />
@@ -36,12 +36,11 @@ const Navbar = () => {
                 <Button
                   as={RouterLink}
                   to="/login"
-                  pos="relative"              // added for animation context
-                  overflow="hidden"           // clip the swipe
+                  pos="relative"
                   bg="black"
                   color="white"
                   transition="color 0.2s ease"
-                  _before={{                  // swipe layer
+                  _before={{
                     content: '""',
                     pos: "absolute",
                     top: 0, left: 0, bottom: 0,
@@ -50,7 +49,7 @@ const Navbar = () => {
                     transition: "width 0.1s ease",
                     zIndex: 0,
                   }}
-                  _active={{                  // trigger on click
+                  _active={{
                     _before: { width: "100%" },
                     color: "white",
                   }}
