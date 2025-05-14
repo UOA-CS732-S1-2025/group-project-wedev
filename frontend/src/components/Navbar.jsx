@@ -1,4 +1,4 @@
-import { Box, Button, Container, Flex, HStack, Text} from "@chakra-ui/react";
+import { Box, Button, Container, Flex, HStack, Text, Image} from "@chakra-ui/react";
 import { useNavigate , Link as RouterLink } from "react-router-dom";
 import React from "react";
 import UserNavActions from "./UserNavActions";
@@ -18,10 +18,15 @@ const Navbar = () => {
       >
         {/* Left icons */}
         <HStack spacing={4} color="green.500">
-          <Text fontSize="2xl" fontWeight="bold" cursor="pointer" onClick={() => navigate('/')}>
-            UrbanEase
-          </Text>
-
+          <Image
+            src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/UEase.png"
+            alt="UrbanEase Logo"
+            w="120px"
+            h="auto"          // adjust size to whatever fits
+            objectFit="contain"         // preserves aspect ratio
+            cursor="pointer"
+            onClick={() => navigate("/")}
+          />
         </HStack>
 
         {/* Right side */}
