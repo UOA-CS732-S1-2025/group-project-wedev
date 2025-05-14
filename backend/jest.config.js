@@ -4,5 +4,7 @@ export default {
         "^.+\\.(js|jsx|mjs|ts|tsx)$": "babel-jest",
       },      
     testEnvironment: "node",
+    setupFiles: ["dotenv/config"],
+
   };
   
