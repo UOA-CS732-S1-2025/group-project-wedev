@@ -84,19 +84,6 @@ We explored:
 
 ---
 
-## 👥 Team Roles & Contributions
-| Name           | Role                 | Key Contributions |
-|----------------|----------------------|-------------------|
-| Ashutosh Singh | Frontend & Architecture | Chatbot UI, Signup/Login, Deployment setup |
-| Wenzhe Peng    | Frontend             | UI Implementation, Homepage filtering |
-| Meize Zhou     | Frontend             | Booking Flow, Styling |
-| Cheng Li       | Backend              | Auth API, Role handling |
-| Yunfei Xu      | Backend              | Service Matching Logic |
-| Zoe Zhong      | Backend              | Admin Panel, Feedback System |
-| Yi Ji          | Database             | Schema Design, MongoDB setup |
-
----
-
 # Project Management
 - Agile workflow (4 Sprints)
 - Weekly meetings (Google Meet)
@@ -113,10 +100,10 @@ We explored:
 ---
 
 # Deployment
-- Live Demo: _[Insert link if hosted]_
-- Frontend: Vercel / Netlify
-- Backend: Railway / Render
-- Database: MongoDB Atlas
+
+- Frontend
+- Backend
+- Database
 - Media: AWS S3
 
 ---
