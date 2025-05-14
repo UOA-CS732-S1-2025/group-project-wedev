@@ -38,10 +38,11 @@ jobs:
     - name: Install frontend dependencies and build
       working-directory: ${{ env.FRONTEND_APP_LOCATION }}
       env:
-        VITE_API_URL: ${{ secrets.API_BASE_URL }} # **注入后端 API URL (更改为 VITE_ 前缀)**
+        VITE_API_URL: ${{ secrets.API_BASE_URL }}
       run: |
+        echo "VITE_API_URL from secret is: ${{ secrets.API_BASE_URL }}"
         npm install
-        npm run build # 确保你的 frontend/package.json 中有这个 build 脚本
+        npm run build
 
     - name: Deploy to Azure Static Web Apps
       id: deploy-to-swa
