@@ -38,8 +38,7 @@ jobs:
     - name: Install frontend dependencies and build
       working-directory: ${{ env.FRONTEND_APP_LOCATION }}
       env:
-        # 根据你的前端框架调整环境变量名称 (例如 Create React App 是 REACT_APP_前缀)
-        REACT_APP_API_URL: ${{ secrets.API_BASE_URL }} # **注入后端 API URL**
+        VITE_API_URL: ${{ secrets.API_BASE_URL }} # **注入后端 API URL (更改为 VITE_ 前缀)**
       run: |
         npm install
         npm run build # 确保你的 frontend/package.json 中有这个 build 脚本
