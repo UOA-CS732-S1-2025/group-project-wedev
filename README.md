@@ -44,7 +44,7 @@ Urban Ease is a full-stack web application that connects urban residents with pr
 # Other services
 - Availability-based scheduling
 - Admin dashboard
-- Payment integration (Stripe/PayPal placeholder)
+- Payment integration
 
 
 
