@@ -1,8 +1,6 @@
 on:
   push:
     branches: [ "develop" ]
-    paths: # 可选: 更精确地触发，仅当 backend 文件夹内容改变时
-      - '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/**'
   workflow_dispatch:
 
 env:
