@@ -1,2 +1,6 @@
 .DS_Store
 node_modules
+@llm.txt
+llms-components.txt
+.cursor/
+backend/seed.js
