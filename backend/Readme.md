@@ -50,7 +50,7 @@ The system includes the following main data models:
   "username": "user123",
   "email": "user@example.com",
   "password": "securepassword",
-  "role": "customer" // Options: customer, provider
+  "role": "customer" 
 }
 ```
 - **Response:** Newly created user information and verification email sending status
