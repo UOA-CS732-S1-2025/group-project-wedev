@@ -31,61 +31,83 @@ const Navbar = () => {
 
         {/* Right side */}
         <HStack spacing={4}>
-            {!user ? (
-              <>
-                <Button
-                  as={RouterLink}
-                  to="/login"
-                  pos="relative"
-                  bg="black"
-                  color="white"
-                  transition="color 0.2s ease"
-                  _before={{
-                    content: '""',
-                    pos: "absolute",
-                    top: 0, left: 0, bottom: 0,
-                    width: "0%",
-                    bg: "blue.500",
-                    transition: "width 0.1s ease",
-                    zIndex: 0,
-                  }}
-                  _active={{
-                    _before: { width: "100%" },
-                    color: "white",
-                  }}
-                >
-                  <Box pos="relative" zIndex={1}>Log in</Box>
-                </Button>
+          {!user ? (
+            <>
+              <Button
+                as={RouterLink}
+                to="/login"
+                position="relative"
+                overflow="hidden"
+                bg="black"
+                color="white"
+                transition="color 0.2s ease"
+                _before={{
+                  content: '""',
+                  position: 'absolute',
+                  top: '0',
+                  right: '0',
+                  width: '0%',
+                  height: '0%',
+                  bg: 'blue.500',
+                  transform: 'rotate(45deg)',
+                  transformOrigin: 'top right',
+                  transition: 'width 0.4s ease, height 0.4s ease',
+                  zIndex: 0,
+                }}
+                _hover={{
+                  color: 'white',
+                  _before: {
+                    width: '200%',
+                    height: '500%',
+                  }
+                }}
+                _active={{
+                  transform: 'scale(0.97)',
+                }}
+              >
+                <Box position="relative" zIndex={1}>Log in</Box>
+              </Button>
 
-                <Button
-                  as={RouterLink}
-                  to="/signup"
-                  pos="relative"
-                  overflow="hidden"
-                  bg="black"
-                  color="White"
-                  transition="color 0.1s ease"
-                  _before={{
-                    content: '""',
-                    pos: "absolute",
-                    top: 0, left: 0, bottom: 0,
-                    width: "0%",
-                    bg: "blue.500",
-                    transition: "width 0.1s ease",
-                    zIndex: 0,
-                  }}
-                  _active={{
-                    _before: { width: "100%" },
-                    color: "white",
-                  }}
-                >
-                  <Box pos="relative" zIndex={1}>Sign up</Box>
-                </Button>
-              </>
-            ) : (
-              <UserNavActions user={user} logout={logout} />
-            )}
+              <Button
+                as={RouterLink}
+                to="/signup"
+                position="relative"
+                overflow="hidden"
+                bg="black"
+                color="white"
+                transition="color 0.2s ease"
+                _before={{
+                  content: '""',
+                  position: 'absolute',
+                  top: '0',
+                  right: '0',
+                  width: '0%',
+                  height: '0%',
+                  bg: 'blue.500',
+                  transform: 'rotate(45deg)',
+                  transformOrigin: 'top right',
+                  transition: 'width 0.4s ease, height 0.4s ease',
+                  zIndex: 0,
+                }}
+                _hover={{
+                  color: 'white',
+                  _before: {
+                    width: '200%',
+                    height: '500%',
+                  }
+                }}
+                _active={{
+                  transform: 'scale(0.97)',
+                }}
+              >
+                <Box position="relative" zIndex={1}>Sign up</Box>
+              </Button>
+            </>
+          ) : (
+            <UserNavActions user={user} logout={logout} />
+          )}
         </HStack>
+
       </Flex>
     </Container>
   );
