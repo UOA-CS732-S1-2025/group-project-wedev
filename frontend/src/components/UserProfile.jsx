@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   VStack,
@@ -33,6 +33,7 @@ import { toaster } from "@/components/ui/toaster";
 import AvailabilitySetting from "./AvailabilitySetting";
 import { LuBriefcase } from "react-icons/lu";
 import { MdOutlineFileUpload } from "react-icons/md";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
 
 const UserProfile = () => {
   const { user, fetchCurrentUser } = useAuthStore();
@@ -62,6 +63,10 @@ const UserProfile = () => {
       postalCode: user?.address?.postalCode || "",
       country: user?.address?.country || "",
     },
+    location: {
+      type: "Point",
+      coordinates: user?.location?.coordinates || [],
+    },
   });
   const [loading, setLoading] = useState(false);
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
@@ -70,6 +75,11 @@ const UserProfile = () => {
 
   const isProvider = user?.role === "provider";
   const isCustomer = user?.role === "customer";
+
+  const streetInputRef = useRef(null);
+  const places = useMapsLibrary("places");
+  const [placeAutocomplete, setPlaceAutocomplete] = useState(null);
+
   useEffect(() => {
     if (user) {
       setForm((prev) => ({
@@ -88,9 +98,108 @@ const UserProfile = () => {
           postalCode: user.address?.postalCode || "",
           country: user.address?.country || "",
         },
+        location: {
+          type: "Point",
+          coordinates: user.location?.coordinates || [],
+        },
       }));
     }
   }, [user]);
+
+  // Initialize Autocomplete
+  useEffect(() => {
+    console.log("[UserProfile] Attempting to initialize Autocomplete...");
+    console.log("[UserProfile] Places library loaded:", places);
+    console.log("[UserProfile] Street input ref current:", streetInputRef.current);
+
+    if (!places || !streetInputRef.current) {
+      if (!places) console.error("[UserProfile] Places library is not loaded. Autocomplete cannot be initialized.");
+      if (!streetInputRef.current) console.error("[UserProfile] Street input ref is not available. Autocomplete cannot be initialized.");
+      return;
+    }
+
+    try {
+      const autocomplete = new places.Autocomplete(streetInputRef.current, {
+        fields: ["address_components", "formatted_address", "geometry"],
+        types: ["address"], // Restrict to addresses
+      });
+      setPlaceAutocomplete(autocomplete);
+      console.log("[UserProfile] Autocomplete initialized:", autocomplete);
+    } catch (e) {
+      console.error("[UserProfile] Error initializing Autocomplete:", e);
+    }
+  }, [places]);
+
+  useEffect(() => {
+    if (!placeAutocomplete) return;
+
+    const listener = placeAutocomplete.addListener("place_changed", () => {
+      const placeResult = placeAutocomplete.getPlace();
+      console.log("Place selected:", placeResult);
+
+      let newLocation = form.location;
+      if (placeResult && placeResult.geometry && placeResult.geometry.location) {
+        const lat = placeResult.geometry.location.lat();
+        const lng = placeResult.geometry.location.lng();
+        newLocation = {
+          type: "Point",
+          coordinates: [lng, lat],
+        };
+        console.log("[UserProfile] Location coordinates set:", newLocation.coordinates);
+      }
+
+      if (placeResult && placeResult.address_components) {
+        const addressComponents = placeResult.address_components;
+        const getAddressComponent = (type) => {
+          const component = addressComponents.find((c) =>
+            c.types.includes(type)
+          );
+          return component ? component.long_name : "";
+        };
+        const getStreetAddress = () => {
+          const streetNumber = getAddressComponent("street_number");
+          const route = getAddressComponent("route");
+          if (streetNumber && route) {
+            return `${streetNumber} ${route}`;
+          }
+          return route || placeResult.formatted_address || "";
+        };
+
+        setForm((prev) => ({
+          ...prev,
+          address: {
+            street: getStreetAddress(),
+            suburb: getAddressComponent("locality"),
+            city: getAddressComponent("administrative_area_level_2") || getAddressComponent("locality"),
+            state: getAddressComponent("administrative_area_level_1"),
+            postalCode: getAddressComponent("postal_code"),
+            country: getAddressComponent("country"),
+          },
+          location: newLocation,
+        }));
+      } else if (placeResult && placeResult.formatted_address) {
+        setForm((prev) => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            street: placeResult.formatted_address,
+            suburb: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: ""
+          },
+          location: newLocation,
+        }));
+      }
+    });
+
+    return () => {
+      if (google && google.maps && google.maps.event && listener) {
+        google.maps.event.removeListener(listener);
+      }
+    };
+  }, [placeAutocomplete, setForm]);
 
   const handleProfilePictureUpload = async (acceptedFiles) => {
     if (!acceptedFiles || acceptedFiles.length === 0) {
@@ -160,6 +269,9 @@ const UserProfile = () => {
         bio: form.bio,
         hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
         address: { ...form.address },
+        location: (form.location && form.location.coordinates && form.location.coordinates.length === 2)
+          ? form.location
+          : undefined,
       });
       toaster.create({ title: "Profile updated successfully" });
       fetchCurrentUser && fetchCurrentUser();
@@ -371,10 +483,12 @@ const UserProfile = () => {
                             <Field.Root>
                               <Field.Label>Street</Field.Label>
                               <Input
+                                ref={streetInputRef}
                                 name="address.street"
                                 value={form.address.street}
                                 onChange={handleChange}
                                 size="md"
+                                placeholder="Start typing your street address..."
                               />
                             </Field.Root>
                           </GridItem>
@@ -577,11 +691,13 @@ const UserProfile = () => {
                                 hourlyRate: form.hourlyRate
                                   ? Number(form.hourlyRate)
                                   : undefined,
-                                // Adding default values for required provider fields
                                 address: form.address,
+                                location: (form.location && form.location.coordinates && form.location.coordinates.length === 2)
+                                  ? form.location
+                                  : undefined,
                               };
 
-                              console.log("Request payload:", payload);
+                              console.log("Request payload (become-provider):", payload);
 
                               // Submit update with provider role change - use dedicated endpoint
                               const response = await api.put(
