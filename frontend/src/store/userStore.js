@@ -18,7 +18,7 @@ export const useUserStore = create((set) => ({
   fetchUsers: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`);
       const data = await response.json();
       set({ users: data.users || [], loading: false });
     } catch (error) {
@@ -30,7 +30,7 @@ export const useUserStore = create((set) => ({
   fetchProviders: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch('/api/providers');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/providers`);
       const data = await response.json();
       set({ users: data.providers || [], loading: false });
     } catch (error) {
@@ -41,7 +41,7 @@ export const useUserStore = create((set) => ({
 
   deleteUser: async (id) => {
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${id}`, {
         method: 'DELETE',
       });
       const data = await response.json();
@@ -68,7 +68,7 @@ export const useUserStore = create((set) => ({
         }
       });
 
-      const response = await fetch('/api/users/providers/search', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

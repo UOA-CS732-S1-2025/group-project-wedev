@@ -6,3 +6,5 @@ llms-components.txt
 backend/seed.js
 coverage/
 .vscode/
+.github/
+

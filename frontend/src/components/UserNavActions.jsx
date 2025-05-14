@@ -16,7 +16,7 @@ const UserNavActions = ({ user, logout }) => {
       // Fetch unread message count
       const fetchUnreadCount = async () => {
         try {
-          const response = await fetch(`/api/messages/unread-count?userId=${user._id}`);
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/unread-count?userId=${user._id}`);
           if (response.ok) {
             const data = await response.json();
             setUnreadCount(data.unreadCount);
