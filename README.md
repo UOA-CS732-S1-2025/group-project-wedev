@@ -1,6 +1,17 @@
 # Urban Ease - Home Service Web Application
 
-![Urban Ease Logo](./WeDev.png)
+
+
+<p align="center">
+  <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
+  🚀 <strong>Urban Ease is now live!</strong><br>
+  Explore the full application here:<br>
+  <a href="https://wedev-liard.vercel.app/" target="_blank">
+    Urban Ease
+  </a>
+</p>
+
+
 
 ## About Urban Ease
 
@@ -158,7 +169,11 @@ npm test
 
 ## API Documentation
 
-Detailed API documentation can be found in [backend/Readme.md](./backend/Readme.md), including information about messages, conversations, and other endpoints.
+Detailed API documentation can be found in [backend/Readme.md](./backend/README.md), including information about messages, conversations, and other endpoints.
+
+## Frontend Guide
+
+The frontend is a React-based interface built with Vite and Chakra UI. It communicates with the backend via RESTful APIs. For implementation details and developer setup instructions, see [frontend/Readme.md](./frontend/README.md)
 
 
 
