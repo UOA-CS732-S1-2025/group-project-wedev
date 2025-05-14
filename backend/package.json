@@ -4,7 +4,8 @@
   "description": "Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "start": "node server.js"
   },
   "type": "module",
   "keywords": [],
