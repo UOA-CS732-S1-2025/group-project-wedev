@@ -509,7 +509,6 @@ const UserProfile = () => {
                               </Select.Root>
                             </Field.Root>
                           </GridItem>
-
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
                               <Field.Label>Hourly Rate ($)</Field.Label>
@@ -529,7 +528,6 @@ const UserProfile = () => {
                               </NumberInput.Root>
                             </Field.Root>
                           </GridItem>
-
                           <GridItem colSpan={{ base: 1, md: 2 }}>
                             <Field.Root>
                               <Field.Label>Bio</Field.Label>
@@ -545,7 +543,6 @@ const UserProfile = () => {
                             </Field.Root>
                           </GridItem>
                         </SimpleGrid>
-
                         <Button
                           colorPalette="blue"
                           size="md"
