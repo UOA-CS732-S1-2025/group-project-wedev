@@ -15,9 +15,23 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
-        
       }
     }
-
-  }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    css: true,
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+      ],
+    },
+    deps: {
+      inline: ['@chakra-ui/react'],
+    },
+  },
 });

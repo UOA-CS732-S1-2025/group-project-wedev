@@ -27,7 +27,9 @@ const AdminUsersPanel = () => {
 
 const fetchUserById = async (userId) => {
   try {
+
     const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -78,6 +80,7 @@ const fetchUserById = async (userId) => {
       });
       setUsers(res.data);
     } catch (err) {
+
     } finally {
       setLoading(false);
     }
@@ -128,7 +131,9 @@ const fetchUserById = async (userId) => {
       },
     };
 
+
     await api.put(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, payload, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -157,6 +162,7 @@ const fetchUserById = async (userId) => {
 
   return (
     <Box>
+
       <Input 
         placeholder="Search Username..."
         value={filter}

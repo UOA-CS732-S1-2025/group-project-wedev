@@ -55,6 +55,7 @@ const App = () => {
 
   return (
     <ChakraProvider value={system}>
+
       <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"} libraries={['places']} language="en">
         <Box minH="100vh" >
           <Navbar />
@@ -70,6 +71,7 @@ const App = () => {
              <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Routes>
           <Toaster />
+
 
         </Box>
       </APIProvider>
