@@ -67,7 +67,7 @@ const Navbar = () => {
                     top: 0, left: 0, bottom: 0,
                     width: "0%",
                     bg: "blue.500",
-                    transition: "width 0.2s ease",
+                    transition: "width 0.1s ease",
                     zIndex: 0,
                   }}
                   _active={{
