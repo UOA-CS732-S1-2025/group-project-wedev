@@ -1,9 +1,6 @@
 import Review from "../models/review.model.js";
 import Booking from "../models/booking.model.js";
-<<<<<<< HEAD
-=======
 import User from "../models/user.model.js";
->>>>>>> origin/main
 
 export const createReview = async (req, res) => {
 
@@ -38,8 +35,6 @@ export const createReview = async (req, res) => {
       serviceType: booking.serviceType,
     });
 
-<<<<<<< HEAD
-=======
     // 更新 Provider 的 averageRating 和 reviewCount
     const reviewsForProvider = await Review.find({ providerId });
     const totalRating = reviewsForProvider.reduce((sum, r) => sum + r.rating, 0);
@@ -51,7 +46,6 @@ export const createReview = async (req, res) => {
       reviewCount: newReviewCount,
     });
 
->>>>>>> origin/main
     res.status(201).json({ success: true, data: review });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

@@ -1,10 +1,7 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
-<<<<<<< HEAD
-=======
 import cloudinary from '../config/cloudinaryConfig.js';
 import streamifier from 'streamifier';
->>>>>>> origin/main
 
 
 
@@ -235,8 +232,6 @@ export const getProviderById = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-=======
 // Added: New function to upload/update user's profile picture
 export const uploadProfilePicture = async (req, res) => {
   try {
@@ -318,7 +313,6 @@ export const uploadProfilePicture = async (req, res) => {
   }
 };
 
->>>>>>> origin/main
 // 添加新方法，用于更新提供商的可用性设置
 export const updateProviderAvailability = async (req, res) => {
   try {

@@ -59,11 +59,7 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
       }
       
       // Otherwise fetch it
-<<<<<<< HEAD
-      fetch(`/api/users/providers/${providerId}/availability`)
-=======
       fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/${providerId}/availability`)
->>>>>>> origin/main
         .then(res => res.json())
         .then(data => {
           if (data.success) {

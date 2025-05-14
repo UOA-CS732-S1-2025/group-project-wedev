@@ -11,10 +11,7 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String },
   phoneNumber: { type: String },
   profilePictureUrl: { type: String },
-<<<<<<< HEAD
-=======
   profilePicturePublicId: { type: String }, // 新增字段，用于存储 Cloudinary public_id
->>>>>>> origin/main
   address: {
     street: { type: String },       // 街道地址，例如 "10 Downing Street"
     suburb: { type: String },       // 新增的区/区域，例如 "New Lynn"

@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-=======
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
->>>>>>> origin/main
 import {
   Box,
   VStack,
@@ -21,12 +15,6 @@ import {
   Stack,
   Textarea,
   Tabs,
-<<<<<<< HEAD
-  Grid,
-  GridItem,
-  Center,
-  Container,
-=======
   SimpleGrid,
   GridItem,
   Center,
@@ -35,18 +23,12 @@ import {
   createListCollection,
   NumberInput,
   FileUpload,
->>>>>>> origin/main
 } from "@chakra-ui/react";
 import { LuUser, LuMapPin, LuCalendarClock, LuSettings } from "react-icons/lu";
 import useAuthStore from "../store/authStore";
 import api from "../lib/api";
 import { toaster } from "@/components/ui/toaster";
 import AvailabilitySetting from "./AvailabilitySetting";
-<<<<<<< HEAD
-
-const UserProfile = () => {
-  const { user, fetchCurrentUser } = useAuthStore();
-=======
 import { LuBriefcase } from "react-icons/lu";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
@@ -64,7 +46,6 @@ const UserProfile = () => {
       { label: "Appliance Repair", value: "Appliance Repair" },
     ],
   });
->>>>>>> origin/main
   const [form, setForm] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -80,10 +61,6 @@ const UserProfile = () => {
       postalCode: user?.address?.postalCode || "",
       country: user?.address?.country || "",
     },
-<<<<<<< HEAD
-  });
-  const [loading, setLoading] = useState(false);
-=======
     location: {
       type: "Point",
       coordinates: user?.location?.coordinates || [],
@@ -91,17 +68,10 @@ const UserProfile = () => {
   });
   const [loading, setLoading] = useState(false);
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
->>>>>>> origin/main
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   const isProvider = user?.role === "provider";
-<<<<<<< HEAD
-
-  useEffect(() => {
-    if (user) {
-      setForm(prev => ({
-=======
   const isCustomer = user?.role === "customer";
 
   const streetInputRef = useRef(null);
@@ -111,7 +81,6 @@ const UserProfile = () => {
   useEffect(() => {
     if (user) {
       setForm((prev) => ({
->>>>>>> origin/main
         ...prev,
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -127,19 +96,14 @@ const UserProfile = () => {
           postalCode: user.address?.postalCode || "",
           country: user.address?.country || "",
         },
-<<<<<<< HEAD
-=======
         location: {
           type: "Point",
           coordinates: user.location?.coordinates || [],
         },
->>>>>>> origin/main
       }));
     }
   }, [user]);
 
-<<<<<<< HEAD
-=======
   // Initialize Autocomplete
   useEffect(() => {
 
@@ -272,7 +236,6 @@ const UserProfile = () => {
     }
   };
 
->>>>>>> origin/main
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith("address.")) {
@@ -300,25 +263,18 @@ const UserProfile = () => {
         bio: form.bio,
         hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
         address: { ...form.address },
-<<<<<<< HEAD
-=======
         location: (form.location && form.location.coordinates && form.location.coordinates.length === 2)
           ? form.location
           : undefined,
->>>>>>> origin/main
       });
       toaster.create({ title: "Profile updated successfully" });
       fetchCurrentUser && fetchCurrentUser();
     } catch (err) {
       console.error("Update failed:", err);
-<<<<<<< HEAD
-      toaster.create({ title: "Update failed", description: err.response?.data?.message || "Please try again later" });
-=======
       toaster.create({
         title: "Update failed",
         description: err.response?.data?.message || "Please try again later",
       });
->>>>>>> origin/main
     } finally {
       setLoading(false);
     }
@@ -332,11 +288,7 @@ const UserProfile = () => {
 
   return (
     <Box py={4} position="relative" zIndex={1}>
-<<<<<<< HEAD
-      <Container >
-=======
       <Container maxW="full">
->>>>>>> origin/main
         <Box
           w="100%"
           minH="950px"
@@ -347,30 +299,6 @@ const UserProfile = () => {
           p={6}
         >
           {/* User basic info section */}
-<<<<<<< HEAD
-          <Box >
-            <VStack spacing={6} >
-              <AvatarGroup>
-                <Avatar.Root size="xl">
-                  <Avatar.Fallback>{displayName.charAt(0)}</Avatar.Fallback>
-                  <Avatar.Image
-                    src={
-                      user?.profilePictureUrl || "https://bit.ly/sage-adebayo"
-                    }
-                  />
-                </Avatar.Root>
-              </AvatarGroup>
-
-              <VStack >
-                <Heading size="lg">{displayName}</Heading>
-                <Text color="gray.600">{user?.email}</Text>
-                {user?.role && (
-                  <Text color="blue.600" fontSize="sm" fontWeight="medium">
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  </Text>
-                )}
-              </VStack>
-=======
           <Box>
             <VStack spacing={6} alignItems="center" mb={8}>
               <HStack spacing={{ base: 4, md: 8 }} alignItems="center">
@@ -400,18 +328,13 @@ const UserProfile = () => {
                   )}
                 </VStack>
               </HStack>
->>>>>>> origin/main
             </VStack>
           </Box>
 
           <Box w="full" h="1px" bg="gray.200" mb={8} />
 
           {/* Edit Profile Section */}
-<<<<<<< HEAD
-          <Box mx="auto" maxW="900px">
-=======
           <Box mx="auto" maxW="full">
->>>>>>> origin/main
             <form onSubmit={handleSubmit}>
               <VStack spacing={8} align="stretch">
                 <Tabs.Root
@@ -427,18 +350,9 @@ const UserProfile = () => {
                     animationDuration: "120ms",
                   }}
                 >
-<<<<<<< HEAD
-                  <Grid
-                    templateColumns={{ base: "1fr", md: "250px 1fr" }}
-                    gap={20}
-                  >
-                    {/* Left side: Tabs */}
-                    <GridItem>
-=======
                   <SimpleGrid columns={{ base: 1, md: 4 }} gap={20}>
                     {/* Left side: Tabs */}
                     <GridItem colSpan={{ base: 1, md: 1 }}>
->>>>>>> origin/main
                       <Tabs.List borderRight="1px" borderRightColor="gray.200">
                         <Tabs.Trigger value="personal">
                           <LuUser />
@@ -448,9 +362,6 @@ const UserProfile = () => {
                           <LuMapPin />
                           <Text>Address Information</Text>
                         </Tabs.Trigger>
-<<<<<<< HEAD
-                        
-=======
                         {isCustomer && (
                           <Tabs.Trigger value="becomeProfessional">
                             <LuBriefcase />
@@ -458,7 +369,6 @@ const UserProfile = () => {
                           </Tabs.Trigger>
                         )}
 
->>>>>>> origin/main
                         {isProvider && (
                           <>
                             <Tabs.Trigger value="service">
@@ -471,223 +381,11 @@ const UserProfile = () => {
                             </Tabs.Trigger>
                           </>
                         )}
-<<<<<<< HEAD
-                        
-=======
-
->>>>>>> origin/main
                         <Tabs.Indicator rounded="l2" />
                       </Tabs.List>
                     </GridItem>
 
                     {/* Right side: Form content */}
-<<<<<<< HEAD
-
-                    <Tabs.Content value="personal" w="full">
-                      <Grid
-                        templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                        gap={6}
-                      >
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>First Name</Field.Label>
-                            <Input
-                              name="firstName"
-                              value={form.firstName}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>Last Name</Field.Label>
-                            <Input
-                              name="lastName"
-                              value={form.lastName}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem colSpan={{ base: 1, md: 2 }}>
-                          <Field.Root>
-                            <Field.Label>Phone Number</Field.Label>
-                            <Input
-                              name="phoneNumber"
-                              value={form.phoneNumber}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem colSpan={{ base: 1, md: 2 }}>
-                          <Field.Root>
-                            <Field.Label>Profile Picture URL</Field.Label>
-                            <Input
-                              name="profilePictureUrl"
-                              value={form.profilePictureUrl}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-
-                      </Grid>
-                      <Button
-                        type="submit"
-                        isLoading={loading}
-                        colorPalette="blue"
-                        size="md"
-                        px={8}
-                        mt={8}
-                      >
-                        Save Changes
-                      </Button>
-                    </Tabs.Content>
-
-                    <Tabs.Content value="address" w="full">
-                      <Grid
-                        templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                        gap={6}
-                      >
-                        <GridItem colSpan={{ base: 1, md: 2 }}>
-                          <Field.Root>
-                            <Field.Label>Street</Field.Label>
-                            <Input
-                              name="address.street"
-                              value={form.address.street}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>Suburb</Field.Label>
-                            <Input
-                              name="address.suburb"
-                              value={form.address.suburb}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>City</Field.Label>
-                            <Input
-                              name="address.city"
-                              value={form.address.city}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>State</Field.Label>
-                            <Input
-                              name="address.state"
-                              value={form.address.state}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>Postal Code</Field.Label>
-                            <Input
-                              name="address.postalCode"
-                              value={form.address.postalCode}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                        <GridItem>
-                          <Field.Root>
-                            <Field.Label>Country</Field.Label>
-                            <Input
-                              name="address.country"
-                              value={form.address.country}
-                              onChange={handleChange}
-                              size="md"
-                            />
-                          </Field.Root>
-                        </GridItem>
-                      </Grid>
-                      <Button
-                        type="submit"
-                        isLoading={loading}
-                        colorPalette="blue"
-                        size="md"
-                        px={8}
-                        mt={8}
-                      >
-                        Save Changes
-                      </Button>
-                    </Tabs.Content>
-
-                    {isProvider && (
-                      <>
-                        <Tabs.Content value="service" w="full">
-                          <Grid
-                            templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                            gap={6}
-                          >
-                            <GridItem>
-                              <Field.Root>
-                                <Field.Label>Hourly Rate ($)</Field.Label>
-                                <Input
-                                  type="number"
-                                  name="hourlyRate"
-                                  value={form.hourlyRate}
-                                  onChange={handleChange}
-                                  placeholder="Enter hourly rate"
-                                  min={0}
-                                />
-                              </Field.Root>
-                            </GridItem>
-                            <GridItem colSpan={{ base: 1, md: 2 }}>
-                              <Field.Root>
-                                <Field.Label>Bio</Field.Label>
-                                <Textarea
-                                  name="bio"
-                                  value={form.bio || ""}
-                                  onChange={handleChange}
-                                  placeholder="Tell customers about yourself and your services"
-                                  size="md"
-                                  minHeight="150px"
-                                />
-                              </Field.Root>
-                            </GridItem>
-                          </Grid>
-                          <Button
-                            type="submit"
-                            isLoading={loading}
-                            colorPalette="blue"
-                            size="md"
-                            px={8}
-                            mt={8}
-                          >
-                            Save Changes
-                          </Button>
-                        </Tabs.Content>
-
-                        <Tabs.Content value="availability" w="full">
-                          {user?._id && (
-                            <AvailabilitySetting 
-                              providerId={user._id}
-                              providerData={user}
-                            />
-                          )}
-                        </Tabs.Content>
-                      </>
-                    )}
-                  </Grid>
-=======
                     <GridItem colSpan={{ base: 1, md: 3 }}>
                       <Tabs.Content
                         value="personal"
@@ -1108,7 +806,6 @@ const UserProfile = () => {
                       )}
                     </GridItem>
                   </SimpleGrid>
->>>>>>> origin/main
                 </Tabs.Root>
               </VStack>
             </form>

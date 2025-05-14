@@ -4,12 +4,8 @@
   "description": "Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.",
   "main": "server.js",
   "scripts": {
-<<<<<<< HEAD
-    "dev": "nodemon backend/server.js"
-=======
     "dev": "nodemon backend/server.js",
     "start": "node server.js"
->>>>>>> origin/main
   },
   "type": "module",
   "keywords": [],
@@ -17,23 +13,16 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-<<<<<<< HEAD
-=======
     "cloudinary": "^2.6.1",
->>>>>>> origin/main
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.15.0",
     "mongoose": "^8.12.2",
-<<<<<<< HEAD
-    "nodemailer": "^7.0.2"
-=======
     "multer": "^1.4.5-lts.2",
     "nodemailer": "^7.0.2",
     "streamifier": "^0.1.1"
->>>>>>> origin/main
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

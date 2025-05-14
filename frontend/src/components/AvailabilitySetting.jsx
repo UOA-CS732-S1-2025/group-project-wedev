@@ -94,11 +94,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
         setLoading(false);
       } else {
         const token = localStorage.getItem("token");
-<<<<<<< HEAD
-        fetch(`/api/users/providers/${providerId}/availability`, {
-=======
         fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/${providerId}/availability`, {
->>>>>>> origin/main
           headers: { 'Authorization': `Bearer ${token}` }
         })
           .then(res => res.json())
@@ -361,11 +357,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
 
     const token = localStorage.getItem("token");
     try {
-<<<<<<< HEAD
-      const response = await fetch(`/api/users/providers/${providerId}/availability`, {
-=======
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/${providerId}/availability`, {
->>>>>>> origin/main
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(dataToSend)

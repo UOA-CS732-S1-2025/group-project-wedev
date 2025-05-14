@@ -9,10 +9,6 @@ import {
   Icon,
   Spinner,
   Center,
-<<<<<<< HEAD
-  Alert,
-=======
->>>>>>> origin/main
   Grid,
   GridItem,
   EmptyState,
@@ -26,10 +22,7 @@ import useAuthStore from '../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import ConversationView from './ConversationView'; // We'll create this component next
 import { useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-=======
 import { toaster } from '@/components/ui/toaster'; // 导入自定义 toaster
->>>>>>> origin/main
 
 const UserInbox = () => {
   const { user } = useAuthStore();
@@ -51,8 +44,6 @@ const UserInbox = () => {
     }
   }, [user, fetchConversations]);
 
-<<<<<<< HEAD
-=======
   // Effect to display toast on error using custom toaster
   useEffect(() => {
     if (error) {
@@ -63,7 +54,6 @@ const UserInbox = () => {
     }
   }, [error]);
 
->>>>>>> origin/main
   // Effect to auto-select conversation based on targetConversationIdFromStore
   useEffect(() => {
     if (targetConversationIdFromStore && conversations.length > 0) {
@@ -110,18 +100,6 @@ const UserInbox = () => {
       );
     }
 
-<<<<<<< HEAD
-    if (error) {
-      return (
-        <Alert status="error" mx={4} my={4} borderRadius="md">
-          <Alert.Icon />
-          {error}
-        </Alert>
-      );
-    }
-
-=======
->>>>>>> origin/main
     if (!conversations || conversations.length === 0) {
       return (
         <Box p={6} textAlign="center">

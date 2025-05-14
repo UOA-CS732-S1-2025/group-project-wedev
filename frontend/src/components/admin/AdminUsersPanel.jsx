@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import {  Table } from "@chakra-ui/react";
-import { Button, Spinner, Box,   Input  } from "@chakra-ui/react";
-
-
-// import { TrashIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import api from "../../lib/api";
-import useAuthStore from "../../store/authStore";
-
-const AdminUsersPanel = () => {
-//   const toast = useToast();
-=======
 import {  Group, Table } from "@chakra-ui/react";
 import { 
   Button, 
@@ -30,17 +17,10 @@ import useAuthStore from "../../store/authStore";
 
 
 const AdminUsersPanel = () => {
->>>>>>> origin/main
   const { token } = useAuthStore();
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-
-  const fetchUsers = async () => {
-    try {
-      const res = await api.get("/admin/users", {
-=======
   const [editValuesMap, setEditValuesMap] = useState({});
   const inputRefsMap = useRef({});
 
@@ -94,16 +74,10 @@ const fetchUserById = async (userId) => {
   const fetchUsers = async () => {
     try {
       const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users`, {
->>>>>>> origin/main
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
     } catch (err) {
-<<<<<<< HEAD
-    //   toast({ title: "获取失败", description: err.message, status: "error" });
-=======
-
->>>>>>> origin/main
     } finally {
       setLoading(false);
     }
@@ -111,18 +85,6 @@ const fetchUserById = async (userId) => {
 
   const handleUsersDelete = async (id) => {
     try {
-<<<<<<< HEAD
-      await api.delete(`/admin/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUsers((prev) => prev.filter((u) => u._id !== id));
-    //   toast({ title: "删除成功", status: "success" });
-    } catch (err) {
-    //   toast({ title: "删除失败", description: err.message, status: "error" });
-    }
-  };
-
-=======
       await api.delete(`${import.meta.env.VITE_API_URL}/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -185,7 +147,6 @@ const fetchUserById = async (userId) => {
 
  
 
->>>>>>> origin/main
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -196,11 +157,6 @@ const fetchUserById = async (userId) => {
 
   return (
     <Box>
-<<<<<<< HEAD
-      {/* <Heading size="md" mb={4}>User Management</Heading> */}
-=======
-
->>>>>>> origin/main
       <Input 
         placeholder="Search Username..."
         value={filter}
@@ -228,13 +184,6 @@ const fetchUserById = async (userId) => {
                 <Table.Cell>{u.role}</Table.Cell>
                 <Table.Cell>{new Date(u.createdAt).toLocaleString()}</Table.Cell>
                 <Table.Cell>
-<<<<<<< HEAD
-                    {/* leftIcon={<TrashIcon size={14} />} */}
-                  <Button  size="xs" >
-                    Edit
-                  </Button>
-                  {/* 稍后增加交互式表格对信息更改 */}
-=======
 
 
                 <Popover.Root>
@@ -387,7 +336,6 @@ const fetchUserById = async (userId) => {
                   </Popover.Positioner>
                 </Portal>
               </Popover.Root>
->>>>>>> origin/main
                   <Button onClick={() => handleUsersDelete(u._id)} size="xs" ml={2}>
                     Delete
                   </Button>
