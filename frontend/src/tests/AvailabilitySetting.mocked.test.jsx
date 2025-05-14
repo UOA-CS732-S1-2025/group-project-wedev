@@ -2,27 +2,27 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 
-// 模拟 localStorage
+// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn().mockReturnValue('fake-token'),
 };
 
-// 替换原生的 localStorage
+// Replace native localStorage
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
 });
 
-// 模拟 toaster
+// Mock toaster
 vi.mock('@/components/ui/toaster', () => ({
   toaster: {
     create: vi.fn(),
   },
 }));
 
-// 模拟 fetch
+// Mock fetch
 global.fetch = vi.fn();
 
-// 创建 AvailabilitySetting 组件模拟
+// Create AvailabilitySetting component mock
 const MockedAvailabilitySetting = ({ providerId, providerData }) => {
   const [selectedDates, setSelectedDates] = React.useState([]);
   const [selectionStart, setSelectionStart] = React.useState(null);
@@ -31,29 +31,29 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
   const [isSaving, setIsSaving] = React.useState(false);
   const [pendingChanges, setPendingChanges] = React.useState(false);
   
-  // 获取今天和当前月份/年份
+  // Get today and current month/year
   const today = new Date();
   const [currentMonth, setCurrentMonth] = React.useState(today.getMonth());
   const [currentYear, setCurrentYear] = React.useState(today.getFullYear());
   
-  // 下个月
+  // Next month
   const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
   const nextMonth = nextMonthDate.getMonth();
   const nextYear = nextMonthDate.getFullYear();
   
-  // 检查日期是否是今天
+  // Check if date is today
   const isToday = (day, month, year) => {
     return day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
   };
   
-  // 检查日期是否在过去
+  // Check if date is in the past
   const isInPast = (day, month, year) => {
     const date = new Date(year, month, day);
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     return date < todayDate;
   };
   
-  // 检查日期是否在选择范围内
+  // Check if date is in selection range
   const isInSelectionRange = (date) => {
     if (!selectionStart || !hoveredDate) return false;
     
@@ -63,7 +63,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     return date >= start && date <= end;
   };
   
-  // 检查日期是否已被选择
+  // Check if date is already selected
   const isInSelectedDates = (date) => {
     return selectedDates.some(selectedDate => 
       selectedDate.getDate() === date.getDate() && 
@@ -72,47 +72,47 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     );
   };
   
-  // 处理日期点击
+  // Handle date click
   const handleDateClick = (day, month, year) => {
     const clickedDate = new Date(year, month, day);
     
-    // 忽略过去的日期
+    // Ignore past dates
     if (isInPast(day, month, year)) return;
     
     if (!selectionStart) {
-      // 开始新的选择
+      // Start new selection
       setSelectionStart(clickedDate);
       setHoveredDate(clickedDate);
       
-      // 确定选择模式：如果点击的日期已经选择，则为移除模式
+      // Determine selection mode: if clicked date is already selected, then remove mode
       const newSelectionMode = isInSelectedDates(clickedDate) ? 'remove' : 'add';
       setSelectionMode(newSelectionMode);
     } else {
-      // 完成选择范围
+      // Complete selection range
       const startDate = new Date(Math.min(selectionStart.getTime(), clickedDate.getTime()));
       const endDate = new Date(Math.max(selectionStart.getTime(), clickedDate.getTime()));
       
-      // 创建日期范围内的所有日期
+      // Create all dates within range
       const datesInRange = [];
       const currentDate = new Date(startDate);
       
       while (currentDate <= endDate) {
-        // 只包括未来日期
+        // Only include future dates
         if (!isInPast(currentDate.getDate(), currentDate.getMonth(), currentDate.getFullYear())) {
           datesInRange.push(new Date(currentDate));
         }
         currentDate.setDate(currentDate.getDate() + 1);
       }
       
-      // 根据选择模式更新已选择的日期
+      // Update selected dates based on selection mode
       let updatedSelectedDates;
       
       if (selectionMode === 'add') {
-        // 添加选择范围内的日期
+        // Add dates in selection range
         const newDates = datesInRange.filter(date => !isInSelectedDates(date));
         updatedSelectedDates = [...selectedDates, ...newDates];
       } else {
-        // 移除选择范围内的日期
+        // Remove dates in selection range
         updatedSelectedDates = selectedDates.filter(date => {
           return !datesInRange.some(rangeDate => 
             rangeDate.getDate() === date.getDate() && 
@@ -129,14 +129,14 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     }
   };
   
-  // 处理日期悬停
+  // Handle date hover
   const handleDateHover = (day, month, year) => {
     if (selectionStart) {
       setHoveredDate(new Date(year, month, day));
     }
   };
   
-  // 保存可用性设置
+  // Save availability settings
   const applyChanges = async () => {
     if (!providerId) return;
     
@@ -145,7 +145,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     try {
       const token = localStorage.getItem('token');
       
-      // 转换选定的日期为API期望的格式
+      // Convert selected dates to API expected format
       const formattedDates = selectedDates.map(date => ({
         date: date.toISOString().split('T')[0],
         isAvailable: true,
@@ -174,10 +174,10 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     }
   };
   
-  // 取消未保存的更改
+  // Cancel unsaved changes
   const cancelChanges = () => {
     if (providerData) {
-      // 重置为原始数据
+      // Reset to original data
       const specialDates = providerData.specialDates || [];
       
       const initialSelectedDates = specialDates
@@ -194,7 +194,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     setHoveredDate(null);
   };
   
-  // 导航到上个月
+  // Navigate to previous month
   const goToPrevMonth = () => {
     setCurrentMonth(prevMonth => {
       if (prevMonth === 0) {
@@ -205,7 +205,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     });
   };
   
-  // 导航到下个月
+  // Navigate to next month
   const goToNextMonth = () => {
     setCurrentMonth(prevMonth => {
       if (prevMonth === 11) {
@@ -216,7 +216,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     });
   };
   
-  // 初始化数据
+  // Initialize data
   React.useEffect(() => {
     if (providerData) {
       const specialDates = providerData.specialDates || [];
@@ -229,7 +229,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     }
   }, [providerData]);
   
-  // 渲染日历表格的单元格
+  // Render calendar table cell
   const renderCalendarCell = (day, month, year) => {
     if (!day) return <td key={`empty-${month}-${year}`}></td>;
     
@@ -238,7 +238,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     const isSelected = isInSelectedDates(date);
     const isInRange = selectionStart && hoveredDate && isInSelectionRange(date);
     
-    // 确定单元格的颜色
+    // Determine cell color
     let cellStyle = {};
     let className = '';
     
@@ -279,32 +279,32 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
     );
   };
   
-  // 渲染日历
+  // Render calendar
   const renderCalendar = (month, year) => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     
-    // 创建日历行和单元格
+    // Create calendar row and cell
     const calendarRows = [];
     let calendarCells = [];
     
-    // 添加空单元格，直到第一天
+    // Add empty cells until first day
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarCells.push(<td key={`empty-start-${i}`}></td>);
     }
     
-    // 添加月份的天数
+    // Add month days
     for (let day = 1; day <= daysInMonth; day++) {
       calendarCells.push(renderCalendarCell(day, month, year));
       
-      // 如果是星期六或已到月末，创建新的一行
+      // If Saturday or end of month, create new row
       if ((firstDayOfMonth + day) % 7 === 0 || day === daysInMonth) {
-        // 如果不是月末，填充剩余单元格
+        // If not end of month, fill remaining cells
         if (day !== daysInMonth) {
           calendarRows.push(<tr key={`row-${day}`}>{calendarCells}</tr>);
           calendarCells = [];
         } else {
-          // 月末，可能需要填充到完整的一周
+          // End of month, possibly need to fill to complete week
           const remainingCells = 7 - calendarCells.length;
           for (let i = 0; i < remainingCells; i++) {
             calendarCells.push(<td key={`empty-end-${i}`}></td>);
@@ -380,7 +380,7 @@ const MockedAvailabilitySetting = ({ providerId, providerData }) => {
   );
 };
 
-describe('AvailabilitySetting 组件测试', () => {
+describe('AvailabilitySetting component test', () => {
   const mockProviderId = 'provider123';
   const mockProviderData = {
     specialDates: [
@@ -393,11 +393,11 @@ describe('AvailabilitySetting 组件测试', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // 设置固定的日期，使测试结果一致
+    // Set fixed date to make test results consistent
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2023, 7, 1)); // 2023年8月1日
+    vi.setSystemTime(new Date(2023, 7, 1)); // August 1, 2023
     
-    // 重置 fetch mock
+    // Reset fetch mock
     fetch.mockReset();
     fetch.mockResolvedValue({
       ok: true,
@@ -409,115 +409,115 @@ describe('AvailabilitySetting 组件测试', () => {
     vi.useRealTimers();
   });
 
-  test('应正确渲染当前月份的日历', () => {
+  test('Should correctly render current month calendar', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} />);
     
-    // 验证是否显示8月日历
+    // Verify if 8 month calendar is displayed
     expect(screen.getByTestId('current-month')).toHaveTextContent('August 2023');
     expect(screen.getByTestId('calendar-2023-7')).toBeInTheDocument();
   });
 
-  test('应能导航到上个月和下个月', () => {
+  test('Should be able to navigate to previous and next months', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} />);
     
-    // 验证初始月份
+    // Verify initial month
     expect(screen.getByTestId('current-month')).toHaveTextContent('August 2023');
     
-    // 导航到下个月
+    // Navigate to next month
     fireEvent.click(screen.getByTestId('next-month-button'));
     expect(screen.getByTestId('current-month')).toHaveTextContent('September 2023');
     
-    // 导航到上个月（回到8月）
+    // Navigate to previous month (back to 8 month)
     fireEvent.click(screen.getByTestId('prev-month-button'));
     expect(screen.getByTestId('current-month')).toHaveTextContent('August 2023');
     
-    // 导航到上个月（到7月）
+    // Navigate to previous month (to 7 month)
     fireEvent.click(screen.getByTestId('prev-month-button'));
     expect(screen.getByTestId('current-month')).toHaveTextContent('July 2023');
   });
 
-  test('应从提供的数据中加载已选择的日期', () => {
+  test('Should load selected dates from provided data', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} providerData={mockProviderData} />);
     
-    // 等待8月15日和16日被标记为已选择
+    // Wait for 8 month 15 and 16 to be marked as selected
     const aug15Cell = screen.getByTestId('date-cell-2023-7-15');
     const aug16Cell = screen.getByTestId('date-cell-2023-7-16');
     
-    // 使用data-state属性来检查选中状态
+    // Use data-state attribute to check selected status
     expect(aug15Cell).toHaveAttribute('data-state', 'selected');
     expect(aug16Cell).toHaveAttribute('data-state', 'selected');
   });
 
-  test('应能选择单个日期', () => {
+  test('Should be able to select single date', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} />);
     
-    // 点击8月10日
+    // Click 8 month 10
     const aug10Cell = screen.getByTestId('date-cell-2023-7-10');
     fireEvent.click(aug10Cell);
     
-    // 首次点击设置为选择起点
+    // First click set as selection start
     expect(aug10Cell).toHaveAttribute('data-state', 'in-range');
     
-    // 再次点击同一个日期完成选择
+    // Click same date again to complete selection
     fireEvent.click(aug10Cell);
     
-    // 验证日期是否被选中
+    // Verify date is selected
     expect(aug10Cell).toHaveAttribute('data-state', 'selected');
     
-    // 等待保存按钮出现
+    // Wait for save button to appear
     expect(screen.getByTestId('save-button')).toBeInTheDocument();
   });
 
-  test('应能选择日期范围', () => {
+  test('Should be able to select date range', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} />);
     
-    // 点击8月5日开始选择
+    // Click 8 month 5 to start selection
     const aug5Cell = screen.getByTestId('date-cell-2023-7-5');
     fireEvent.click(aug5Cell);
     
-    // 移动到8月10日
+    // Move to 8 month 10
     const aug10Cell = screen.getByTestId('date-cell-2023-7-10');
     fireEvent.mouseEnter(aug10Cell);
     
-    // 点击8月10日完成选择
+    // Click 8 month 10 to complete selection
     fireEvent.click(aug10Cell);
     
-    // 验证5日至10日是否都被选择
+    // Verify 5 to 10 are selected
     for (let day = 5; day <= 10; day++) {
       const cell = screen.getByTestId(`date-cell-2023-7-${day}`);
       expect(cell).toHaveAttribute('data-state', 'selected');
     }
     
-    // 验证是否显示保存按钮
+    // Verify save button is displayed
     expect(screen.getByTestId('save-button')).toBeInTheDocument();
   });
 
-  test('应能取消未保存的更改', () => {
+  test('Should be able to cancel unsaved changes', () => {
     render(<MockedAvailabilitySetting providerId={mockProviderId} providerData={mockProviderData} />);
     
-    // 选择一个新日期
+    // Select a new date
     const aug10Cell = screen.getByTestId('date-cell-2023-7-10');
     fireEvent.click(aug10Cell);
-    fireEvent.click(aug10Cell); // 点击两次完成选择
+    fireEvent.click(aug10Cell); // Click twice to complete selection
     
-    // 确认选择状态
+    // Confirm selection status
     expect(aug10Cell).toHaveAttribute('data-state', 'selected');
     
-    // 取消更改
+    // Cancel changes
     fireEvent.click(screen.getByTestId('cancel-button'));
     
-    // 验证8月10日不再被选择
+    // Verify 10 is no longer selected
     expect(aug10Cell).not.toHaveAttribute('data-state', 'selected');
     
-    // 但原来选择的日期应保持选择状态
+    // But original selected dates should remain selected
     const aug15Cell = screen.getByTestId('date-cell-2023-7-15');
     const aug16Cell = screen.getByTestId('date-cell-2023-7-16');
     expect(aug15Cell).toHaveAttribute('data-state', 'selected');
     expect(aug16Cell).toHaveAttribute('data-state', 'selected');
   });
 
-  test('应正确保存更改', async () => {
-    // 简化测试，立即解析 fetch 调用
+  test('Should correctly save changes', async () => {
+    // Simplify test, immediately parse fetch call
     global.fetch = vi.fn().mockImplementation(() => 
       Promise.resolve({
         ok: true,
@@ -525,30 +525,30 @@ describe('AvailabilitySetting 组件测试', () => {
       })
     );
     
-    // 渲染组件，在此过程中会触发初始挂载
+    // Render component, this will trigger initial mount
     const { rerender } = render(<MockedAvailabilitySetting providerId={mockProviderId} />);
     
-    // 选择一个日期
+    // Select a date
     const aug10Cell = screen.getByTestId('date-cell-2023-7-10');
     
-    // 模拟点击事件，选择日期
+    // Simulate click event, select date
     act(() => {
       fireEvent.click(aug10Cell);
-      fireEvent.click(aug10Cell); // 双击完成选择
+      fireEvent.click(aug10Cell); // Double click to complete selection
     });
     
-    // 验证日期是否被标记 - 使用更灵活的断言，接受 'in-range' 或 'selected'
+    // Verify date is marked - Use more flexible assertion, accept 'in-range' or 'selected'
     expect(['in-range', 'selected']).toContain(aug10Cell.getAttribute('data-state'));
     
-    // 直接验证 fetch 的调用结果 - 跳过找不到的保存按钮部分
-    // 创建一个自定义的 saveSelectedDates 函数
+    // Directly verify fetch call result - Skip save button part
+    // Create a custom saveSelectedDates function
     const saveSelectedDates = () => {
       const selectedDates = [{
         date: '2023-08-10',
         isAvailable: true
       }];
       
-      // 调用 fetch
+      // Call fetch
       return fetch(`/api/users/providers/${mockProviderId}/availability`, {
         method: 'PUT',
         headers: {
@@ -559,10 +559,10 @@ describe('AvailabilitySetting 组件测试', () => {
       });
     };
     
-    // 执行自定义的保存函数
+    // Execute custom save function
     await saveSelectedDates();
     
-    // 验证 API 调用
+    // Verify API call
     expect(fetch).toHaveBeenCalledWith(
       `/api/users/providers/${mockProviderId}/availability`,
       expect.objectContaining({
@@ -575,7 +575,7 @@ describe('AvailabilitySetting 组件测试', () => {
       })
     );
     
-    // 手动验证请求体内容
+    // Manually verify request body content
     const requestBody = JSON.parse(fetch.mock.calls[0][1].body);
     expect(requestBody).toHaveProperty('specialDates');
     expect(requestBody.specialDates).toContainEqual(
@@ -585,6 +585,6 @@ describe('AvailabilitySetting 组件测试', () => {
       })
     );
     
-    // 测试通过，不检查保存按钮是否消失
+    // Test passed, no check for save button to disappear
   });
 }); 

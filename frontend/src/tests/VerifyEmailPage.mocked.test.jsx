@@ -2,11 +2,11 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
 
-// 创建模拟变量
+// Create mock variables
 let mockToken = 'valid-token';
 let mockNavigate = vi.fn();
 
-// 模拟 react-router-dom
+// Mock react-router-dom
 vi.mock('react-router-dom', async () => {
   return {
     useSearchParams: () => [
@@ -16,17 +16,17 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// 模拟 API 请求
+// Mock API requests
 vi.mock('../lib/api', () => ({
   default: {
     get: vi.fn(),
   },
 }));
 
-// 导入被模拟的API
+// Import mocked API
 import api from '../lib/api';
 
-// 创建简化版本的 VerifyEmailPage 组件
+// Create simplified version of VerifyEmailPage component
 const BasicVerifyEmailPage = ({ status = 'loading' }) => {
   switch (status) {
     case 'loading':
@@ -62,12 +62,12 @@ const BasicVerifyEmailPage = ({ status = 'loading' }) => {
   }
 };
 
-describe('VerifyEmailPage 组件测试', () => {
+describe('VerifyEmailPage Component Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     
-    // 重置为默认值
+    // Reset to default values
     mockToken = 'valid-token';
     mockNavigate = vi.fn();
   });
@@ -76,60 +76,60 @@ describe('VerifyEmailPage 组件测试', () => {
     vi.useRealTimers();
   });
 
-  test('初始状态应显示加载中', () => {
+  test('Initial state should display loading', () => {
     render(<BasicVerifyEmailPage status="loading" />);
     
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
     expect(screen.getByTestId('loading-text')).toHaveTextContent('Verifying your email...');
   });
 
-  test('验证成功应显示成功信息并跳转至登录页面', () => {
+  test('Successful verification should display success message and redirect to login page', () => {
     api.get.mockResolvedValueOnce({ status: 200 });
     
-    // 直接使用状态为 success 的组件
+    // Directly use component with success status
     render(<BasicVerifyEmailPage status="success" />);
     
-    // 验证显示成功信息
+    // Verify success message is displayed
     expect(screen.getByTestId('success-heading')).toBeInTheDocument();
     expect(screen.getByTestId('success-text')).toHaveTextContent('You can now log in.');
     
-    // 模拟跳转
+    // Mock navigation
     mockNavigate('/login');
     
-    // 验证跳转
+    // Verify redirection
     expect(mockNavigate).toHaveBeenCalledWith('/login');
-  }, 10000); // 增加超时时间
+  }, 10000); // Increase timeout
 
-  test('验证失败应显示错误信息', () => {
+  test('Failed verification should display error message', () => {
     api.get.mockRejectedValueOnce(new Error('Verification failed'));
     
-    // 直接使用状态为 error 的组件
+    // Directly use component with error status
     render(<BasicVerifyEmailPage status="error" />);
     
-    // 验证显示错误信息
+    // Verify error message is displayed
     expect(screen.getByTestId('error-heading')).toBeInTheDocument();
     expect(screen.getByTestId('error-text')).toHaveTextContent('The link is invalid or has expired');
   });
 
-  test('验证返回非200状态码应显示错误信息', () => {
+  test('Non-200 status code should display error message', () => {
     api.get.mockResolvedValueOnce({ status: 400 });
     
-    // 直接使用状态为 error 的组件
+    // Directly use component with error status
     render(<BasicVerifyEmailPage status="error" />);
     
-    // 验证显示错误信息
+    // Verify error message is displayed
     expect(screen.getByTestId('error-heading')).toBeInTheDocument();
     expect(screen.getByTestId('error-text')).toHaveTextContent('The link is invalid or has expired');
   });
 
-  test('URL 中没有令牌应显示无效请求', () => {
-    // 修改 URL 参数模拟，使 token 为 null
+  test('URL without token should display invalid request', () => {
+    // Modify URL parameter mock to make token null
     mockToken = null;
     
-    // 直接使用状态为 invalid 的组件
+    // Directly use component with invalid status
     render(<BasicVerifyEmailPage status="invalid" />);
     
-    // 验证显示无效请求
+    // Verify invalid request is displayed
     expect(screen.getByTestId('invalid-heading')).toBeInTheDocument();
     expect(screen.getByTestId('invalid-text')).toHaveTextContent('Verification token is missing');
   });

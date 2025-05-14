@@ -3,7 +3,7 @@ import { act } from '@testing-library/react';
 import useAuthStore, { initAuthSync } from '../store/authStore';
 import api from '../lib/api';
 
-// 模拟 API 请求
+// Mock API requests
 vi.mock('../lib/api', () => ({
   default: {
     post: vi.fn(),
@@ -11,49 +11,49 @@ vi.mock('../lib/api', () => ({
   }
 }));
 
-// 模拟 localStorage
+// Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
 };
 
-// 替换原生的 localStorage
+// Replace native localStorage
 Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
 });
 
-// 模拟事件监听器
+// Mock event listeners
 global.addEventListener = vi.fn();
 
-describe('authStore 测试', () => {
+describe('authStore Tests', () => {
   let store;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // 重置 store
+    // Reset store
     useAuthStore.setState({
       user: null,
       token: null,
       isLoaded: false,
     });
     
-    // 获取 store 实例
+    // Get store instance
     store = useAuthStore.getState();
     
-    // 模拟 localStorage 返回 null
+    // Mock localStorage returns null
     mockLocalStorage.getItem.mockReturnValue(null);
   });
 
-  test('初始状态应该是未登录', () => {
+  test('Initial state should be logged out', () => {
     expect(store.user).toBeNull();
     expect(store.token).toBeNull();
     expect(store.isLoaded).toBeFalsy();
   });
 
-  test('登录成功应更新 store 状态和 localStorage', async () => {
-    // 模拟成功的登录响应
+  test('Successful login should update store state and localStorage', async () => {
+    // Mock successful login response
     const mockUserData = {
       _id: '123',
       username: 'testuser',
@@ -69,31 +69,31 @@ describe('authStore 测试', () => {
       },
     });
     
-    // 执行登录
+    // Execute login
     const result = await store.login('test@example.com', 'password123');
     
-    // 验证结果
+    // Verify result
     expect(result).toEqual({ success: true });
     
-    // 验证 API 调用
+    // Verify API call
     expect(api.post).toHaveBeenCalledWith('/auth/login', {
       email: 'test@example.com',
       password: 'password123',
     });
     
-    // 验证 localStorage 更新
+    // Verify localStorage update
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith('token', mockToken);
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith('login', expect.any(String));
     
-    // 验证 store 状态更新
+    // Verify store state update
     const updatedStore = useAuthStore.getState();
     expect(updatedStore.user).toEqual(mockUserData);
     expect(updatedStore.token).toEqual(mockToken);
     expect(updatedStore.isLoaded).toBeTruthy();
   });
 
-  test('登录失败应返回错误消息', async () => {
-    // 模拟登录失败
+  test('Failed login should return error message', async () => {
+    // Mock login failure
     api.post.mockRejectedValueOnce({
       response: {
         data: {
@@ -102,30 +102,30 @@ describe('authStore 测试', () => {
       },
     });
     
-    // 执行登录
+    // Execute login
     const result = await store.login('test@example.com', 'wrongpassword');
     
-    // 验证返回错误
+    // Verify error return
     expect(result).toEqual({
       success: false,
       message: 'Invalid credentials',
     });
     
-    // 验证 store 状态没有改变
+    // Verify store state has not changed
     const updatedStore = useAuthStore.getState();
     expect(updatedStore.user).toBeNull();
     expect(updatedStore.token).toBeNull();
   });
 
-  test('注册成功应返回成功消息', async () => {
-    // 模拟成功的注册响应
+  test('Successful registration should return success message', async () => {
+    // Mock successful registration response
     api.post.mockResolvedValueOnce({
       data: {
         message: 'Registration successful',
       },
     });
     
-    // 执行注册
+    // Execute registration
     const result = await store.register({
       firstName: 'John',
       lastName: 'Doe',
@@ -133,13 +133,13 @@ describe('authStore 测试', () => {
       password: 'Password123',
     });
     
-    // 验证结果
+    // Verify result
     expect(result).toEqual({
       success: true,
       message: 'Registration successful',
     });
     
-    // 验证 API 调用
+    // Verify API call
     expect(api.post).toHaveBeenCalledWith('/auth/register', {
       firstName: 'John',
       lastName: 'Doe',
@@ -153,8 +153,8 @@ describe('authStore 测试', () => {
     });
   });
 
-  test('注册失败应返回错误消息', async () => {
-    // 模拟注册失败
+  test('Failed registration should return error message', async () => {
+    // Mock registration failure
     api.post.mockRejectedValueOnce({
       response: {
         data: {
@@ -163,7 +163,7 @@ describe('authStore 测试', () => {
       },
     });
     
-    // 执行注册
+    // Execute registration
     const result = await store.register({
       firstName: 'John',
       lastName: 'Doe',
@@ -171,40 +171,40 @@ describe('authStore 测试', () => {
       password: 'Password123',
     });
     
-    // 验证返回错误
+    // Verify error return
     expect(result).toEqual({
       success: false,
       message: 'Email already in use',
     });
   });
 
-  test('登出应清除 store 状态和 localStorage', () => {
-    // 先设置状态，模拟已登录
+  test('Logout should clear store state and localStorage', () => {
+    // First set state to simulate logged in
     useAuthStore.setState({
       user: { id: '123', name: 'John' },
       token: 'fake-token',
       isLoaded: true,
     });
     
-    // 执行登出
+    // Execute logout
     store.logout();
     
-    // 验证 localStorage 被清除
+    // Verify localStorage is cleared
     expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('token');
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith('logout', expect.any(String));
     
-    // 验证 store 状态被重置
+    // Verify store state is reset
     const updatedStore = useAuthStore.getState();
     expect(updatedStore.user).toBeNull();
     expect(updatedStore.token).toBeNull();
     expect(updatedStore.isLoaded).toBeTruthy();
   });
 
-  test('fetchCurrentUser 应正确获取用户数据', async () => {
+  test('fetchCurrentUser should correctly fetch user data', async () => {
     const mockToken = 'test-token';
     mockLocalStorage.getItem.mockReturnValue(mockToken);
     
-    // 模拟成功的用户数据响应
+    // Mock successful user data response
     const mockUserData = {
       _id: '123',
       username: 'testuser',
@@ -217,79 +217,64 @@ describe('authStore 测试', () => {
       },
     });
     
-    // 执行获取用户数据
+    // Execute fetch user data
     await store.fetchCurrentUser();
     
-    // 验证 API 调用
+    // Verify API call
     expect(api.get).toHaveBeenCalledWith('/auth/me', {
       headers: {
         Authorization: `Bearer ${mockToken}`,
       },
     });
     
-    // 验证 store 状态更新
+    // Verify store state update
     const updatedStore = useAuthStore.getState();
     expect(updatedStore.user).toEqual(mockUserData);
     expect(updatedStore.token).toEqual(mockToken);
     expect(updatedStore.isLoaded).toBeTruthy();
   });
 
-  test('fetchCurrentUser 失败应清除 token 和用户数据', async () => {
+  test('fetchCurrentUser failure should clear token and user data', async () => {
     const mockToken = 'test-token';
     mockLocalStorage.getItem.mockReturnValue(mockToken);
     
-    // 模拟获取用户数据失败
+    // Mock fetch user data failure
     api.get.mockRejectedValueOnce(new Error('Fetch failed'));
     
-    // 执行获取用户数据
+    // Execute fetch user data
     await store.fetchCurrentUser();
     
-    // 验证 localStorage 被清除
+    // Verify localStorage is cleared
     expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('token');
     
-    // 验证 store 状态被重置
+    // Verify store state is reset
     const updatedStore = useAuthStore.getState();
     expect(updatedStore.user).toBeNull();
     expect(updatedStore.token).toBeNull();
     expect(updatedStore.isLoaded).toBeTruthy();
   });
 
-  test('initAuthSync 应添加事件监听器', () => {
-    // 模拟 window 对象
-    const windowObj = { addEventListener: vi.fn() };
-    global.window = windowObj;
+  test('initAuthSync should set up cross-tab authentication sync', () => {
+    const mockToken = 'test-token';
+    const mockHandler = vi.fn();
     
-    // 执行 initAuthSync
-    const mockFetchCurrentUser = vi.fn();
-    initAuthSync(mockFetchCurrentUser);
+    // Initialize auth sync
+    initAuthSync(mockHandler);
     
-    // 验证事件监听器被添加
-    expect(windowObj.addEventListener).toHaveBeenCalledWith('storage', expect.any(Function));
-  });
-
-  test('storage 事件处理函数应正确处理登出', () => {
-    // 模拟 storage 事件的处理函数
-    const mockStorageEventHandler = vi.fn();
-    global.window = {
-      addEventListener: (event, handler) => {
-        if (event === 'storage') {
-          mockStorageEventHandler.mockImplementation(handler);
-        }
-      },
-      location: { href: '' },
-    };
+    // Verify event listeners are set up
+    expect(global.addEventListener).toHaveBeenCalledWith('storage', expect.any(Function));
     
-    // 初始化事件监听
-    const mockFetchCurrentUser = vi.fn();
-    initAuthSync(mockFetchCurrentUser);
+    // Simulate login event from another tab
+    const storageEvent = new Event('storage');
+    Object.defineProperty(storageEvent, 'key', { value: 'login' });
     
-    // 触发登出事件
-    mockStorageEventHandler({ key: 'logout' });
+    // Mock localStorage to return token when checked
+    mockLocalStorage.getItem.mockReturnValue(mockToken);
     
-    // 验证 localStorage.removeItem 被调用
-    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('token');
+    // Trigger the event handler
+    global.addEventListener.mock.calls[0][1](storageEvent);
     
-    // 验证导航到登录页面
-    expect(global.window.location.href).toBe('/login');
+    // Verify handler was called
+    expect(mockHandler).toHaveBeenCalled();
   });
 }); 

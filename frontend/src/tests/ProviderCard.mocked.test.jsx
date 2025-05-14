@@ -3,42 +3,42 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 创建模拟函数
+// Create mock functions
 const mockSelectedProviderId = 'provider2';
 const mockSetSelectedProviderId = vi.fn();
 const mockIsMarkerSelect = true;
 const mockNavigate = vi.fn();
 
-// 创建 ProviderCard 组件模拟
+// Create ProviderCard component mock
 const MockedProviderCard = ({ user }) => {
-  // 使用本地模拟数据而不是importActual
+  // Use local mock data instead of importActual
   const selectedProviderId = mockSelectedProviderId;
   const setSelectedProviderId = mockSetSelectedProviderId;
   const isMarkerSelect = mockIsMarkerSelect;
   const navigate = mockNavigate;
   
-  // 检查是否选中
+  // Check if selected
   const isSelected = selectedProviderId === user._id;
   const isEffectivelyMarkerSelected = isSelected && isMarkerSelect;
   
   const cardRef = React.useRef(null);
   
-  // 处理卡片点击
+  // Handle card click
   const handleCardClick = () => {
     navigate(`/providerDetail/${user._id}`);
   };
   
-  // 卡片离开时清除选中状态
+  // Clear selected state when card is left
   const handleMouseLeave = () => {
     if (isEffectivelyMarkerSelected) {
       setSelectedProviderId(null, false);
     }
   };
   
-  // 模拟评分显示
+  // Mock rating display
   const renderRating = (rating) => {
     const stars = [];
-    const roundedRating = Math.round(rating * 2) / 2; // 四舍五入到0.5
+    const roundedRating = Math.round(rating * 2) / 2; // Round to nearest 0.5
     
     for (let i = 1; i <= 5; i++) {
       if (i <= roundedRating) {
@@ -94,7 +94,7 @@ const MockedProviderCard = ({ user }) => {
   );
 };
 
-// 创建一个自定义的已选中卡片组件
+// Create a custom selected card component
 const SelectedProviderCard = ({ user }) => {
   return (
     <div
@@ -110,7 +110,7 @@ const SelectedProviderCard = ({ user }) => {
   );
 };
 
-describe('ProviderCard 组件测试', () => {
+describe('ProviderCard Component Tests', () => {
   const mockUser = {
     _id: 'provider1',
     firstName: 'John',
@@ -127,7 +127,7 @@ describe('ProviderCard 组件测试', () => {
     hourlyRate: 35,
   };
   
-  // 已选中的提供者
+  // Selected provider
   const mockSelectedUser = {
     _id: 'provider2',
     firstName: 'Jane',
@@ -144,7 +144,7 @@ describe('ProviderCard 组件测试', () => {
     hourlyRate: 45,
   };
   
-  // 具有整数评分的提供者
+  // Provider with integer rating
   const mockUserIntegerRating = {
     ...mockUser,
     _id: 'provider3',
@@ -155,7 +155,7 @@ describe('ProviderCard 组件测试', () => {
     vi.clearAllMocks();
   });
 
-  test('应正确渲染提供者信息', () => {
+  test('Should correctly render provider information', () => {
     render(<MockedProviderCard user={mockUser} />);
     
     expect(screen.getByTestId('provider-name')).toHaveTextContent('John Doe');
@@ -166,29 +166,29 @@ describe('ProviderCard 组件测试', () => {
     expect(screen.getByTestId('rating-value')).toHaveTextContent('4.5');
     expect(screen.getByTestId('review-count')).toHaveTextContent('(28 reviews)');
     
-    // 验证图片
+    // Verify image
     const image = screen.getByTestId('provider-image');
     expect(image).toHaveAttribute('src', 'https://example.com/profile.jpg');
     expect(image).toHaveAttribute('alt', 'John Doe');
   });
 
-  test('评分应正确显示星星', () => {
+  test('Rating should display correctly', () => {
     render(<MockedProviderCard user={mockUser} />);
     
-    // 评分为4.5，应显示4个完整星星和1个半星
+    // Rating is 4.5, should display 4 full stars and 1 half star
     const fullStars = screen.getAllByTestId('full-star');
     const halfStars = screen.getAllByTestId('half-star');
     
     expect(fullStars).toHaveLength(4);
     expect(halfStars).toHaveLength(1);
     
-    // 不再检查空星，因为这个评分没有空星
+    // No need to check empty stars, because this rating doesn't have empty stars
   });
 
-  test('整数评分应正确显示星星', () => {
+  test('Integer rating should display correctly', () => {
     render(<MockedProviderCard user={mockUserIntegerRating} />);
     
-    // 评分为4.0，应显示4个完整星星和1个空星
+    // Rating is 4.0, should display 4 full stars and 1 empty star
     const fullStars = screen.getAllByTestId('full-star');
     const emptyStars = screen.getAllByTestId('empty-star');
     
@@ -196,7 +196,7 @@ describe('ProviderCard 组件测试', () => {
     expect(emptyStars).toHaveLength(1);
   });
 
-  test('点击卡片应导航到详情页面', () => {
+  test('Clicking card should navigate to detail page', () => {
     render(<MockedProviderCard user={mockUser} />);
     
     fireEvent.click(screen.getByTestId('provider-card'));
@@ -204,39 +204,39 @@ describe('ProviderCard 组件测试', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/providerDetail/provider1');
   });
 
-  test('已选中的卡片应有特殊样式', () => {
-    // 使用专门的已选中卡片组件，但不检查样式
+  test('Selected card should have special style', () => {
+    // Use special selected card component, but don't check style
     render(<SelectedProviderCard user={mockSelectedUser} />);
     
     const card = screen.getByTestId('provider-card');
     
-    // 检查 data 属性和内容，而不检查样式
+    // Check data attribute and content, but don't check style
     expect(card).toBeInTheDocument();
     expect(card).toHaveTextContent('Card content');
   });
 
-  test('鼠标离开时应清除选中状态', () => {
+  test('Selected state should be cleared when card is left', () => {
     render(<MockedProviderCard user={mockSelectedUser} />);
     
-    // 鼠标离开卡片
+    // Mouse leaves card
     fireEvent.mouseLeave(screen.getByTestId('provider-card'));
     
-    // 验证清除选中状态的函数被调用
+    // Verify clear selected state function is called
     expect(mockSetSelectedProviderId).toHaveBeenCalledWith(null, false);
   });
 
-  test('非通过标记选中的卡片不应在鼠标离开时清除选中状态', () => {
-    // 临时保存原始值
+  test('Card not selected by marker should not be cleared when card is left', () => {
+    // Temporary save original value
     const originalIsMarkerSelect = mockIsMarkerSelect;
     
-    // 修改为非标记选中
+    // Modify to non-marker selected
     global.mockIsMarkerSelect = false;
     
-    // 创建一个自定义版本的组件，使用非标记选中
+    // Create a custom version of component, using non-marker selected
     const NotMarkedSelectedCard = ({ user }) => {
       const selectedProviderId = mockSelectedProviderId;
       const setSelectedProviderId = mockSetSelectedProviderId;
-      const isMarkerSelect = false; // 非标记选中
+      const isMarkerSelect = false; // Non-marker selected
       const navigate = mockNavigate;
       
       const isSelected = selectedProviderId === user._id;
@@ -260,13 +260,13 @@ describe('ProviderCard 组件测试', () => {
     
     render(<NotMarkedSelectedCard user={mockSelectedUser} />);
     
-    // 鼠标离开卡片
+    // Mouse leaves card
     fireEvent.mouseLeave(screen.getByTestId('provider-card'));
     
-    // 验证清除选中状态的函数没有被调用
+    // Verify clear selected state function is not called
     expect(mockSetSelectedProviderId).not.toHaveBeenCalled();
     
-    // 恢复原始值
+    // Restore original value
     global.mockIsMarkerSelect = originalIsMarkerSelect;
   });
 }); 

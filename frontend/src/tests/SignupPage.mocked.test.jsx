@@ -2,14 +2,14 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
-// 模拟路由
+// Mock router
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
   Link: ({ children, to }) => <a href={to}>{children}</a>,
 }));
 
-// 模拟 Auth Store
+// Mock Auth Store
 const mockRegister = vi.fn();
 const mockUser = null;
 vi.mock('../store/authStore', () => ({
@@ -19,13 +19,13 @@ vi.mock('../store/authStore', () => ({
   }),
 }));
 
-// 模拟 toast
+// Mock toast
 vi.mock('react-hot-toast', () => ({
   default: vi.fn(),
   Toaster: () => <div data-testid="toaster" />,
 }));
 
-// 创建 SignupPage 组件模拟
+// Create SignupPage component mock
 const MockedSignupPage = () => {
   const [firstname, setFirstName] = React.useState('');
   const [lastname, setLastName] = React.useState('');
@@ -38,19 +38,19 @@ const MockedSignupPage = () => {
     e.preventDefault();
     let error = '';
     
-    // 验证名字
+    // Validate name
     if (!firstname) {
       error = 'Please enter your first name.';
     } else if (!lastname) {
       error = 'Please enter your last name.';
     } 
-    // 验证邮箱
+    // Validate email
     else if (!email) {
       error = 'Please enter your email.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       error = 'Invalid email format';
     }
-    // 验证密码
+    // Validate password
     else if (!password) {
       error = 'Please enter your password.';
     } else if (password.length <= 8) {
@@ -149,13 +149,13 @@ const MockedSignupPage = () => {
   );
 };
 
-describe('SignupPage 组件测试', () => {
+describe('SignupPage Component Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRegister.mockResolvedValue({ success: true });
   });
 
-  test('应渲染注册表单', () => {
+  test('Should render registration form', () => {
     render(<MockedSignupPage />);
     expect(screen.getByTestId('signup-page')).toBeInTheDocument();
     expect(screen.getByTestId('firstname-input')).toBeInTheDocument();
@@ -165,7 +165,7 @@ describe('SignupPage 组件测试', () => {
     expect(screen.getByTestId('signup-button')).toBeInTheDocument();
   });
 
-  test('应允许用户输入个人信息', () => {
+  test('Should allow user to input personal information', () => {
     render(<MockedSignupPage />);
     
     const firstnameInput = screen.getByTestId('firstname-input');
@@ -184,34 +184,34 @@ describe('SignupPage 组件测试', () => {
     expect(passwordInput.value).toBe('Password123');
   });
 
-  test('应只允许输入字母作为名字', () => {
+  test('Should only allow letters for names', () => {
     render(<MockedSignupPage />);
     
     const firstnameInput = screen.getByTestId('firstname-input');
     const lastnameInput = screen.getByTestId('lastname-input');
     
-    // 输入包含非字母字符的名字
+    // Input name with non-letter characters
     fireEvent.change(firstnameInput, { target: { value: 'John123' } });
     fireEvent.change(lastnameInput, { target: { value: 'Doe456' } });
     
-    // 应该过滤掉非字母字符
+    // Should filter out non-letter characters
     expect(firstnameInput.value).toBe('John');
     expect(lastnameInput.value).toBe('Doe');
   });
 
-  test('应验证所有必填字段', async () => {
+  test('Should validate all required fields', async () => {
     render(<MockedSignupPage />);
     
     const signupButton = screen.getByTestId('signup-button');
     
-    // 空表单提交
+    // Empty form submission
     fireEvent.click(signupButton);
     
     await waitFor(() => {
       expect(screen.getByTestId('error-message')).toHaveTextContent('Please enter your first name');
     });
     
-    // 只填写名字
+    // Only fill in first name
     fireEvent.change(screen.getByTestId('firstname-input'), { target: { value: 'John' } });
     fireEvent.click(signupButton);
     
@@ -220,7 +220,7 @@ describe('SignupPage 组件测试', () => {
     });
   });
 
-  test('应验证邮箱格式', async () => {
+  test('Should validate email format', async () => {
     render(<MockedSignupPage />);
     
     const firstnameInput = screen.getByTestId('firstname-input');
@@ -228,7 +228,7 @@ describe('SignupPage 组件测试', () => {
     const emailInput = screen.getByTestId('email-input');
     const signupButton = screen.getByTestId('signup-button');
     
-    // 填写名字但邮箱格式不正确
+    // Fill in names but with incorrect email format
     fireEvent.change(firstnameInput, { target: { value: 'John' } });
     fireEvent.change(lastnameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
@@ -240,7 +240,7 @@ describe('SignupPage 组件测试', () => {
     });
   });
 
-  test('应验证密码要求', async () => {
+  test('Should validate password requirements', async () => {
     render(<MockedSignupPage />);
     
     const firstnameInput = screen.getByTestId('firstname-input');
@@ -249,7 +249,7 @@ describe('SignupPage 组件测试', () => {
     const passwordInput = screen.getByTestId('password-input');
     const signupButton = screen.getByTestId('signup-button');
     
-    // 填写基本信息但密码太短
+    // Fill in basic information but with too short password
     fireEvent.change(firstnameInput, { target: { value: 'John' } });
     fireEvent.change(lastnameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john.doe@example.com' } });
@@ -261,7 +261,7 @@ describe('SignupPage 组件测试', () => {
       expect(screen.getByTestId('error-message')).toHaveTextContent('Password must be 8+ characters');
     });
     
-    // 密码没有大写字母
+    // Password lacks uppercase letter
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.click(signupButton);
     
@@ -270,7 +270,7 @@ describe('SignupPage 组件测试', () => {
     });
   });
 
-  test('应在验证通过后调用注册方法', async () => {
+  test('Should call registration method after validation', async () => {
     render(<MockedSignupPage />);
     
     const firstnameInput = screen.getByTestId('firstname-input');
@@ -279,7 +279,7 @@ describe('SignupPage 组件测试', () => {
     const passwordInput = screen.getByTestId('password-input');
     const signupButton = screen.getByTestId('signup-button');
     
-    // 输入有效的用户信息
+    // Input valid user information
     fireEvent.change(firstnameInput, { target: { value: 'John' } });
     fireEvent.change(lastnameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john.doe@example.com' } });
@@ -297,8 +297,8 @@ describe('SignupPage 组件测试', () => {
     });
   });
 
-  test('应处理注册失败情况', async () => {
-    // 模拟注册失败
+  test('Should handle registration failure', async () => {
+    // Mock registration failure
     mockRegister.mockResolvedValueOnce({ success: false, message: 'Email already in use' });
     
     render(<MockedSignupPage />);
@@ -309,7 +309,7 @@ describe('SignupPage 组件测试', () => {
     const passwordInput = screen.getByTestId('password-input');
     const signupButton = screen.getByTestId('signup-button');
     
-    // 输入有效的用户信息
+    // Input valid user information
     fireEvent.change(firstnameInput, { target: { value: 'John' } });
     fireEvent.change(lastnameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john.doe@example.com' } });

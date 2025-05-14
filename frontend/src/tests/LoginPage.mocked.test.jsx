@@ -2,14 +2,14 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
-// 模拟路由
+// Mock router
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
   Link: ({ children, to }) => <a href={to}>{children}</a>,
 }));
 
-// 模拟 Auth Store
+// Mock Auth Store
 const mockLogin = vi.fn();
 const mockUser = null;
 vi.mock('../store/authStore', () => ({
@@ -19,7 +19,7 @@ vi.mock('../store/authStore', () => ({
   }),
 }));
 
-// 创建 LoginPage 组件模拟
+// Create LoginPage component mock
 const MockedLoginPage = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -30,14 +30,14 @@ const MockedLoginPage = () => {
     e.preventDefault();
     let error = '';
     
-    // 验证邮箱
+    // Validate email
     if (!email) {
       error = 'Please enter your email.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       error = 'Invalid email format';
     }
     
-    // 验证密码
+    // Validate password
     else if (!password) {
       error = 'Please enter your password.';
     } else if (password.length <= 8) {
@@ -108,13 +108,13 @@ const MockedLoginPage = () => {
   );
 };
 
-describe('LoginPage 组件测试', () => {
+describe('LoginPage Component Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLogin.mockResolvedValue({ success: true });
   });
 
-  test('应渲染登录表单', () => {
+  test('Should render login form', () => {
     render(<MockedLoginPage />);
     expect(screen.getByTestId('login-page')).toBeInTheDocument();
     expect(screen.getByTestId('email-input')).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('LoginPage 组件测试', () => {
     expect(screen.getByTestId('login-button')).toBeInTheDocument();
   });
 
-  test('应允许用户输入邮箱和密码', () => {
+  test('Should allow user to input email and password', () => {
     render(<MockedLoginPage />);
     
     const emailInput = screen.getByTestId('email-input');
@@ -135,14 +135,14 @@ describe('LoginPage 组件测试', () => {
     expect(passwordInput.value).toBe('Password123');
   });
 
-  test('应验证邮箱格式', async () => {
+  test('Should validate email format', async () => {
     render(<MockedLoginPage />);
     
     const emailInput = screen.getByTestId('email-input');
     const passwordInput = screen.getByTestId('password-input');
     const loginButton = screen.getByTestId('login-button');
     
-    // 输入无效邮箱
+    // Input invalid email
     fireEvent.change(emailInput, { target: { value: 'invalidEmail' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123' } });
     
@@ -152,18 +152,18 @@ describe('LoginPage 组件测试', () => {
       expect(screen.getByTestId('error-message')).toHaveTextContent('Invalid email format');
     });
     
-    // 登录方法不应该被调用
+    // Login method should not be called
     expect(mockLogin).not.toHaveBeenCalled();
   });
 
-  test('应验证密码要求', async () => {
+  test('Should validate password requirements', async () => {
     render(<MockedLoginPage />);
     
     const emailInput = screen.getByTestId('email-input');
     const passwordInput = screen.getByTestId('password-input');
     const loginButton = screen.getByTestId('login-button');
     
-    // 输入符合要求的邮箱但密码太短
+    // Input valid email but password too short
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'pass' } });
     
@@ -173,7 +173,7 @@ describe('LoginPage 组件测试', () => {
       expect(screen.getByTestId('error-message')).toHaveTextContent('Password must be 8+ characters');
     });
     
-    // 密码没有大写字母
+    // Password without uppercase letter
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     
     fireEvent.click(loginButton);
@@ -183,14 +183,14 @@ describe('LoginPage 组件测试', () => {
     });
   });
 
-  test('应在验证通过后调用登录方法', async () => {
+  test('Should call login method after validation passes', async () => {
     render(<MockedLoginPage />);
     
     const emailInput = screen.getByTestId('email-input');
     const passwordInput = screen.getByTestId('password-input');
     const loginButton = screen.getByTestId('login-button');
     
-    // 输入有效的邮箱和密码
+    // Input valid email and password
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123' } });
     
@@ -201,26 +201,26 @@ describe('LoginPage 组件测试', () => {
     });
   });
 
-  test('应切换密码可见性', () => {
+  test('Should toggle password visibility', () => {
     render(<MockedLoginPage />);
     
     const passwordInput = screen.getByTestId('password-input');
     const toggleButton = screen.getByTestId('toggle-password');
     
-    // 默认应该是密码不可见
+    // Default should be password not visible
     expect(passwordInput.type).toBe('password');
     
-    // 点击显示密码
+    // Click to show password
     fireEvent.click(toggleButton);
     expect(passwordInput.type).toBe('text');
     
-    // 再次点击隐藏密码
+    // Click again to hide password
     fireEvent.click(toggleButton);
     expect(passwordInput.type).toBe('password');
   });
 
-  test('应处理登录失败情况', async () => {
-    // 模拟登录失败
+  test('Should handle login failure cases', async () => {
+    // Mock login failure
     mockLogin.mockResolvedValueOnce({ success: false, message: 'Invalid credentials' });
     
     render(<MockedLoginPage />);

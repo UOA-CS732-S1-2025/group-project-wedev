@@ -2,13 +2,13 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
-// 模拟用户数据
+// Mock user data
 const mockUser = {
   _id: 'user123',
   username: 'testuser',
 };
 
-// 模拟会话数据
+// Mock conversation data
 const mockConversations = [
   {
     _id: 'conv1',
@@ -32,7 +32,7 @@ const mockConversations = [
   },
 ];
 
-// 模拟消息数据
+// Mock message data
 const mockMessages = [
   {
     _id: 'msg1',
@@ -48,21 +48,21 @@ const mockMessages = [
   },
 ];
 
-// 创建模拟函数
+// Create mock functions
 const mockFetchConversations = vi.fn();
 const mockMarkConversationAsRead = vi.fn();
 const mockFetchMessages = vi.fn().mockResolvedValue(true);
 const mockSetActiveConversation = vi.fn();
 const mockOpenDialog = vi.fn();
 
-// 模拟 authStore
+// Mock authStore
 vi.mock('../store/authStore', () => ({
   default: () => ({
     user: mockUser,
   }),
 }));
 
-// 模拟 conversationStore
+// Mock conversationStore
 vi.mock('../store/conversationStore', () => ({
   useConversationStore: () => ({
     conversations: mockConversations,
@@ -78,7 +78,7 @@ vi.mock('../store/conversationStore', () => ({
   }),
 }));
 
-// 模拟 chatDialogStore
+// Mock chatDialogStore
 vi.mock('../store/chatDialogStore', () => ({
   useChatDialogStore: () => ({
     openDialog: mockOpenDialog,
@@ -86,7 +86,7 @@ vi.mock('../store/chatDialogStore', () => ({
   }),
 }));
 
-// 模拟 ConversationView 组件
+// Mock ConversationView component
 vi.mock('../components/ConversationView', () => ({
   default: ({ conversation, user }) => (
     <div data-testid="conversation-view">
@@ -95,9 +95,9 @@ vi.mock('../components/ConversationView', () => ({
   ),
 }));
 
-// 创建 UserInbox 组件模拟
+// Create UserInbox component mock
 const MockedUserInbox = () => {
-  // 直接使用模拟数据
+  // Directly use mock data
   const user = mockUser;
   const conversations = mockConversations;
   const loading = false;
@@ -109,14 +109,14 @@ const MockedUserInbox = () => {
   
   const [selectedConversation, setSelectedConversation] = React.useState(null);
   
-  // 获取会话数据
+  // Fetch conversation data
   React.useEffect(() => {
     if (user?._id) {
       fetchConversations(user._id);
     }
   }, [user, fetchConversations]);
   
-  // 处理会话点击
+  // Handle conversation click
   const handleConversationClick = (conversation) => {
     if (user?._id) {
       markConversationAsRead(conversation._id, user._id);
@@ -126,7 +126,7 @@ const MockedUserInbox = () => {
     }
   };
   
-  // 格式化时间戳
+  // Format timestamp
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return '';
     try {
@@ -136,7 +136,7 @@ const MockedUserInbox = () => {
     }
   };
   
-  // 渲染会话列表
+  // Render conversation list
   const renderConversationList = () => {
     if (loading) {
       return <div data-testid="loading-spinner">Loading...</div>;
@@ -211,9 +211,9 @@ const MockedUserInbox = () => {
   );
 };
 
-// 为测试用例创建一个支持修改数据的函数
+// Create a function for test cases that supports modifying data
 const renderWithMockProps = (props = {}) => {
-  // 合并默认属性和传入的属性
+  // Merge default props and provided props
   const testProps = {
     conversationList: mockConversations,
     loading: false,
@@ -221,7 +221,7 @@ const renderWithMockProps = (props = {}) => {
     ...props,
   };
   
-  // 获取所有模拟函数以供测试断言
+  // Get all mock functions for test assertions
   const testUtils = {
     mockFetchConversations,
     mockMarkConversationAsRead,
@@ -229,9 +229,9 @@ const renderWithMockProps = (props = {}) => {
     mockOpenDialog,
   };
   
-  // 确保每次渲染都能反映最新的属性
+  // Ensure each render reflects the latest props
   const TestComponent = () => {
-    // 这里我们直接使用提供的 MockedUserInbox 组件
+    // Here we directly use the provided MockedUserInbox component
     return <MockedUserInbox />;
   };
   
@@ -244,67 +244,67 @@ const renderWithMockProps = (props = {}) => {
   };
 };
 
-describe('UserInbox 组件测试', () => {
+describe('UserInbox Component Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('应加载和显示会话列表', async () => {
+  test('Should load and display conversation list', async () => {
     const { mockFetchConversations } = renderWithMockProps();
     
-    // 验证获取会话的函数被调用
+    // Verify get conversations function is called
     expect(mockFetchConversations).toHaveBeenCalledWith('user123');
     
-    // 验证会话列表是否显示
+    // Verify conversation list is displayed
     expect(screen.getByTestId('conversation-list')).toBeInTheDocument();
     
-    // 验证两个会话项是否显示
+    // Verify two conversation items are displayed
     expect(screen.getByTestId('conversation-item-conv1')).toBeInTheDocument();
     expect(screen.getByTestId('conversation-item-conv2')).toBeInTheDocument();
   });
 
-  test('应显示会话的未读数量', () => {
+  test('Should display unread message count for conversations', () => {
     renderWithMockProps();
     
-    // 有未读消息的会话应显示未读数量
+    // Conversations with unread messages should display unread count
     expect(screen.getByTestId('unread-badge-conv1')).toBeInTheDocument();
     expect(screen.getByTestId('unread-badge-conv1')).toHaveTextContent('3');
     
-    // 没有未读消息的会话不应显示未读数量
+    // Conversations without unread messages should not display unread count
     expect(screen.queryByTestId('unread-badge-conv2')).not.toBeInTheDocument();
   });
 
-  test('点击会话项应选择会话并标记为已读', async () => {
+  test('Clicking a conversation item should select it and mark as read', async () => {
     const { mockMarkConversationAsRead, mockOpenDialog, mockSetActiveConversation } = renderWithMockProps();
     
-    // 点击第一个会话
+    // Click the first conversation
     fireEvent.click(screen.getByTestId('conversation-item-conv1'));
     
-    // 验证标记为已读和打开对话框的函数被调用
+    // Verify mark as read and open dialog functions are called
     expect(mockMarkConversationAsRead).toHaveBeenCalledWith('conv1', 'user123');
     expect(mockOpenDialog).toHaveBeenCalledWith('conv1', mockConversations[0].otherUser);
     
-    // 验证活动会话被设置
+    // Verify active conversation is set
     expect(mockSetActiveConversation).toHaveBeenCalledWith('conv1');
     
-    // 验证会话内容显示
+    // Verify conversation content is displayed
     await waitFor(() => {
       expect(screen.getByTestId('conversation-content')).toBeInTheDocument();
       expect(screen.getByTestId('conversation-title')).toHaveTextContent('provider1');
     });
   });
 
-  test('加载中状态应显示加载指示器', async () => {
-    // 自定义渲染 - 设置加载状态
+  test('Loading state should display loading indicator', async () => {
+    // Custom render - set loading state
     const LoadingInbox = () => {
-      // 直接使用模拟数据
+      // Directly use mock data
       const user = mockUser;
       const conversations = [];
-      const loading = true;  // 加载中
+      const loading = true;  // Loading
       const error = null;
       const fetchConversations = mockFetchConversations;
       
-      // 渲染会话列表
+      // Render conversation list
       const renderConversationList = () => {
         if (loading) {
           return <div data-testid="loading-spinner">Loading...</div>;
@@ -328,17 +328,17 @@ describe('UserInbox 组件测试', () => {
     expect(screen.queryByTestId('conversation-list')).not.toBeInTheDocument();
   });
 
-  test('错误状态应显示错误消息', async () => {
-    // 自定义渲染 - 设置错误状态
+  test('Error state should display error message', async () => {
+    // Custom render - set error state
     const ErrorInbox = () => {
-      // 直接使用模拟数据
+      // Directly use mock data
       const user = mockUser;
       const conversations = [];
       const loading = false;
-      const error = 'Failed to load conversations';  // 错误信息
+      const error = 'Failed to load conversations';  // Error message
       const fetchConversations = mockFetchConversations;
       
-      // 渲染会话列表
+      // Render conversation list
       const renderConversationList = () => {
         if (error) {
           return <div data-testid="error-message">{error}</div>;
@@ -362,17 +362,17 @@ describe('UserInbox 组件测试', () => {
     expect(screen.getByTestId('error-message')).toHaveTextContent('Failed to load conversations');
   });
 
-  test('没有会话时应显示空消息', async () => {
-    // 自定义渲染 - 设置空会话列表
+  test('Should display empty message when no conversations exist', async () => {
+    // Custom render - set empty conversation list
     const EmptyInbox = () => {
-      // 直接使用模拟数据
+      // Directly use mock data
       const user = mockUser;
-      const conversations = [];  // 空会话列表
+      const conversations = [];  // Empty conversation list
       const loading = false;
       const error = null;
       const fetchConversations = mockFetchConversations;
       
-      // 渲染会话列表
+      // Render conversation list
       const renderConversationList = () => {
         if (!conversations || conversations.length === 0) {
           return <div data-testid="empty-message">No conversations yet</div>;

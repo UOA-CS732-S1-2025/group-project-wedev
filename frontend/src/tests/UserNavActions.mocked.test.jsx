@@ -2,19 +2,19 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-// 模拟导航函数
+// Mock navigation function
 const mockNavigate = vi.fn();
 
-// 模拟 fetch API
+// Mock fetch API
 global.fetch = vi.fn();
 
-// 模拟 UserNavActions 组件的行为
+// Mock UserNavActions component behavior
 const MockedUserNavActions = ({ user, logout }) => {
   const [unreadCount, setUnreadCount] = React.useState(0);
   
   React.useEffect(() => {
     if (user?._id) {
-      // 模拟获取未读消息数
+      // Mock getting unread message count
       fetch(`/api/messages/unread-count?userId=${user._id}`)
         .then(response => response.json())
         .then(data => setUnreadCount(data.unreadCount))
@@ -22,7 +22,7 @@ const MockedUserNavActions = ({ user, logout }) => {
     }
   }, [user]);
   
-  // 计算显示名称
+  // Calculate display name
   const displayName = user?.firstName && user?.lastName 
     ? `${user.firstName} ${user.lastName}`
     : user?.username || "User";
@@ -31,7 +31,7 @@ const MockedUserNavActions = ({ user, logout }) => {
     <div data-testid="user-nav-actions">
       <div data-testid="user-display-name">{displayName}</div>
       
-      {/* 模拟菜单 */}
+      {/* Mock menu */}
       <div data-testid="user-menu">
         {user?.role === 'admin' && (
           <button data-testid="admin-button">Admin</button>
@@ -57,18 +57,18 @@ const MockedUserNavActions = ({ user, logout }) => {
   );
 };
 
-describe('UserNavActions 组件 (模拟版本)', () => {
+describe('UserNavActions Component (Mocked Version)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // 默认模拟成功的 fetch 响应
+    // Default mock successful fetch response
     fetch.mockResolvedValue({
       ok: true,
       json: async () => ({ unreadCount: 0 })
     });
   });
 
-  test('应显示用户全名 (firstName + lastName)', () => {
+  test('Should display user full name (firstName + lastName)', () => {
     const user = {
       _id: '123',
       firstName: 'John',
@@ -81,7 +81,7 @@ describe('UserNavActions 组件 (模拟版本)', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
-  test('如果没有全名应显示用户名', () => {
+  test('Should display username if full name is not available', () => {
     const user = {
       _id: '123',
       username: 'johndoe'
@@ -92,7 +92,7 @@ describe('UserNavActions 组件 (模拟版本)', () => {
     expect(screen.getByText('johndoe')).toBeInTheDocument();
   });
 
-  test('管理员用户应显示 Admin 按钮', () => {
+  test('Admin users should see Admin button', () => {
     const user = {
       _id: '123',
       username: 'admin',
@@ -104,7 +104,7 @@ describe('UserNavActions 组件 (模拟版本)', () => {
     expect(screen.getByTestId('admin-button')).toBeInTheDocument();
   });
 
-  test('普通用户不应显示 Admin 按钮', () => {
+  test('Regular users should not see Admin button', () => {
     const user = {
       _id: '123',
       username: 'user'
@@ -115,13 +115,13 @@ describe('UserNavActions 组件 (模拟版本)', () => {
     expect(screen.queryByTestId('admin-button')).not.toBeInTheDocument();
   });
 
-  test('有未读消息时应显示未读数量', async () => {
+  test('Should display unread count when there are unread messages', async () => {
     const user = {
       _id: '123',
       username: 'user'
     };
     
-    // 模拟有 5 条未读消息
+    // Mock 5 unread messages
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ unreadCount: 5 })
@@ -129,12 +129,12 @@ describe('UserNavActions 组件 (模拟版本)', () => {
     
     render(<MockedUserNavActions user={user} logout={vi.fn()} />);
     
-    // 由于 useEffect 异步执行，需要等待
+    // Need to wait due to async useEffect
     expect(await screen.findByTestId('unread-badge')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
   });
 
-  test('点击登出按钮应调用登出函数', () => {
+  test('Clicking logout button should call logout function', () => {
     const user = {
       _id: '123',
       username: 'user'

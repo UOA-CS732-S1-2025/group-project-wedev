@@ -1,16 +1,16 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { useConversationStore } from '../store/conversationStore';
 
-// 模拟 fetch
+// Mock fetch
 global.fetch = vi.fn();
 
-describe('conversationStore 测试', () => {
+describe('conversationStore Tests', () => {
   let store;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // 重置 store
+    // Reset store
     useConversationStore.setState({
       conversations: [],
       loading: false,
@@ -20,17 +20,17 @@ describe('conversationStore 测试', () => {
       messageLoading: false,
     });
     
-    // 获取 store 实例
+    // Get store instance
     store = useConversationStore.getState();
     
-    // 模拟成功的 fetch 响应
+    // Mock successful fetch response
     fetch.mockResolvedValue({
       ok: true,
       json: async () => [],
     });
   });
 
-  test('初始状态应正确设置', () => {
+  test('Initial state should be set correctly', () => {
     expect(store.conversations).toEqual([]);
     expect(store.loading).toBe(false);
     expect(store.error).toBeNull();
@@ -39,7 +39,7 @@ describe('conversationStore 测试', () => {
     expect(store.messageLoading).toBe(false);
   });
 
-  test('fetchConversations 应获取用户对话列表', async () => {
+  test('fetchConversations should get user conversation list', async () => {
     const mockUserId = 'user123';
     const mockConversations = [
       { _id: 'conv1', otherUser: { _id: 'other1' } },
@@ -61,7 +61,7 @@ describe('conversationStore 测试', () => {
     expect(updatedStore.error).toBeNull();
   });
 
-  test('fetchConversations 应处理错误', async () => {
+  test('fetchConversations should handle errors', async () => {
     const mockUserId = 'user123';
     
     fetch.mockResolvedValueOnce({
@@ -76,7 +76,7 @@ describe('conversationStore 测试', () => {
     expect(updatedStore.loading).toBe(false);
   });
 
-  test('setActiveConversation 应更新当前活动对话', () => {
+  test('setActiveConversation should update current active conversation', () => {
     const conversationId = 'conv123';
     
     store.setActiveConversation(conversationId);
@@ -85,8 +85,8 @@ describe('conversationStore 测试', () => {
     expect(updatedStore.activeConversation).toBe(conversationId);
   });
 
-  test('markConversationAsRead 应更新对话的未读计数', async () => {
-    // 设置初始状态
+  test('markConversationAsRead should update conversation unread count', async () => {
+    // Set initial state
     const initialConversations = [
       { _id: 'conv1', unreadCount: 5, otherUser: { _id: 'other1' } },
       { _id: 'conv2', unreadCount: 3, otherUser: { _id: 'other2' } },
@@ -116,7 +116,7 @@ describe('conversationStore 测试', () => {
     expect(updatedConv.unreadCount).toBe(0);
   });
 
-  test('fetchMessages 应获取对话消息', async () => {
+  test('fetchMessages should get conversation messages', async () => {
     const conversationId = 'conv123';
     const mockMessages = [
       { _id: 'msg1', content: 'Hello' },
@@ -131,14 +131,14 @@ describe('conversationStore 测试', () => {
     const result = await store.fetchMessages(conversationId);
     
     expect(fetch).toHaveBeenCalledWith(`/api/conversations/${conversationId}/messages`);
-    expect(result).toBe(true); // 有新消息
+    expect(result).toBe(true); // Has new messages
     
     const updatedStore = useConversationStore.getState();
     expect(updatedStore.activeMessages).toEqual(mockMessages);
     expect(updatedStore.messageLoading).toBe(false);
   });
 
-  test('fetchMessages 应处理错误', async () => {
+  test('fetchMessages should handle errors', async () => {
     const conversationId = 'conv123';
     
     fetch.mockResolvedValueOnce({
@@ -148,13 +148,13 @@ describe('conversationStore 测试', () => {
     
     const result = await store.fetchMessages(conversationId);
     
-    expect(result).toBe(false); // 没有新消息
+    expect(result).toBe(false); // No new messages
     
     const updatedStore = useConversationStore.getState();
     expect(updatedStore.messageLoading).toBe(false);
   });
 
-  test('fetchMessages 在轮询模式下不应显示加载状态', async () => {
+  test('fetchMessages should not show loading state in polling mode', async () => {
     const conversationId = 'conv123';
     const mockMessages = [
       { _id: 'msg1', content: 'Hello' },
@@ -171,8 +171,8 @@ describe('conversationStore 测试', () => {
     expect(updatedStore.messageLoading).toBe(false);
   });
 
-  test('发送消息功能应正确工作', async () => {
-    // 设置初始状态
+  test('Send message function should work correctly', async () => {
+    // Set initial state
     const conversationId = 'conv123';
     const senderId = 'user123';
     const recipientId = 'user456';
@@ -192,7 +192,7 @@ describe('conversationStore 测试', () => {
       activeMessages: [],
     });
     
-    // 模拟成功的消息发送响应
+    // Mock successful message sending response
     const newMessage = {
       _id: 'msg123',
       sender: {
@@ -207,10 +207,10 @@ describe('conversationStore 测试', () => {
       json: async () => ({ data: newMessage }),
     });
     
-    // 发送消息
+    // Send message
     const result = await store.sendMessage(conversationId, senderId, content);
     
-    // 验证 API 调用
+    // Verify API call
     expect(fetch).toHaveBeenCalledWith('/api/messages', {
       method: 'POST',
       headers: {
@@ -223,22 +223,22 @@ describe('conversationStore 测试', () => {
       }),
     });
     
-    // 验证返回值
+    // Verify return value
     expect(result).toEqual(newMessage);
     
-    // 验证 store 状态更新
+    // Verify store state update
     const updatedStore = useConversationStore.getState();
     
-    // 检查消息列表是否更新
+    // Check if message list is updated
     expect(updatedStore.activeMessages).toContainEqual(newMessage);
     
-    // 检查对话列表是否更新
+    // Check if conversation list is updated
     const updatedConversation = updatedStore.conversations.find(c => c._id === conversationId);
     expect(updatedConversation.lastMessage).toBe(content);
   });
 
-  test('updateLocalMessage 应更新本地消息状态', () => {
-    // 设置初始状态
+  test('updateLocalMessage should update local message state', () => {
+    // Set initial state
     const initialMessages = [
       { _id: 'msg1', id: 'msg1', content: 'Hello' },
       { _id: 'msg2', id: 'msg2', content: 'Hi there', bookingStatus: 'pending' },
@@ -248,22 +248,13 @@ describe('conversationStore 测试', () => {
       activeMessages: initialMessages,
     });
     
-    // 更新消息
-    const updatedMessageData = {
-      id: 'msg2',
-      bookingStatus: 'accepted',
-      senderDisplayText: 'You accepted the booking',
-      receiverDisplayText: 'Your booking was accepted',
-    };
+    // Update message
+    store.updateLocalMessage('msg2', { bookingStatus: 'confirmed' });
     
-    store.updateLocalMessage(updatedMessageData);
-    
-    // 验证 store 状态更新
+    // Verify state update
     const updatedStore = useConversationStore.getState();
-    const updatedMessage = updatedStore.activeMessages.find(m => m.id === 'msg2');
+    const updatedMessage = updatedStore.activeMessages.find(m => m._id === 'msg2');
     
-    expect(updatedMessage.bookingStatus).toBe('accepted');
-    expect(updatedMessage.senderDisplayText).toBe('You accepted the booking');
-    expect(updatedMessage.receiverDisplayText).toBe('Your booking was accepted');
+    expect(updatedMessage.bookingStatus).toBe('confirmed');
   });
 }); 

@@ -2,18 +2,18 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
-// 模拟导航函数
+// Mock navigation function
 const mockNavigate = vi.fn();
 
-// 模拟 Auth Store
+// Mock Auth Store
 const mockAuthStore = {
   user: null,
   login: vi.fn(),
   logout: vi.fn(),
 };
 
-// 模拟 Navbar 组件的行为
-// 这个组件反映了实际 Navbar 组件的行为，但不使用 Chakra UI 组件
+// Mock Navbar component behavior
+// This component reflects the actual Navbar component behavior, but without using Chakra UI components
 const MockedNavbar = () => {
   const { user, logout } = mockAuthStore;
   
@@ -46,13 +46,13 @@ const MockedNavbar = () => {
   );
 };
 
-describe('Navbar 组件 (模拟版本)', () => {
+describe('Navbar Component (Mocked Version)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuthStore.user = null;
   });
 
-  test('未登录时应显示登录和注册按钮', () => {
+  test('Should display login and signup buttons when not logged in', () => {
     render(<MockedNavbar />);
     
     expect(screen.getByTestId('navbar-title')).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('Navbar 组件 (模拟版本)', () => {
     expect(screen.getByText('Sign up')).toBeInTheDocument();
   });
 
-  test('登录后应显示用户信息和登出按钮', () => {
+  test('Should display user info and logout button after login', () => {
     mockAuthStore.user = {
       firstName: 'Test',
       lastName: 'User'
@@ -74,14 +74,14 @@ describe('Navbar 组件 (模拟版本)', () => {
     expect(screen.queryByText('Log in')).not.toBeInTheDocument();
   });
 
-  test('点击标题应导航到首页', () => {
+  test('Clicking the title should navigate to home page', () => {
     render(<MockedNavbar />);
     
     fireEvent.click(screen.getByTestId('navbar-title'));
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  test('点击登出按钮应调用登出函数', () => {
+  test('Clicking logout button should call logout function', () => {
     mockAuthStore.user = {
       firstName: 'Test',
       lastName: 'User'

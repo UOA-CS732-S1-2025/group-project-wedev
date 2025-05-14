@@ -3,12 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-// 全局模拟变量，可在测试中修改
+// Global mock variables that can be modified in tests
 let mockSearchParams = { get: (param) => param === 'tab' ? 'profile' : null };
 let mockSetSearchParams = vi.fn();
 let mockUser = { _id: 'user123', role: 'customer' };
 
-// 模拟 react-router-dom
+// Mock react-router-dom
 vi.mock('react-router-dom', async () => {
   return {
     useSearchParams: () => [mockSearchParams, mockSetSearchParams],
@@ -16,7 +16,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// 模拟各个子组件
+// Mock child components
 vi.mock('../components/UserInbox', () => ({
   default: () => <div data-testid="user-inbox">User Inbox Component</div>,
 }));
@@ -37,19 +37,19 @@ vi.mock('../components/AdminView', () => ({
   default: () => <div data-testid="admin-view">Admin View Component</div>,
 }));
 
-// 创建 UserProfilePage 组件模拟
+// Create UserProfilePage component mock
 const MockedUserProfilePage = ({ defaultTab = 'profile' }) => {
-  // 获取搜索参数和设置函数
+  // Get search parameters and setter function
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // 从 URL 获取 tab 参数，默认为传入的 defaultTab
+  // Get tab parameter from URL, default to the provided defaultTab
   const tabFromUrl = searchParams.get('tab');
   const effectiveTab = tabFromUrl || defaultTab;
   
-  // 获取当前用户 - 直接使用本地变量
+  // Get current user - directly use local variable
   const user = mockUser;
   
-  // 处理标签切换
+  // Handle tab change
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
   };
@@ -86,7 +86,7 @@ const MockedUserProfilePage = ({ defaultTab = 'profile' }) => {
           My Orders
         </button>
         
-        {/* 仅管理员可见的标签 */}
+        {/* Admin-only tabs */}
         {user?.role === 'admin' && (
           <button
             data-testid="admin-tab"
@@ -109,11 +109,11 @@ const MockedUserProfilePage = ({ defaultTab = 'profile' }) => {
   );
 };
 
-describe('UserProfilePage 组件测试', () => {
+describe('UserProfilePage Component Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // 重置当前标签及其他模拟数据
+    // Reset current tab and other mock data
     mockSearchParams = { get: (param) => param === 'tab' ? 'profile' : null };
     mockSetSearchParams = vi.fn((params) => {
       if (params.tab) {
@@ -121,97 +121,97 @@ describe('UserProfilePage 组件测试', () => {
       }
     });
     
-    // 默认是普通用户
+    // Default is regular user
     mockUser = { _id: 'user123', role: 'customer' };
   });
 
-  test('应渲染默认标签内容', () => {
+  test('Should render default tab content', () => {
     render(<MockedUserProfilePage />);
     
-    // 默认标签是 profile
+    // Default tab is profile
     expect(screen.getByTestId('profile-tab')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('user-profile')).toBeInTheDocument();
   });
 
-  test('应能切换到消息标签', () => {
+  test('Should be able to switch to messages tab', () => {
     render(<MockedUserProfilePage />);
     
-    // 点击消息标签
+    // Click messages tab
     fireEvent.click(screen.getByTestId('messages-tab'));
     
-    // 验证 URL 参数被更新
+    // Verify URL parameters are updated
     expect(mockSetSearchParams).toHaveBeenCalledWith({ tab: 'messages' });
   });
 
-  test('应能切换到仪表盘标签', () => {
+  test('Should be able to switch to dashboard tab', () => {
     render(<MockedUserProfilePage />);
     
-    // 点击仪表盘标签
+    // Click dashboard tab
     fireEvent.click(screen.getByTestId('dashboard-tab'));
     
-    // 验证 URL 参数被更新
+    // Verify URL parameters are updated
     expect(mockSetSearchParams).toHaveBeenCalledWith({ tab: 'dashboard' });
   });
 
-  test('应能切换到订单标签', () => {
+  test('Should be able to switch to orders tab', () => {
     render(<MockedUserProfilePage />);
     
-    // 点击订单标签
+    // Click orders tab
     fireEvent.click(screen.getByTestId('orders-tab'));
     
-    // 验证 URL 参数被更新
+    // Verify URL parameters are updated
     expect(mockSetSearchParams).toHaveBeenCalledWith({ tab: 'orders' });
   });
 
-  test('普通用户不应看到管理员标签', () => {
+  test('Regular users should not see admin tab', () => {
     render(<MockedUserProfilePage />);
     
-    // 普通用户不应看到管理员标签
+    // Regular users should not see admin tab
     expect(screen.queryByTestId('admin-tab')).not.toBeInTheDocument();
   });
 
-  test('管理员用户应能看到管理员标签', () => {
-    // 设置为管理员用户
+  test('Admin users should see admin tab', () => {
+    // Set as admin user
     mockUser = { _id: 'admin123', role: 'admin' };
     
     render(<MockedUserProfilePage />);
     
-    // 管理员应看到管理员标签
+    // Admin should see admin tab
     expect(screen.getByTestId('admin-tab')).toBeInTheDocument();
   });
 
-  test('管理员用户应能切换到管理员标签', () => {
-    // 设置为管理员用户
+  test('Admin users should be able to switch to admin tab', () => {
+    // Set as admin user
     mockUser = { _id: 'admin123', role: 'admin' };
     
     render(<MockedUserProfilePage />);
     
-    // 点击管理员标签
+    // Click admin tab
     fireEvent.click(screen.getByTestId('admin-tab'));
     
-    // 验证 URL 参数被更新
+    // Verify URL parameters are updated
     expect(mockSetSearchParams).toHaveBeenCalledWith({ tab: 'admin' });
   });
 
-  test('应根据 URL 参数显示对应标签内容', () => {
-    // 设置当前标签为 messages
+  test('Should display tab content based on URL parameters', () => {
+    // Set current tab to messages
     mockSearchParams = { get: (param) => param === 'tab' ? 'messages' : null };
     
     render(<MockedUserProfilePage />);
     
-    // 消息标签应被选中
+    // Messages tab should be selected
     expect(screen.getByTestId('messages-tab')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('user-inbox')).toBeInTheDocument();
   });
 
-  test('应接受默认标签参数', () => {
-    // 清除 URL 参数
+  test('Should accept default tab parameter', () => {
+    // Clear URL parameters
     mockSearchParams = { get: () => null };
     
-    // 设置默认标签为 dashboard
+    // Set default tab to dashboard
     render(<MockedUserProfilePage defaultTab="dashboard" />);
     
-    // 仪表盘标签应被选中
+    // Dashboard tab should be selected
     expect(screen.getByTestId('dashboard-tab')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('user-dashboard')).toBeInTheDocument();
   });

@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 
-// 模拟 Auth Store
+// Mock Auth Store
 const mockUser = {
   _id: 'user123',
   username: 'testuser',
@@ -13,10 +13,10 @@ vi.mock('../store/authStore', () => ({
   }),
 }));
 
-// 模拟 fetch API
+// Mock fetch API
 global.fetch = vi.fn();
 
-// 模拟 localStorage
+// Mock localStorage
 const mockLocalStorageGetItem = vi.fn().mockReturnValue('fake-token');
 Object.defineProperty(window, 'localStorage', {
   value: {
@@ -24,23 +24,23 @@ Object.defineProperty(window, 'localStorage', {
   },
 });
 
-// 模拟 toaster
+// Mock toaster
 vi.mock('@/components/ui/toaster', () => ({
   toaster: {
     create: vi.fn(),
   },
 }));
 
-// 创建 ReviewDialog 组件模拟
+// Create ReviewDialog component mock
 const MockedReviewDialog = ({ bookingId, providerId, onSuccess, ref }) => {
   const [rating, setRating] = React.useState(0);
   const [comment, setComment] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
-  // 添加清除评分方法
+  // Add method to clear rating
   const clearRating = () => setRating(0);
 
-  // 暴露 submit 方法和评分操作给外部
+  // Expose submit method and rating operations to external components
   React.useImperativeHandle(ref, () => ({
     async submit() {
       if (!rating || !comment.trim()) {
@@ -65,7 +65,7 @@ const MockedReviewDialog = ({ bookingId, providerId, onSuccess, ref }) => {
           }),
         });
         
-        // 模拟响应解析
+        // Mock response parsing
         const data = await res.json();
         
         if (!data.success) {
@@ -122,7 +122,7 @@ const MockedReviewDialog = ({ bookingId, providerId, onSuccess, ref }) => {
   );
 };
 
-describe('ReviewDialog 组件测试', () => {
+describe('ReviewDialog Component Tests', () => {
   const mockOnSuccess = vi.fn();
   let reviewRef;
   
@@ -130,14 +130,14 @@ describe('ReviewDialog 组件测试', () => {
     vi.clearAllMocks();
     reviewRef = { current: null };
     
-    // 模拟成功的 fetch 响应
+    // Mock successful fetch response
     fetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true }),
     });
   });
 
-  test('应渲染评价表单', () => {
+  test('Should render review form', () => {
     render(
       <MockedReviewDialog
         bookingId="booking123"
@@ -152,7 +152,7 @@ describe('ReviewDialog 组件测试', () => {
     expect(screen.getByTestId('comment-textarea')).toBeInTheDocument();
   });
 
-  test('应允许用户选择评分', () => {
+  test('Should allow user to select rating', () => {
     render(
       <MockedReviewDialog
         bookingId="booking123"
@@ -162,17 +162,17 @@ describe('ReviewDialog 组件测试', () => {
       />
     );
     
-    // 初始状态下评分应该是 0
+    // Rating should be 0 in initial state
     for (let i = 1; i <= 5; i++) {
       expect(screen.getByTestId(`rating-${i}`)).not.toHaveAttribute('aria-selected', 'true');
     }
     
-    // 选择评分 4
+    // Select rating 4
     fireEvent.click(screen.getByTestId('rating-4'));
     expect(screen.getByTestId('rating-4')).toHaveAttribute('aria-selected', 'true');
   });
 
-  test('应允许用户输入评价内容', () => {
+  test('Should allow user to input review content', () => {
     render(
       <MockedReviewDialog
         bookingId="booking123"
@@ -188,7 +188,7 @@ describe('ReviewDialog 组件测试', () => {
     expect(textarea.value).toBe('Great service!');
   });
 
-  test('提交时应验证评分和评价内容', async () => {
+  test('Should validate rating and review content on submission', async () => {
     render(
       <MockedReviewDialog
         bookingId="booking123"
@@ -198,20 +198,20 @@ describe('ReviewDialog 组件测试', () => {
       />
     );
     
-    // 不填评分和评价内容
+    // Don't provide rating and review content
     let result = await reviewRef.current.submit();
     expect(result).toBe(false);
     expect(fetch).not.toHaveBeenCalled();
     
-    // 只填评分，不填评价内容
+    // Only provide rating, no review content
     fireEvent.click(screen.getByTestId('rating-4'));
     result = await reviewRef.current.submit();
     expect(result).toBe(false);
     expect(fetch).not.toHaveBeenCalled();
     
-    // 填写评价内容，手动设置评分为0
+    // Provide review content, manually set rating to 0
     fireEvent.change(screen.getByTestId('comment-textarea'), { target: { value: 'Great service!' } });
-    // 使用暴露的方法直接设置评分为0
+    // Use exposed method to directly set rating to 0
     act(() => {
       reviewRef.current.clearRating();
     });
@@ -220,7 +220,7 @@ describe('ReviewDialog 组件测试', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  test('提交评价成功应调用 onSuccess 回调', async () => {
+  test('Should call onSuccess callback when review is submitted successfully', async () => {
     render(
       <MockedReviewDialog
         bookingId="booking123"
@@ -230,11 +230,11 @@ describe('ReviewDialog 组件测试', () => {
       />
     );
     
-    // 填写评分和评价内容
+    // Fill in rating and review content
     fireEvent.click(screen.getByTestId('rating-5'));
     fireEvent.change(screen.getByTestId('comment-textarea'), { target: { value: 'Excellent service!' } });
     
-    // 提交评价
+    // Submit review
     const result = await reviewRef.current.submit();
     
     expect(result).toBe(true);
@@ -255,8 +255,8 @@ describe('ReviewDialog 组件测试', () => {
     expect(mockOnSuccess).toHaveBeenCalled();
   });
 
-  test('提交评价失败应返回 false', async () => {
-    // 模拟 fetch 失败
+  test('Should return false when review submission fails', async () => {
+    // Mock fetch failure
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ success: false, message: 'Failed to submit review' }),
@@ -271,19 +271,19 @@ describe('ReviewDialog 组件测试', () => {
       />
     );
     
-    // 填写评分和评价内容
+    // Fill in rating and review content
     fireEvent.click(screen.getByTestId('rating-3'));
     fireEvent.change(screen.getByTestId('comment-textarea'), { target: { value: 'Good service' } });
     
-    // 提交评价
+    // Submit review
     const result = await reviewRef.current.submit();
     
     expect(result).toBe(false);
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
   
-  test('应处理网络错误', async () => {
-    // 模拟网络错误
+  test('Should handle network error', async () => {
+    // Mock network error
     fetch.mockRejectedValueOnce(new Error('Network error'));
     
     render(
@@ -295,11 +295,11 @@ describe('ReviewDialog 组件测试', () => {
       />
     );
     
-    // 填写评分和评价内容
+    // Fill in rating and review content
     fireEvent.click(screen.getByTestId('rating-4'));
     fireEvent.change(screen.getByTestId('comment-textarea'), { target: { value: 'Great experience!' } });
     
-    // 提交评价
+    // Submit review
     const result = await reviewRef.current.submit();
     
     expect(result).toBe(false);

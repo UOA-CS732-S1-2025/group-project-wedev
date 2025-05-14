@@ -2,16 +2,16 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { updateBookingStatus } from '../services/messageService';
 import axios from 'axios';
 
-// 模拟 axios
+// Mock axios
 vi.mock('axios');
 
-describe('messageService 测试', () => {
+describe('messageService Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test('updateBookingStatus 应发送正确的 PATCH 请求', async () => {
-    // 模拟成功的响应
+  test('updateBookingStatus should send correct PATCH request', async () => {
+    // Mock successful response
     const mockResponse = {
       data: {
         success: true,
@@ -21,32 +21,32 @@ describe('messageService 测试', () => {
     
     axios.patch.mockResolvedValue(mockResponse);
     
-    // 调用 updateBookingStatus 函数
+    // Call updateBookingStatus function
     const messageId = 'msg123';
     const status = 'accepted';
     
     const result = await updateBookingStatus(messageId, status);
     
-    // 验证 axios.patch 被正确调用
+    // Verify axios.patch was called correctly
     expect(axios.patch).toHaveBeenCalledWith(
       `/api/messages/${messageId}/booking-status`,
       { status }
     );
     
-    // 验证返回值
+    // Verify return value
     expect(result).toEqual(mockResponse);
   });
 
-  test('updateBookingStatus 应处理请求错误', async () => {
-    // 模拟错误响应
+  test('updateBookingStatus should handle request errors', async () => {
+    // Mock error response
     const mockError = new Error('Network error');
     axios.patch.mockRejectedValue(mockError);
     
-    // 调用 updateBookingStatus 函数
+    // Call updateBookingStatus function
     const messageId = 'msg123';
     const status = 'declined';
     
-    // 使用try/catch来处理预期的错误
+    // Use try/catch to handle expected error
     let caughtError;
     try {
       await updateBookingStatus(messageId, status);
@@ -54,10 +54,10 @@ describe('messageService 测试', () => {
       caughtError = error;
     }
     
-    // 验证错误被捕获
+    // Verify error was caught
     expect(caughtError).toBe(mockError);
     
-    // 验证 axios.patch 被正确调用
+    // Verify axios.patch was called correctly
     expect(axios.patch).toHaveBeenCalledWith(
       `/api/messages/${messageId}/booking-status`,
       { status }
