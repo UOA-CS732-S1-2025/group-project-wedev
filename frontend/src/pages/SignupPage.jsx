@@ -179,7 +179,7 @@ const SignupPage = () => {
                 bottom: 0,
                 width: "0%",
                 bg: "blue.500",
-                transition: "width 0.3s ease",
+                transition: "width 0.1s ease",
                 zIndex: 0,
               }}
               _active={canSwipe ? { _before: { width: "100%" }, color: "white" } : {}}
