@@ -9,7 +9,6 @@ import {
   Icon,
   Spinner,
   Center,
-  Alert,
   Grid,
   GridItem,
   EmptyState,
@@ -23,6 +22,7 @@ import useAuthStore from '../store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import ConversationView from './ConversationView'; // We'll create this component next
 import { useNavigate } from 'react-router-dom';
+import { toaster } from '@/components/ui/toaster'; // 导入自定义 toaster
 
 const UserInbox = () => {
   const { user } = useAuthStore();
@@ -43,6 +43,16 @@ const UserInbox = () => {
       fetchConversations(user._id);
     }
   }, [user, fetchConversations]);
+
+  // Effect to display toast on error using custom toaster
+  useEffect(() => {
+    if (error) {
+      toaster.create({
+        description: error, // 使用 API 返回的错误信息
+        type: "error", // 设置类型为 error
+      });
+    }
+  }, [error]);
 
   // Effect to auto-select conversation based on targetConversationIdFromStore
   useEffect(() => {
@@ -87,15 +97,6 @@ const UserInbox = () => {
         <Center h="300px">
           <Spinner size="xl" color="blue.500" />
         </Center>
-      );
-    }
-
-    if (error) {
-      return (
-        <Alert status="error" mx={4} my={4} borderRadius="md">
-          <Alert.Icon />
-          {error}
-        </Alert>
       );
     }
 

@@ -332,7 +332,7 @@ const BookingCard = ({
       <VStack align="start" spacing={4} pt={7}>
         {/* Service type */}
         <Heading size="md">
-          <Icon as={FaTools} mr={2} color="blue.500" />
+          <Icon mr={2} color="blue.500"><FaTools /></Icon>
           {booking.serviceType}
         </Heading>
 
@@ -353,14 +353,14 @@ const BookingCard = ({
 
         {/* Booking time */}
         <HStack spacing={3}>
-          <Icon as={FaCalendarAlt} color="gray.500" />
+          <Icon color="gray.500"><FaCalendarAlt /></Icon>
           <Text fontSize="sm">{formatTime(booking.startTime)}</Text>
         </HStack>
 
         {/* Address information */}
         {booking.serviceAddress && (
           <HStack spacing={3}>
-            <Icon as={FaMapMarkerAlt} color="gray.500" />
+            <Icon color="gray.500"><FaMapMarkerAlt /></Icon>
             <Text fontSize="sm">
               {[
                 booking.serviceAddress.street,
@@ -375,7 +375,7 @@ const BookingCard = ({
 
         {/* Cost information */}
         <HStack spacing={3}>
-          <Icon as={FaDollarSign} color="gray.500" />
+          <Icon color="gray.500"><FaDollarSign /></Icon>
           <Text fontSize="sm">${booking.hourlyRate}/hr</Text>
                   {/* Payment Status badge - top right, to the left of status badge */}
         {booking.paymentDetails?.paymentStatus && (
@@ -591,7 +591,7 @@ const BookingsView = () => {
   if (!user) {
     return (
       <Alert status="warning" borderRadius="md" my={5}>
-        <Icon as={FaExclamationCircle} mr={2} />
+        <Icon mr={2}><FaExclamationCircle /></Icon>
         <Alert.Title mr={2}>Login Required</Alert.Title>
         <Alert.Description>
           Please login to view your bookings.
@@ -628,7 +628,7 @@ const BookingsView = () => {
             <Button 
               variant="outline" 
               size="md" 
-              rightIcon={<Icon as={FaCalendarAlt} />}
+              rightIcon={<Icon><FaCalendarAlt /></Icon>}
               px={4}
               w="200px"
             >
@@ -645,7 +645,7 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("all")}
                 >
                   <Flex align="center">
-                    <Icon as={FaListAlt} color="gray.500" mr={2} />
+                    <Icon color="gray.500" mr={2}><FaListAlt /></Icon>
                     All Bookings
                   </Flex>
                 </Menu.Item>
@@ -654,7 +654,7 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("upcoming")}
                 >
                   <Flex align="center">
-                    <Icon as={FaCalendarCheck} color="green.500" mr={2} />
+                    <Icon color="green.500" mr={2}><FaCalendarCheck /></Icon>
                     Upcoming Bookings
                   </Flex>
                 </Menu.Item>
@@ -663,7 +663,7 @@ const BookingsView = () => {
                   onClick={() => setActiveTab("past")}
                 >
                   <Flex align="center">
-                    <Icon as={FaHistory} color="purple.500" mr={2} />
+                    <Icon color="purple.500" mr={2}><FaHistory /></Icon>
                     Past Bookings
                   </Flex>
                 </Menu.Item>
