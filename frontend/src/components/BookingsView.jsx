@@ -224,7 +224,7 @@ const BookingCard = ({
                   await onStatusChange(booking._id, "confirmed");
 
                   try {
-                    const res = await fetch("/api/payments", {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/payments`, {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",
@@ -430,8 +430,8 @@ const BookingsView = () => {
       // Get booking data based on user role
       const endpoint =
         user.role === "provider"
-          ? "/api/bookings/provider-bookings"
-          : "/api/bookings/my-bookings";
+          ? `${import.meta.env.VITE_API_URL}/api/bookings/provider-bookings`
+          : `${import.meta.env.VITE_API_URL}/api/bookings/my-bookings`;
 
       const response = await fetch(endpoint, {
         headers: {
@@ -511,7 +511,7 @@ const BookingsView = () => {
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
       // Call API to update booking status
-      const response = await fetch(`/api/bookings/${bookingId}/status`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -15,7 +15,7 @@ const AdminBookingsPanel = () => {
 
   const fetchBookings = async () => {
     try {
-      const res = await api.get("/admin/bookings", {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/bookings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data);
@@ -28,7 +28,7 @@ const AdminBookingsPanel = () => {
 
   const handleBookingsDelete = async (id) => {
     try {
-      await api.delete(`/admin/bookings/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/admin/bookings/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings((prev) => prev.filter((b) => b._id !== id));

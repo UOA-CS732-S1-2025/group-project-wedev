@@ -27,7 +27,7 @@ const AdminUsersPanel = () => {
 
 const fetchUserById = async (userId) => {
   try {
-    const res = await api.get(`/admin/users/${userId}`, {
+    const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -73,7 +73,7 @@ const fetchUserById = async (userId) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/admin/users", {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
@@ -86,7 +86,7 @@ const fetchUserById = async (userId) => {
 
   const handleUsersDelete = async (id) => {
     try {
-      await api.delete(`/admin/users/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -129,7 +129,7 @@ const fetchUserById = async (userId) => {
       },
     };
 
-    await api.put(`/admin/users/${userId}`, payload, {
+    await api.put(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

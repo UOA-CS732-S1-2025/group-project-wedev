@@ -14,7 +14,7 @@ const AdminPaymentsPanel = () => {
 
   const fetchPayments = async () => {
     try {
-      const res = await api.get("/admin/payments", {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/payments`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPayments(res.data);

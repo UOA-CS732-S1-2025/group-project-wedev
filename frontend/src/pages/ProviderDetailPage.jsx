@@ -69,7 +69,7 @@ export default function ProviderDetailPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`/api/users/providers/${id}`)
+      fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setProvider(data.provider || data);
@@ -89,7 +89,7 @@ export default function ProviderDetailPage() {
   useEffect(() => {
     if (id) {
       setReviewsLoading(true);
-      fetch(`/api/reviews/provider/${id}`)
+      fetch(`${import.meta.env.VITE_API_URL}/api/reviews/provider/${id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -128,7 +128,7 @@ export default function ProviderDetailPage() {
     }
 
     try {
-      const response = await fetch("/api/conversations/find-or-create", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/conversations/find-or-create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -285,7 +285,7 @@ export default function ProviderDetailPage() {
       console.log("Creating booking with data:", bookingData);
 
       // 1. Create booking record
-      const bookingResponse = await fetch("/api/bookings", {
+      const bookingResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -336,7 +336,7 @@ export default function ProviderDetailPage() {
         
         console.log("Creating payment record with data:", paymentData);
         
-        const paymentResponse = await fetch("/api/payments", {
+        const paymentResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/payments`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -362,7 +362,7 @@ export default function ProviderDetailPage() {
 
       // 2. Create conversation
       const conversationResponse = await fetch(
-        "/api/conversations/find-or-create",
+        `${import.meta.env.VITE_API_URL}/api/conversations/find-or-create`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -414,7 +414,7 @@ export default function ProviderDetailPage() {
         `Rate: $${provider.hourlyRate || "Not specified"}/hour`;
 
       // 4. Send booking message
-      const messageResponse = await fetch("/api/messages", {
+      const messageResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

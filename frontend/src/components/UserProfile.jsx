@@ -108,12 +108,8 @@ const UserProfile = () => {
 
   // Initialize Autocomplete
   useEffect(() => {
-    console.log("[UserProfile] Attempting to initialize Autocomplete...");
-    console.log("[UserProfile] Places library loaded:", places);
-    console.log("[UserProfile] Street input ref current:", streetInputRef.current);
 
     if (!places || !streetInputRef.current) {
-      if (!places) console.error("[UserProfile] Places library is not loaded. Autocomplete cannot be initialized.");
       if (!streetInputRef.current) console.error("[UserProfile] Street input ref is not available. Autocomplete cannot be initialized.");
       return;
     }

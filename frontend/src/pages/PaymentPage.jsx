@@ -96,7 +96,7 @@ const PaymentPage = () => {
       );
       
       // 3. Update booking payment details
-      const bookingUpdateRes = await fetch(`/api/bookings/${bookingId}/payment`, {
+      const bookingUpdateRes = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}/payment`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
