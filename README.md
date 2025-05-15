@@ -6,7 +6,7 @@
   <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
   🚀 <strong>Urban Ease is now live!</strong><br>
   Explore the full application here:<br>
-  <a href="https://wedev-liard.vercel.app/" target="_blank">
+  <a href="https://wedevv.vercel.app/" target="_blank">
     Urban Ease
   </a>
 </p>
