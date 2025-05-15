@@ -18,7 +18,6 @@ import { FaUserCircle } from 'react-icons/fa';
 import { useConversationStore } from '../store/conversationStore';
 import CachedAvatar from './CachedAvatar';
 import { Link as RouterLink } from 'react-router-dom';
-import { updateBookingStatus } from '../services/messageService';
 import { toaster } from "@/components/ui/toaster";
 
 const ConversationView = ({ conversation, user }) => {
