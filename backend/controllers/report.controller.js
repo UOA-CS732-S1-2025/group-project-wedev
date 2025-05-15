@@ -25,11 +25,15 @@ export const submitReport = async (req, res) => {
       booking: bookingId || undefined, // Add bookingId if provided
       status: "pending", // Default status
     });
+    const populatedReport = await Report.findById(newReport._id)
+    .populate("user", "username email")
+    .populate("reporter", "username email");
+
 
     res.status(201).json({
       success: true,
       message: "Report submitted successfully",
-      report: newReport,
+      report: populatedReport,
     });
   } catch (error) {
     console.error("Report submission error:", error);
