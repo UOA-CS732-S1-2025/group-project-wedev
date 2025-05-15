@@ -53,8 +53,6 @@ const bookingSchema = new Schema({
             'cancelled_by_customer',// Customer cancelled
             'cancelled_by_provider',// Provider cancelled
             'completed',            // Service rendered
-            'payment_pending',      // Service completed, awaiting payment
-            'paid',                 // Payment successful
             'rescheduled_pending',  // Reschedule requested, awaiting confirmation
             'disputed',             // Booking has an issue
             'reviewed'              // Customer has reviewed the service

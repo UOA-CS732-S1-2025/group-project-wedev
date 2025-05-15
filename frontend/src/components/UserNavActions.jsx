@@ -1,10 +1,9 @@
-import { Button, Text, Avatar, IconButton, HStack, Box, Badge } from "@chakra-ui/react";
+import { Flex, Text, Avatar, HStack, Box, Badge, Menu, Portal } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { CiMail } from "react-icons/ci";
-import { LuLogOut } from "react-icons/lu";
 import { useState, useEffect } from "react";
+import { FaAngleDown } from "react-icons/fa";
 
-const UserNavActions = ({ user, logout, toggleAuth }) => {
+const UserNavActions = ({ user, logout }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Get the full name from firstName and lastName if available
@@ -17,7 +16,7 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
       // Fetch unread message count
       const fetchUnreadCount = async () => {
         try {
-          const response = await fetch(`/api/messages/unread-count?userId=${user._id}`);
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/unread-count?userId=${user._id}`);
           if (response.ok) {
             const data = await response.json();
             setUnreadCount(data.unreadCount);
@@ -36,48 +35,71 @@ const UserNavActions = ({ user, logout, toggleAuth }) => {
   }, [user]);
     
   return (
-    <HStack spacing={4} align="center">
-      {/* Navigation buttons */}
-      
-      {/* User Info */}
-      <Text>{displayName}</Text>
-      
-      {/* Make avatar clickable and link to profile page */}
-      <Box as={RouterLink} to="/profile?tab=profile" cursor="pointer">
-        <Avatar.Root>
-          <Avatar.Fallback name={displayName} />
-          <Avatar.Image src={user?.profilePictureUrl || "https://bit.ly/sage-adebayo"} />
-        </Avatar.Root>
-      </Box>
-
-      {/* Mail Icon Button */}
-      <Box position="relative">
-        <IconButton 
-          variant="outline" 
-          as={RouterLink} 
-          to="/profile?tab=messages" 
+    <Menu.Root >
+      <Menu.Trigger asChild >
+        <Flex 
+          variant="ghost" 
+          p={1} 
+          borderRadius="md" 
+          aria-label="User menu"
+          cursor="pointer"
+          _hover={{ bg: "gray.300" }}
+          transition="background-color 0.2s ease"
         >
-          <CiMail />
-        </IconButton>
-        {unreadCount > 0 && (
-          <Badge 
-            colorScheme="red" 
-            borderRadius="full" 
-            position="absolute" 
-            top="-2px" 
-            right="-2px"
-            fontSize="xs"
-          >
-            {unreadCount}
-          </Badge>
-        )}
-      </Box>
-      
-      {/* Log out button */}
-      <IconButton onClick={logout} variant="outline">
-        <LuLogOut />
-      </IconButton>
-    </HStack>
+          <HStack spacing="2">
+            <Avatar.Root size="xs">
+              <Avatar.Fallback name={displayName} />
+              <Avatar.Image src={user?.profilePictureUrl || "https://bit.ly/sage-adebayo"} />
+            </Avatar.Root>
+            <Text fontWeight="medium" fontSize="sm">{displayName}</Text>
+            <FaAngleDown />
+
+          </HStack>
+        </Flex>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            {user?.role === "admin" && (
+              <>
+                <Menu.Item value="admin" as={RouterLink} to="/profile?tab=admin" cursor="pointer" >
+                  Admin
+                </Menu.Item>
+                <Menu.Separator />
+              </>
+            )}
+            
+            <Menu.Item value="home" as={RouterLink} to="/" cursor="pointer">
+              Home
+            </Menu.Item>
+            <Menu.Item value="dashboard" as={RouterLink} to="/profile?tab=dashboard" cursor="pointer">
+              Dashboard
+            </Menu.Item>
+            <Menu.Item value="messages" as={RouterLink} to="/profile?tab=messages" cursor="pointer">
+              <HStack justifyContent="space-between" w="full">
+                <Text>Messages</Text>
+                {unreadCount > 0 && (
+                  <Badge colorScheme="red" variant="solid" borderRadius="full" px="1.5" fontSize="xs">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </HStack>
+            </Menu.Item>
+            <Menu.Item value="profile" as={RouterLink} to="/profile?tab=profile" cursor="pointer">
+              Profile
+            </Menu.Item>
+            <Menu.Item value="orders" as={RouterLink} to="/profile?tab=orders" cursor="pointer">
+              My Orders
+            </Menu.Item>
+
+            <Menu.Separator />
+            <Menu.Item value="logout" onClick={logout} color="red.500" cursor="pointer">
+              Logout
+            </Menu.Item>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   );
 };
 

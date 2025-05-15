@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
+import cloudinary from '../config/cloudinaryConfig.js';
+import streamifier from 'streamifier';
 
 
 
@@ -228,6 +230,87 @@ export const getProviderById = async (req, res) => {
             error: error.message 
         });
     }
+};
+
+// Added: New function to upload/update user's profile picture
+export const uploadProfilePicture = async (req, res) => {
+  try {
+    const userId = req.userId; // Assumes authMiddleware sets req.userId
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // If user already has a profile picture, delete the old one from Cloudinary
+    if (user.profilePicturePublicId) {
+      try {
+        await cloudinary.uploader.destroy(user.profilePicturePublicId);
+      } catch (deleteError) {
+        console.warn(
+          `Failed to delete old profile picture ${user.profilePicturePublicId} from Cloudinary: ${deleteError.message}`
+        );
+        // Non-fatal, continue with uploading the new one
+      }
+    }
+
+    // Upload new image to Cloudinary using a stream from the buffer
+    const uploadPromise = new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "profile_pictures", // Optional: organize uploads in a specific folder
+          // transformation: [{ width: 250, height: 250, crop: "limit" }] // Optional: example transformation
+        },
+        (error, result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(error || new Error("Cloudinary upload stream failed"));
+          }
+        }
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(stream);
+    });
+
+    const cloudinaryResult = await uploadPromise;
+
+    // Update user document with new picture URL and public ID
+    user.profilePictureUrl = cloudinaryResult.secure_url;
+    user.profilePicturePublicId = cloudinaryResult.public_id;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile picture uploaded successfully.",
+      data: {
+        profilePictureUrl: user.profilePictureUrl,
+        profilePicturePublicId: user.profilePicturePublicId,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    let statusCode = 500;
+    let message = "Server error uploading profile picture.";
+
+    // Check for Cloudinary specific error details
+    if (error && error.message && error.message.toLowerCase().includes("cloudinary")) {
+        message = `Cloudinary upload error: ${error.message}`;
+    } else if (error && error.http_code) { // Cloudinary SDK often uses http_code
+        statusCode = error.http_code;
+        message = error.message || "Cloudinary error occurred.";
+    }
+    
+    res.status(statusCode).json({ 
+        success: false, 
+        message: message, 
+        error: error.message // Provide original error message for debugging
+    });
+  }
 };
 
 // 添加新方法，用于更新提供商的可用性设置

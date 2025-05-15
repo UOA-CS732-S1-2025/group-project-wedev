@@ -17,8 +17,9 @@ import {
   Badge,
   Input,
   Field,
-  NumberInput,
+  NumberInput
 } from "@chakra-ui/react";
+import { Avatar } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
@@ -33,6 +34,9 @@ import {
   FaPhone,
   FaStarHalfAlt,
   FaRegStar,
+  FaCalendarAlt,
+  FaClock,
+  FaUser,
 } from "react-icons/fa";
 import AvailabilityCalendar from "../components/AvailabilityCalendar";
 import AvailabilitySetting from "../components/AvailabilitySetting";
@@ -50,6 +54,10 @@ export default function ProviderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("9"); // Default booking time to 9 AM
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   let error = null;
 
   // Color mode values
@@ -60,7 +68,7 @@ export default function ProviderDetailPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`/api/users/providers/${id}`)
+      fetch(`${import.meta.env.VITE_API_URL}/api/users/providers/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setProvider(data.provider || data);
@@ -72,6 +80,29 @@ export default function ProviderDetailPage() {
           toaster.create({
             title: err.message || "Failed to load provider information",
           });
+        });
+    }
+  }, [id]);
+
+  // Get provider reviews
+  useEffect(() => {
+    if (id) {
+      setReviewsLoading(true);
+      fetch(`${import.meta.env.VITE_API_URL}/api/reviews/provider/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setReviews(data.data.reviews || []);
+            setAverageRating(data.data.averageRating || 0);
+            setReviewCount(data.data.count || 0);
+          } else {
+            console.error("Failed to fetch reviews:", data.message);
+          }
+          setReviewsLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching reviews:", err);
+          setReviewsLoading(false);
         });
     }
   }, [id]);
@@ -96,7 +127,7 @@ export default function ProviderDetailPage() {
     }
 
     try {
-      const response = await fetch("/api/conversations/find-or-create", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/conversations/find-or-create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -253,7 +284,7 @@ export default function ProviderDetailPage() {
       console.log("Creating booking with data:", bookingData);
 
       // 1. Create booking record
-      const bookingResponse = await fetch("/api/bookings", {
+      const bookingResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -293,9 +324,44 @@ export default function ProviderDetailPage() {
 
       console.log("Booking created successfully:", bookingResult);
 
+      // Added: Create payment record
+      try {
+        const paymentData = {
+          provider: provider._id,
+          booking: bookingResult.booking._id,
+          amount: parseFloat(provider.hourlyRate) || 0,
+          method: "credit_card" // Default payment method
+        };
+        
+        console.log("Creating payment record with data:", paymentData);
+        
+        const paymentResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/payments`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(paymentData),
+        });
+        
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+          console.error("Payment record creation failed:", errorData);
+          // Continue with the process, don't interrupt
+          console.warn("Continuing without payment record");
+        } else {
+          const paymentResult = await paymentResponse.json();
+          console.log("Payment record created successfully:", paymentResult);
+        }
+      } catch (error) {
+        console.error("Error creating payment record:", error);
+        // Continue with the process, don't interrupt
+        console.warn("Continuing without payment record");
+      }
+
       // 2. Create conversation
       const conversationResponse = await fetch(
-        "/api/conversations/find-or-create",
+        `${import.meta.env.VITE_API_URL}/api/conversations/find-or-create`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -347,7 +413,7 @@ export default function ProviderDetailPage() {
         `Rate: $${provider.hourlyRate || "Not specified"}/hour`;
 
       // 4. Send booking message
-      const messageResponse = await fetch("/api/messages", {
+      const messageResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -389,14 +455,14 @@ export default function ProviderDetailPage() {
       toaster.create({
         title: "Booking Created Successfully",
         description:
-          "Your booking has been created and a message has been sent to the service provider.",
+          "Your booking has been created and a message has been sent to the service provider. Please complete the payment.",
       });
 
       // Clear form fields after successful booking
       setBookingTime("");
 
-      // 8. Navigate to orders page
-      navigate("/profile?tab=orders");
+      // 8. Navigate to payment page instead of orders page
+      navigate(`/payment/${bookingResult.booking._id}`);
     } catch (error) {
       console.error("Error during booking process:", error);
       toaster.create({
@@ -518,6 +584,16 @@ export default function ProviderDetailPage() {
     return stars;
   };
 
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <Container maxW="container.xl" py={8} px={{ base: 4, md: 8 }}>
       {/* Main content */}
@@ -563,12 +639,12 @@ export default function ProviderDetailPage() {
                 </Badge>
 
                 <HStack mt={2} align="center">
-                  {renderStarRating(provider.averageRating)}
+                  {renderStarRating(averageRating)}
                   <Text fontWeight="bold" ml={2}>
-                    {provider.averageRating?.toFixed(1) || "New"}
+                    {averageRating.toFixed(1) || "New"}
                   </Text>
                   <Text color="gray.500">
-                    ({provider.reviewCount || 0} reviews)
+                    ({reviewCount || 0} reviews)
                   </Text>
                 </HStack>
 
@@ -666,42 +742,6 @@ export default function ProviderDetailPage() {
 
               <Separator my={6} />
 
-              {/* Portfolio section */}
-              <Box mb={10}>
-                <Heading size="md" mb={4}>
-                  Portfolio
-                </Heading>
-                {provider.portfolioMedia &&
-                provider.portfolioMedia.length > 0 ? (
-                  <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4}>
-                    {provider.portfolioMedia.map((media, idx) => (
-                      <Box
-                        key={idx}
-                        borderRadius="md"
-                        overflow="hidden"
-                        boxShadow="md"
-                      >
-                        <Image
-                          src={media.url}
-                          alt={media.caption || `Portfolio ${idx + 1}`}
-                          width="100%"
-                          height="200px"
-                          objectFit="cover"
-                        />
-                        {media.caption && (
-                          <Box p={2} bg={cardBgColor}>
-                            <Text fontSize="sm">{media.caption}</Text>
-                          </Box>
-                        )}
-                      </Box>
-                    ))}
-                  </SimpleGrid>
-                ) : (
-                  <Box bg={cardBgColor} p={4} borderRadius="md">
-                    <Text color="gray.500">No portfolio available.</Text>
-                  </Box>
-                )}
-              </Box>
 
               <Separator my={6} />
 
@@ -710,45 +750,98 @@ export default function ProviderDetailPage() {
                 <Heading size="md" mb={4}>
                   Reviews
                 </Heading>
-                <HStack mb={4}>
-                  <Box
-                    p={4}
-                    bg={cardBgColor}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    textAlign="center"
-                    flex="1"
+                {/* New combined display for average rating and review count */}
+                <Box
+                  p={4}
+                  bg={cardBgColor}
+                  borderRadius="md"
+                  boxShadow="sm"
+                  mb={4}
+                >
+                  <HStack
+                    spacing={{ base: 4, md: 8 }} // Responsive spacing
+                    align="center"
+                    justify="space-around" // Distribute space evenly
                   >
-                    <HStack justify="center" mb={2}>
-                      {renderStarRating(provider.averageRating)}
-                    </HStack>
-                    <Heading size="xl" color="blue.500">
-                      {provider.averageRating?.toFixed(1) || "-"}
-                    </Heading>
-                    <Text>Average Rating</Text>
-                  </Box>
-                  <Box
-                    p={4}
-                    bg={cardBgColor}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    textAlign="center"
-                    flex="1"
-                  >
-                    <Heading size="xl" color="blue.500">
-                      {provider.reviewCount || 0}
-                    </Heading>
-                    <Text>Number of Reviews</Text>
-                  </Box>
-                </HStack>
+                    {/* Part 1: Average Rating */}
+                    <VStack spacing={1} align="center" flex="1">
+                      <Text fontSize="sm" color="gray.600" mb={1}>
+                        Average Rating
+                      </Text>
+                      <HStack justify="center">
+                        {renderStarRating(averageRating)}
+                      </HStack>
+                      <Heading size="lg" color={highlightColor}>
+                        {averageRating.toFixed(1) || "-"}
+                      </Heading>
+                    </VStack>
 
-                <Box bg={cardBgColor} p={4} borderRadius="md">
-                  <Text color="gray.500">
-                    {provider.reviewCount
-                      ? "Loading reviews..."
-                      : "No reviews yet"}
-                  </Text>
+                    <Separator orientation="vertical" h={{ base: "40px", md: "60px" }} borderColor={borderColor} />
+
+                    {/* Part 2: Number of Reviews */}
+                    <VStack spacing={1} align="center" flex="1">
+                      <Text fontSize="sm" color="gray.600" mb={1}>
+                        Total Reviews
+                      </Text>
+                      <Heading size="lg" color={highlightColor}>
+                        {reviewCount || 0}
+                      </Heading>
+                    </VStack>
+                  </HStack>
                 </Box>
+
+                {reviewsLoading ? (
+                  <Flex justify="center" py={6}>
+                    <Spinner size="md" />
+                  </Flex>
+                ) : reviews.length > 0 ? (
+                  <VStack spacing={4} align="stretch">
+                    {reviews.map((review) => (
+                      <Box 
+                        key={review._id} 
+                        bg={cardBgColor} 
+                        p={4} 
+                        borderRadius="md"
+                        boxShadow="sm"
+                      >
+                        <Flex mb={2} justify="space-between" align="center">
+                          <HStack>
+                            <Avatar.Root size="sm">
+                              <Avatar.Fallback name={review.customerName} />
+                            </Avatar.Root>
+                            <Text fontWeight="bold">{review.customerName || "Anonymous User"}</Text>
+                          </HStack>
+                          <HStack>
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <Icon 
+                                key={i} 
+                                as={i < review.rating ? FaStar : FaRegStar} 
+                                color={i < review.rating ? "yellow.400" : "gray.300"} 
+                              />
+                            ))}
+                          </HStack>
+                        </Flex>
+                        
+                        <HStack color="gray.600" fontSize="sm" mb={2} spacing={4}>
+                          <HStack>
+                            <Icon as={FaCalendarAlt} />
+                            <Text>{formatDate(review.createdAt)}</Text>
+                          </HStack>
+                          <HStack>
+                            <Icon as={FaUser} />
+                            <Text>{formatServiceType(review.serviceType) || "Service"}</Text>
+                          </HStack>
+                        </HStack>
+                        
+                        <Text mt={2}>{review.comment || "No comment provided"}</Text>
+                      </Box>
+                    ))}
+                  </VStack>
+                ) : (
+                  <Box bg={cardBgColor} p={4} borderRadius="md">
+                    <Text color="gray.500">This provider has not received any reviews yet</Text>
+                  </Box>
+                )}
               </Box>
             </Box>
           </Box>

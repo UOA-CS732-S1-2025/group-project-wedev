@@ -10,14 +10,18 @@ import useAuthStore from "../store/authStore";
 
 
 const UserProfilePage = ({ defaultTab = "profile" }) => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
   const effectiveTab = tabFromUrl || defaultTab;
   const { user  } = useAuthStore();
   return (
     <Box bg="gray.50" minH="calc(100vh - 80px)" pt="20px">
       <Box w="95%" maxW="1200px" mx="auto" pb={4}>
-        <Tabs.Root defaultValue={effectiveTab} colorPalette="white">
+        <Tabs.Root
+          value={effectiveTab}
+          onValueChange={(details) => setSearchParams({ tab: details.value })}
+          colorPalette="white"
+        >
           <Tabs.List mb={3}>
             <Tabs.Trigger value="dashboard">Dashboard</Tabs.Trigger>
             <Tabs.Trigger value="messages">Messages</Tabs.Trigger>

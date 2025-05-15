@@ -138,7 +138,7 @@ const HomeFilter = () => {
             border="none"
           >
             <Popover.Root
-              positioning={{ offset: { crossAxis: 100, mainAxis: 10 } }}
+              positioning={{ offset: { crossAxis: 130, mainAxis: 10 } }}
               size={'lg'}
               open={serviceOpen}
               onOpenChange={(e) => setServiceOpen(e.open)}

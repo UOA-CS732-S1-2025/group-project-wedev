@@ -13,7 +13,7 @@ export const useConversationStore = create((set, get) => ({
     
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`/api/conversations?userId=${userId}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/conversations?userId=${userId}`);
       
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -35,7 +35,7 @@ export const useConversationStore = create((set, get) => ({
     if (!conversationId || !userId) return;
     
     try {
-      await fetch(`/api/conversations/${conversationId}/read`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/conversations/${conversationId}/read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export const useConversationStore = create((set, get) => ({
     }
     
     try {
-      const response = await fetch(`/api/conversations/${conversationId}/messages`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/conversations/${conversationId}/messages`);
       
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`);
@@ -168,7 +168,7 @@ export const useConversationStore = create((set, get) => ({
       }));
       
       // Send the API request
-      const response = await fetch('/api/messages', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

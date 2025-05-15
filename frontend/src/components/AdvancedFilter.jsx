@@ -105,7 +105,7 @@ const parsePriceParam = (priceString) => {
 
 // 默认的地图中心位置（奥克兰）
 const DEFAULT_CENTER = { lat: -36.8485, lng: 174.7633 };
-const DEFAULT_ZOOM = 10;
+const DEFAULT_ZOOM = 12;
 
 // 用于检查经纬度浮点值是否有显著差异的辅助函数
 const isSignificantChange = (value1, value2, threshold = 0.0001) => {
@@ -562,7 +562,6 @@ const AdvancedFilter = () => {
         position="relative"
         overflow="hidden"
       >
-        <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"}>
           <Map
             mapId="d792ca0a8995a3f5"
             center={mapCenter}
@@ -605,7 +604,7 @@ const AdvancedFilter = () => {
                 return null;
               })}
           </Map>
-        </APIProvider>
+        
       </Box>
     </VStack>
   );

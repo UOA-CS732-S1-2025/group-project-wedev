@@ -1,4 +1,6 @@
 import express from "express";
+import upload from '../middleware/multerUpload.js';
+import { uploadProfilePicture } from '../controllers/user.controller.js';
 
 // import { createUser, getUsers, deleteUser } from "../controllers/user.controller.js";
 import { 
@@ -23,5 +25,13 @@ router.get("/providers/:id", getProviderById);
 // 新增路由 - 提供商可用性管理
 router.get("/providers/:id/availability", authMiddleware, getProviderAvailability);
 router.put("/providers/:id/availability", authMiddleware, updateProviderAvailability);
+
+// User profile picture upload route (for the authenticated user)
+router.put(
+  '/me/profile-picture', 
+  authMiddleware, 
+  upload.single('profilePicture'), // 'profilePicture' should match the field name in the form-data
+  uploadProfilePicture
+);
 
 export default router;

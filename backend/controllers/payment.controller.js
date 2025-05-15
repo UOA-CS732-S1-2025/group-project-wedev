@@ -40,7 +40,6 @@ export const updatePayment = async (req, res) => {
 
     if (updateFields.status === "paid") {
       await Booking.findByIdAndUpdate(updated.booking, {
-        status: "paid",
         "paymentDetails.paymentStatus": "succeeded",
         "paymentDetails.paymentMethod": updated.method,
         "paymentDetails.paidAmount": updated.amount,

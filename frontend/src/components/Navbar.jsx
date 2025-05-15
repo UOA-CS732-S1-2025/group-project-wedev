@@ -22,7 +22,7 @@ const Navbar = () => {
             src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/UEase.png"
             alt="UrbanEase Logo"
             w="120px"
-            h="auto"
+            h="40px"
             objectFit="contain"
             cursor="pointer"
             onClick={() => navigate("/")}

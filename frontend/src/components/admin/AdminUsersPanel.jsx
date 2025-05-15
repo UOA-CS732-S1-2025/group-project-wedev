@@ -1,27 +1,86 @@
-import {  Table } from "@chakra-ui/react";
-import { Button, Spinner, Box,   Input  } from "@chakra-ui/react";
-
-
-// import { TrashIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  Group, Table } from "@chakra-ui/react";
+import { 
+  Button, 
+  Spinner, 
+  Box,   
+  Field,
+  Input,
+  Popover,
+  Portal,
+  Stack,
+} from "@chakra-ui/react";
+import React from "react";
+import { useEffect, useState, useRef} from "react";
 import api from "../../lib/api";
 import useAuthStore from "../../store/authStore";
 
+
+
 const AdminUsersPanel = () => {
-//   const toast = useToast();
   const { token } = useAuthStore();
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editValuesMap, setEditValuesMap] = useState({});
+  const inputRefsMap = useRef({});
+
+
+const fetchUserById = async (userId) => {
+  try {
+
+    const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const u = res.data;
+
+    const values = {
+      firstName: u.firstName || "",
+      lastName: u.lastName || "",
+      phoneNumber: u.phoneNumber || "",
+      profilePic: u.profilePictureUrl || "",
+      street: u.address?.street || "",
+      suburb: u.address?.suburb || "",
+      city: u.address?.city || "",
+      state: u.address?.state || "",
+      postCode: u.address?.postCode || "",
+      country: u.address?.country || "",
+    };
+
+    setEditValuesMap((prev) => ({
+      ...prev,
+      [userId]: values,
+    }));
+
+
+    if (!inputRefsMap.current[userId]) {
+      inputRefsMap.current[userId] = {
+        firstName: React.createRef(),
+        lastName: React.createRef(),
+        phoneNumber: React.createRef(),
+        profilePic: React.createRef(),
+        street: React.createRef(),
+        suburb: React.createRef(),
+        city: React.createRef(),
+        state: React.createRef(),
+        postCode: React.createRef(),
+        country: React.createRef(),
+      };
+    }
+  } catch (err) {
+    console.error("get user info error", err);
+  }
+};
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/admin/users", {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
     } catch (err) {
-    //   toast({ title: "获取失败", description: err.message, status: "error" });
+
     } finally {
       setLoading(false);
     }
@@ -29,15 +88,69 @@ const AdminUsersPanel = () => {
 
   const handleUsersDelete = async (id) => {
     try {
-      await api.delete(`/admin/users/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prev) => prev.filter((u) => u._id !== id));
-    //   toast({ title: "删除成功", status: "success" });
+    
     } catch (err) {
-    //   toast({ title: "删除失败", description: err.message, status: "error" });
+    
     }
   };
+
+  const handleSubmitUpdate = async (userId) => {
+  const refs = inputRefsMap.current[userId];
+  if (!refs) return;
+
+  const newValues = {
+    firstName: refs.firstName.current?.value || "",
+    lastName: refs.lastName.current?.value || "",
+    phoneNumber: refs.phoneNumber.current?.value || "",
+    profilePic: refs.profilePic.current?.value || "",
+    street: refs.street.current?.value || "",
+    suburb: refs.suburb.current?.value || "",
+    city: refs.city.current?.value || "",
+    state: refs.state.current?.value || "",
+    postCode: refs.postCode.current?.value || "",
+    country: refs.country.current?.value || "",
+  };
+
+  try {
+    const payload = {
+      firstName: newValues.firstName,
+      lastName: newValues.lastName,
+      phoneNumber: newValues.phoneNumber,
+      profilePic: newValues.profilePic,
+      address: {
+        street: newValues.street,
+        suburb: newValues.suburb,
+        city: newValues.city,
+        state: newValues.state,
+        postCode: newValues.postCode,
+        country: newValues.country,
+      },
+    };
+
+
+    await api.put(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, payload, {
+
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    fetchUsers();
+
+    setEditValuesMap((prev) => {
+      const updated = { ...prev };
+      delete updated[userId];
+      return updated;
+    });
+  } catch (err) {
+    console.error("upload error", err);
+  }
+};
+
+
+ 
 
   useEffect(() => {
     fetchUsers();
@@ -49,7 +162,7 @@ const AdminUsersPanel = () => {
 
   return (
     <Box>
-      {/* <Heading size="md" mb={4}>User Management</Heading> */}
+
       <Input 
         placeholder="Search Username..."
         value={filter}
@@ -77,11 +190,158 @@ const AdminUsersPanel = () => {
                 <Table.Cell>{u.role}</Table.Cell>
                 <Table.Cell>{new Date(u.createdAt).toLocaleString()}</Table.Cell>
                 <Table.Cell>
-                    {/* leftIcon={<TrashIcon size={14} />} */}
-                  <Button  size="xs" >
+
+
+                <Popover.Root>
+                <Popover.Trigger asChild>
+                  <Button 
+                  size="xs"
+                   onClick={() => fetchUserById(u._id)}
+                  >
                     Edit
                   </Button>
-                  {/* 稍后增加交互式表格对信息更改 */}
+                </Popover.Trigger>
+                <Portal>
+                  <Popover.Positioner>
+                    <Popover.Content>
+                      <Popover.Arrow />
+                      <Popover.Body>
+                        <Stack gap="2">
+                          <Group>
+                          <Field.Root>
+                            <Field.Label>First Name</Field.Label>
+                            <Input  
+                                    ref={inputRefsMap.current[u._id]?.firstName}
+                                    defaultValue={editValuesMap[u._id]?.firstName ?? ""}
+                                    placeholder={editValuesMap[u._id]?.firstName ?? ""}
+                              />
+                          </Field.Root>
+                          <Field.Root>
+                            <Field.Label>Last Name</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.lastName}
+                            defaultValue={editValuesMap[u._id]?.lastName ?? ""}
+                            placeholder={editValuesMap[u._id]?.lastName ?? ""}
+                            />
+                          </Field.Root>
+                          </Group>
+
+                          <Field.Root>
+                            <Field.Label>Phone Number</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.phoneNumber}
+                            defaultValue={editValuesMap[u._id]?.phoneNumber ?? ""}
+                            placeholder={editValuesMap[u._id]?.phoneNumber ?? ""}
+                            />
+                          </Field.Root>
+                          <Field.Root>
+                            <Field.Label>Profile Picture URL</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.profilePic}
+                            defaultValue={editValuesMap[u._id]?.profilePic ?? ""}
+                            placeholder={editValuesMap[u._id]?.profilePic ?? ""}
+                            />
+                          </Field.Root>
+                          <Field.Root>
+                            <Field.Label>Street</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.street}
+                            defaultValue={editValuesMap[u._id]?.street ?? ""}
+                            placeholder={editValuesMap[u._id]?.street ?? ""}
+                            />
+                          </Field.Root>
+
+                          <Group>
+                          <Field.Root>
+                            <Field.Label>Suburb</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.suburb}
+                            defaultValue={editValuesMap[u._id]?.suburb ?? ""}
+                            placeholder={editValuesMap[u._id]?.suburb ?? ""}
+                            />
+                          </Field.Root>
+                          <Field.Root>
+                            <Field.Label>City</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.city}
+                            defaultValue={editValuesMap[u._id]?.city ?? ""}
+                            placeholder={editValuesMap[u._id]?.city ?? ""}
+                            />
+                          </Field.Root>
+                          </Group>
+
+                          <Group>
+                          <Field.Root>
+                            <Field.Label>State</Field.Label>
+                            <Input  
+                            ref={inputRefsMap.current[u._id]?.state}
+                            defaultValue={editValuesMap[u._id]?.state ?? ""}
+                            placeholder={editValuesMap[u._id]?.state ?? ""}
+                            />
+                          </Field.Root>
+                          <Field.Root>
+                            <Field.Label>Postall Code</Field.Label>
+                            <Input 
+                            ref={inputRefsMap.current[u._id]?.postCode}
+                            defaultValue={editValuesMap[u._id]?.postCode ?? ""}
+                            placeholder={editValuesMap[u._id]?.postCode ?? ""}
+                            />
+                          </Field.Root>
+                          </Group>
+
+                          <Group >
+                          <Field.Root>
+                            <Field.Label>Country</Field.Label>
+                            <Input  
+                            ref={inputRefsMap.current[u._id]?.country}
+                            defaultValue={editValuesMap[u._id]?.country ?? ""}
+                            placeholder={editValuesMap[u._id]?.country ?? ""}
+                              width="135px"/>
+                          </Field.Root>
+                          </Group>
+                          
+
+                          <Group>
+                            
+                          <Field.Root>
+                          <Button  width="135px" onClick={() => handleSubmitUpdate(u._id)}>
+                            Submit
+                          </Button>
+                          </Field.Root>
+
+
+
+                          <Field.Root>
+                          <Button  width="135px"
+                          onClick={() => {
+                              const refs = inputRefsMap.current[u._id];
+                              const values = editValuesMap[u._id];
+                              if (refs && values) {
+                                refs.firstName.current.value = values.firstName;
+                                refs.lastName.current.value = values.lastName;
+                                refs.phoneNumber.current.value = values.phoneNumber;
+                                refs.profilePic.current.value = values.profilePic;
+                                refs.street.current.value = values.street;
+                                refs.suburb.current.value = values.suburb;
+                                refs.city.current.value = values.city;
+                                refs.state.current.value = values.state;
+                                refs.postCode.current.value = values.postCode;
+                                refs.country.current.value = values.country;
+                              }
+                            }}
+                          >
+                            Reset
+                          </Button>
+                          </Field.Root>
+                          </Group>
+
+                          </Stack>
+                      </Popover.Body>
+                      <Popover.CloseTrigger />
+                    </Popover.Content>
+                  </Popover.Positioner>
+                </Portal>
+              </Popover.Root>
                   <Button onClick={() => handleUsersDelete(u._id)} size="xs" ml={2}>
                     Delete
                   </Button>

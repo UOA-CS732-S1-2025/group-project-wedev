@@ -1,154 +1,179 @@
-# CS732 project - Team WeDev
-
-Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.
-
-Your team members are:
-- Cheng Li _(cli807@aucklanduni.ac.nz)_
-- Yunfei Xu _(yxu378@aucklanduni.ac.nz)_
-- Wenzhe Pang _(wpan273@aucklanduni.ac.nz)_
-- Ashutosh Singh _(nisa367@aucklanduni.ac.nz)_
-- Zoe Zhong _(pzho670@aucklanduni.ac.nz)_
-- Yi Ji _(yji850@aucklanduni.ac.nz)_
-- Meize Zhou _(mzho097@aucklanduni.ac.nz)_
-
-You have complete control over how you run this repo. All your members will have admin access. The only thing setup by default is branch protections on `main`, requiring a PR with at least one code reviewer to modify `main` rather than direct pushes.
-
-Please use good version control practices, such as feature branching, both to make it easier for markers to see your group's history and to lower the chances of you tripping over each other during development
-
-![](./WeDev.png)
-
-
-#  Urban Ease – Home Service Web Application
-
-# About Urban Ease
-Urban Ease is a full-stack web application that connects urban residents with professional service providers for household needs such as cleaning, gardening, plumbing, painting, and House Repair. Our platform offers a convenient and synchronized booking system designed with urban users' busy lifestyles in mind.
-
----
-
-# Key Differentiators
-1. Unified multi-service booking
-2. Real-time progress tracking
-3. Multiple service provider
-4. Real time Chat
-
----
-
-# Features
-- User login
-- Role-based login system
-- Interactive homepage with filtering
-- Service booking & provider matching (with maps)
-- Review and rating system
-- Profile and order history
-
-# Other services
-- Availability-based scheduling
-- Admin dashboard
-- Payment integration
+# Urban Ease - Home Service Web Application
 
 
 
----
-
-# Testing
-- Manual Testing: Conducted on key flows such as login, booking, provider matching, and feedback submission.
-- Unit Tests (Partial): Basic backend route tests with Jest.
-- Tools Used: Postman (API testing), Chrome DevTools (UI testing)
-
----
-
-# Design Thinking & UX
-We followed a design thinking approach:
-- Empathize & Define**: Interviewed users to identify pain points with existing services
-- Ideate: Brainstormed solutions and mapped journeys
-- Prototype: Created low- and high-fidelity mockups (available in `/design`)
-- Test: Conducted peer reviews and sprint feedback cycles
--  Used canva for Logo and bob desgine
-UI Libraries Used: Chakra UI + custom CSS
-
----
-
-# Beyond Course Learning
-We explored:
-- AWS Cognito: Although we attempted to integrate AWS Cognito for secure user authentication, due to configuration complexity and time limitations, we were unable to successfully complete the full integration. We instead used a custom authentication flow to support user login and registration.(Ps. We have copleted but due to time and different structure we are not able tpo implement )
-- AWS S3: we stored our images used for application in s3 bucket
-- Google Maps API: For real-time provider selection
+<p align="center">
+  <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
+  🚀 <strong>Urban Ease is now live!</strong><br>
+  Explore the full application here:<br>
+  <a href="https://wedev-liard.vercel.app/" target="_blank">
+    Urban Ease
+  </a>
+</p>
 
 
----
 
-# Code Quality & Best Practices
-- React Hooks + Component-based architecture
-- Modular backend structure (MVC)
-- Secure credential management via `.env`
-- Peer-reviewed pull requests on GitHub
-- ESLint + Prettier configuration
+## About Urban Ease
 
----
+Urban Ease is a full-stack service booking platform that allows users to register as service providers or service consumers. Consumers can browse services, book appointments, and make payments, while service providers can manage bookings and receive payments. The platform also provides real-time messaging functionality, allowing communication between users, as well as a review and reporting system.
 
-# Project Management
-- Agile workflow (4 Sprints)
-- Weekly meetings (Google Meet)
-- Daily task tracking (Notion)
-- Communication (WhatsApp + GitHub Issues)
+## Team Members
 
----
+| Name           | Email                        | Role
+|----------------|------------------------------|------
+| Cheng Li       | cli807@aucklanduni.ac.nz     | Full-Stack
+| Yunfei Xu      | yxu378@aucklanduni.ac.nz     | Backend
+| Wenzhe Pang    | wpan273@aucklanduni.ac.nz    | Full-Stack
+| Ashutosh Singh | nisa367@aucklanduni.ac.nz    | Frontend
+| Zoe Zhong      | pzho670@aucklanduni.ac.nz    | Backend
+| Yi Ji          | yji850@aucklanduni.ac.nz     | Backend
+| Meize Zhou     | mzho097@aucklanduni.ac.nz    | Frontend
 
-# Git Workflow
-- Feature branching + Development/Main branches
-- Regular commits with clear messages
-- Peer code review required before merge
 
----
 
-# Deployment
+## Features
 
-- Frontend
-- Backend
-- Database
-- Media: AWS S3
+### User Management
+- User registration and login
+- Email verification
+- User profile management
+- Authentication and authorization
 
----
+### Services and Bookings
+- Service browsing and search
+- Booking creation and management
+- Booking status tracking
+- Schedule management
 
-# Risks and Mitigation
-| Risk | Solution |
-|------|----------|
-| Time Constraints | Buffer time in schedule, daily tracking |
-| Changing Requirements | Early market research, modular architecture |
-| Communication Gaps | Weekly syncs, shared documentation |
-| Technical Bottlenecks | Feasibility checks, peer reviews |
+### Messaging System
+- Real-time messaging between users
+- Conversation management
+- Unread message notifications
 
----
+### Payment System
+- Secure payment processing
+- Transaction history
+- Payment status management
 
-# Future Improvements
-- AI  Real-time chat
-- Provider background verification
-- Full AWS Cognito integration
-- Mobile app integration
-- Admin analytics dashboard
-- AI tool implemetaion
-- Adding other services
----
+### Reviews and Reports
+- Service review submission
+- Issue reporting
+- Review management
 
-## How to Run Locally
+### Admin Features
+- User management
+- Booking monitoring
+- Payment monitoring
+- Report handling
 
-# Clone project
-git clone
-# Frontend setup
-cd frontend
-npm install
-npm run dev
+## Technology Stack
 
-# Backend setup
+### Frontend
+- **React 19** - Latest version of the React UI library
+- **React Router v7** - For page routing management
+- **Chakra UI v3** - Component library providing modern, customizable UI components
+- **Zustand** - Lightweight state management library
+- **Axios** - HTTP client for API request handling
+- **Vite** - Fast frontend build tool
+- **Vitest** - Unit testing framework
+- **@vis.gl/react-google-maps** - Google Maps integration library
+- **date-fns** - Date handling utility library
+- **react-hot-toast** - Notification toast component
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - Object Data Modeling
+- **JWT** - Authentication
+- **Bcrypt** - Password hashing
+- **Nodemailer** - Email service
+
+## Installation Guide
+
+### Prerequisites
+- Node.js (latest LTS version recommended)
+- MongoDB instance (local or Atlas)
+
+### Installation Steps
+
+1. Clone the repository
+```bash
+git clone https://github.com/UOA-CS732-S1-2025/group-project-wedev.git
+cd group-project-wedev
+```
+
+2. Set up environment variables
+
+Update the `.env` file in the backend directory with necessary environment variables:
+```
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_jwt_secret
+
+EMAIL_USER=your_email_user
+EMAIL_PASS=your_email_password
+EMAIL_FROM="sender name" <your_email_address>
+```
+ 
+Update the `.env` file in the frontend directory with necessary environment variables:
+
+```
+GOOGLE_MAPS_API_KEY=<your_google_maps_api_key>
+```
+
+3. Install backend dependencies
+```bash
 cd backend
 npm install
-npm run start
+```
+
+4. Install frontend dependencies
+```bash
+cd frontend
+npm install
+```
+
+## Usage Guide
+
+### Development Mode
+
+1. Start the backend server
+```bash
+cd backend
+npm run dev
+```
+
+2. Start the frontend development server
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will run at http://localhost:5173
+The backend will run at http://localhost:3000
+
+### Testing
+
+Run backend tests
+```bash
+cd backend
+npm test
+```
+
+Run frontend tests
+```bash
+cd frontend
+npm test
+```
+
+## API Documentation
+
+Detailed API documentation can be found in [backend/Readme.md](./backend/README.md), including information about messages, conversations, and other endpoints.
+
+## Frontend Guide
+
+The frontend is a React-based interface built with Vite and Chakra UI. It communicates with the backend via RESTful APIs. For implementation details and developer setup instructions, see [frontend/Readme.md](./frontend/README.md)
 
 
----
-
-# Meeting Minutes
-We held weekly meetings(Along with that we also scheduled meeting some times individaly for working on same branch)to track progress, resolve issues, and assign tasks. Documentation includes:
-Wiki link
-https://github.com/UOA-CS732-S1-2025/group-project-wedev.wiki.git
 
