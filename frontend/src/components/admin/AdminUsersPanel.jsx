@@ -44,7 +44,7 @@ const fetchUserById = async (userId) => {
       suburb: u.address?.suburb || "",
       city: u.address?.city || "",
       state: u.address?.state || "",
-      postCode: u.address?.postCode || "",
+      postalCode: u.address?.postalCode || "",
       country: u.address?.country || "",
     };
 
@@ -64,7 +64,7 @@ const fetchUserById = async (userId) => {
         suburb: React.createRef(),
         city: React.createRef(),
         state: React.createRef(),
-        postCode: React.createRef(),
+        postalCode: React.createRef(),
         country: React.createRef(),
       };
     }
@@ -111,7 +111,7 @@ const fetchUserById = async (userId) => {
     suburb: refs.suburb.current?.value || "",
     city: refs.city.current?.value || "",
     state: refs.state.current?.value || "",
-    postCode: refs.postCode.current?.value || "",
+    postalCode: refs.postalCode.current?.value || "",
     country: refs.country.current?.value || "",
   };
 
@@ -126,7 +126,7 @@ const fetchUserById = async (userId) => {
         suburb: newValues.suburb,
         city: newValues.city,
         state: newValues.state,
-        postCode: newValues.postCode,
+        postalCode: newValues.postalCode,
         country: newValues.country,
       },
     };
@@ -280,11 +280,11 @@ const fetchUserById = async (userId) => {
                             />
                           </Field.Root>
                           <Field.Root>
-                            <Field.Label>Postall Code</Field.Label>
+                            <Field.Label>Postal Code</Field.Label>
                             <Input 
-                            ref={inputRefsMap.current[u._id]?.postCode}
-                            defaultValue={editValuesMap[u._id]?.postCode ?? ""}
-                            placeholder={editValuesMap[u._id]?.postCode ?? ""}
+                            ref={inputRefsMap.current[u._id]?.postalCode}
+                            defaultValue={editValuesMap[u._id]?.postalCode ?? ""}
+                            placeholder={editValuesMap[u._id]?.postalCode ?? ""}
                             />
                           </Field.Root>
                           </Group>
@@ -325,7 +325,7 @@ const fetchUserById = async (userId) => {
                                 refs.suburb.current.value = values.suburb;
                                 refs.city.current.value = values.city;
                                 refs.state.current.value = values.state;
-                                refs.postCode.current.value = values.postCode;
+                                refs.postalCode.current.value = values.postalCode;
                                 refs.country.current.value = values.country;
                               }
                             }}

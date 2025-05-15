@@ -9,7 +9,7 @@ import { sendVerificationEmail } from "../utils/sendEmail.js";
 export const registerUser = async (req, res) => {
   try {
 
-    const { firstName, lastName, email, password, role, location  } = req.body;
+    const { firstName, lastName, email, password, role, location, address = {}  } = req.body;
 
 
     // 验证用户角色
@@ -102,7 +102,15 @@ export const registerUser = async (req, res) => {
       emailVerifyToken,
       location: location?.coordinates?.length === 2
         ? location
-        : { type: "Point", coordinates: [174.7682, -36.8523] }
+        : { type: "Point", coordinates: [174.7682, -36.8523] },
+        address: {
+            street: address?.street || "",
+            suburb: address?.suburb || "",
+            city: address?.city || "",
+            state: address?.state || "",
+            postalCode: address?.postalCode || "",  
+            country: address?.country || ""
+          }
     });
 
     await newUser.save();

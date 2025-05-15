@@ -114,6 +114,7 @@ JWT_SECRET=your_jwt_secret
 EMAIL_USER=your_email_user
 EMAIL_PASS=your_email_password
 EMAIL_FROM="sender name" <your_email_address>
+
 VITE_FRONTEND_URL=http://localhost:5173          # The frontend base URL. Used in email links and CORS settings
                                                  # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
 ```
