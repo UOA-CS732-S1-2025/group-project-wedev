@@ -15,6 +15,8 @@ import ServiceSelector from './ServiceSelector';
 import LocationSelector from './LocationSelector';
 import DateSelector from './DateSelector';
 import { useUserStore } from '../store/userStore';
+import useAuthStore from '../store/authStore';
+
 
 const HomeFilter = () => {
   const navigate = useNavigate();
@@ -35,6 +37,9 @@ const HomeFilter = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  const { user } = useAuthStore();
+
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
@@ -78,6 +83,13 @@ const HomeFilter = () => {
 
   // Handle the search button click
   const handleSearch = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+
+
     try {
       // Create search params with only defined values
       const searchParams = {};
