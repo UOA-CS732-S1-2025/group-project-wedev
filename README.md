@@ -3,7 +3,7 @@
 
 
 <p align="center">
-  <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
+  <img src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/UEase.png" alt="Urban Ease Logo" width="200"/><br>
   🚀 <strong>Urban Ease is now live!</strong><br>
   Explore the full application here:<br>
   <a href="https://wedevv.vercel.app/" target="_blank">
