@@ -1,6 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { useConversationStore } from '../store/conversationStore';
 
+// 模拟环境变量
+vi.stubGlobal('import', { meta: { env: { VITE_API_URL: 'http://localhost:5173' } } });
+
 // Mock fetch
 global.fetch = vi.fn();
 
@@ -53,7 +56,7 @@ describe('conversationStore Tests', () => {
     
     await store.fetchConversations(mockUserId);
     
-    expect(fetch).toHaveBeenCalledWith(`/api/conversations?userId=${mockUserId}`);
+    expect(fetch).toHaveBeenCalledWith(`http://localhost:5173/api/conversations?userId=${mockUserId}`);
     
     const updatedStore = useConversationStore.getState();
     expect(updatedStore.conversations).toEqual(mockConversations);
@@ -103,7 +106,7 @@ describe('conversationStore Tests', () => {
     
     await store.markConversationAsRead('conv1', 'user123');
     
-    expect(fetch).toHaveBeenCalledWith('/api/conversations/conv1/read', {
+    expect(fetch).toHaveBeenCalledWith('http://localhost:5173/api/conversations/conv1/read', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -130,7 +133,7 @@ describe('conversationStore Tests', () => {
     
     const result = await store.fetchMessages(conversationId);
     
-    expect(fetch).toHaveBeenCalledWith(`/api/conversations/${conversationId}/messages`);
+    expect(fetch).toHaveBeenCalledWith(`http://localhost:5173/api/conversations/${conversationId}/messages`);
     expect(result).toBe(true); // Has new messages
     
     const updatedStore = useConversationStore.getState();
@@ -211,7 +214,7 @@ describe('conversationStore Tests', () => {
     const result = await store.sendMessage(conversationId, senderId, content);
     
     // Verify API call
-    expect(fetch).toHaveBeenCalledWith('/api/messages', {
+    expect(fetch).toHaveBeenCalledWith('http://localhost:5173/api/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -249,7 +252,7 @@ describe('conversationStore Tests', () => {
     });
     
     // Update message
-    store.updateLocalMessage('msg2', { bookingStatus: 'confirmed' });
+    store.updateLocalMessage({ id: 'msg2', bookingStatus: 'confirmed' });
     
     // Verify state update
     const updatedStore = useConversationStore.getState();

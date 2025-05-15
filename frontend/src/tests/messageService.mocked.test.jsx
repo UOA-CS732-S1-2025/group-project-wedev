@@ -2,6 +2,9 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { updateBookingStatus } from '../services/messageService';
 import axios from 'axios';
 
+// 模拟环境变量
+vi.stubGlobal('import', { meta: { env: { VITE_API_URL: 'http://localhost:5173' } } });
+
 // Mock axios
 vi.mock('axios');
 
@@ -29,7 +32,7 @@ describe('messageService Tests', () => {
     
     // Verify axios.patch was called correctly
     expect(axios.patch).toHaveBeenCalledWith(
-      `/api/messages/${messageId}/booking-status`,
+      `http://localhost:5173/api/messages/${messageId}/booking-status`,
       { status }
     );
     
@@ -59,7 +62,7 @@ describe('messageService Tests', () => {
     
     // Verify axios.patch was called correctly
     expect(axios.patch).toHaveBeenCalledWith(
-      `/api/messages/${messageId}/booking-status`,
+      `http://localhost:5173/api/messages/${messageId}/booking-status`,
       { status }
     );
   });
