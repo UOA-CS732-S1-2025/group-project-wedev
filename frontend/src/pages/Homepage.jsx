@@ -23,7 +23,7 @@ const Homepage = () => {
     <Box>
       {/* Hero Section */}
       <Box
-        bgImage="url('https://urbaneaseproject.s3.us-east-1.amazonaws.com/ubbb.svg')"
+        bgImage="url('https://res.cloudinary.com/diz8s0wm8/image/upload/v1747275320/iShot_2025-05-15_14.14.56_r4x4f5.png')"
         bgPosition="center"
         bgRepeat="no-repeat"
         bgSize="cover"
