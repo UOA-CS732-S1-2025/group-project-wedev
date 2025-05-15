@@ -54,6 +54,27 @@ const formatTime = (dateTime) => {
   }
 };
 
+// Utility function: format booking time range
+const formatBookingTimeRange = (startTime, endTime) => {
+  if (!startTime || !endTime) return "N/A";
+  try {
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    
+    // Format date part (e.g., "2023-10-26")
+    const datePart = format(startDate, "yyyy-MM-dd");
+    // Format time part for start and end time (e.g., "09:00")
+    const startTimePart = format(startDate, "HH:mm");
+    const endTimePart = format(endDate, "HH:mm");
+    
+    return `${datePart} ${startTimePart} - ${endTimePart}`;
+  } catch (e) {
+    console.error("Error formatting time range:", e);
+    // Fallback or more specific error handling
+    return "Invalid time range";
+  }
+};
+
 // Get badge color and text based on status
 const getStatusBadgeProps = (status) => {
   const statusMap = {
@@ -382,9 +403,11 @@ const BookingCard = ({
 
       <VStack align="start" spacing={4} pt={7}>
         {/* Service type */}
-        <Heading size="md">
-          {booking.serviceType}
-        </Heading>
+        <HStack spacing={2}>
+          <Heading size="md" color="blue.600">
+            {booking.serviceType}
+          </Heading>
+        </HStack>
 
         {/* User/provider information */}
         <HStack spacing={3}>
@@ -404,7 +427,7 @@ const BookingCard = ({
         {/* Booking time */}
         <HStack spacing={3}>
           <Icon color="gray.500"><FaCalendarAlt /></Icon>
-          <Text fontSize="sm">{formatTime(booking.startTime)}</Text>
+          <Text fontSize="sm">{formatBookingTimeRange(booking.startTime, booking.endTime)}</Text>
         </HStack>
 
         {/* Address information */}
@@ -426,7 +449,9 @@ const BookingCard = ({
         {/* Cost information */}
         <HStack spacing={3}>
           <Icon color="gray.500"><FaDollarSign /></Icon>
-          <Text fontSize="sm">${booking.hourlyRate}/hr</Text>
+          <Text fontSize="sm">
+            {booking.estimatedTotalCost?.toFixed(2) || 'N/A'} (${booking.hourlyRate}/hr)
+          </Text>
                   {/* Payment Status badge - top right, to the left of status badge */}
         {booking.paymentDetails?.paymentStatus && (
           <Badge colorPalette={paymentStatusProps.colorScheme} variant={"subtle"}>
