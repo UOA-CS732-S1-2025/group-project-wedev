@@ -257,7 +257,7 @@ export const updateCurrentUser = async (req, res) => {
     
     const allowed = [
       "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
-      "serviceType", "hourlyRate", "role"
+      "serviceType", "hourlyRate", "role", "location"
     ];
     
     const updateFields = {};
