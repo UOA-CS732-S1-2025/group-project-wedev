@@ -304,6 +304,11 @@ EMAIL_USER=your_email_user
 EMAIL_PASS=your_email_password
 EMAIL_FROM="sender name" <your_email_address>
 
+CLOUDINARY_URL=cloudinary://<CLOUDINARY_API_KEY>:<CLOUDINARY_API_SECRET>@CLOUDINARY_CLOUD_NAME
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
 VITE_FRONTEND_URL=http://localhost:5173          # The frontend base URL. Used in email links and CORS settings
                                                  # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
 ```
