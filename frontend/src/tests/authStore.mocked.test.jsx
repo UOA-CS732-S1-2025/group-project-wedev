@@ -76,7 +76,7 @@ describe('authStore Tests', () => {
     expect(result).toEqual({ success: true });
     
     // Verify API call
-    expect(api.post).toHaveBeenCalledWith('/auth/login', {
+    expect(api.post).toHaveBeenCalledWith('/api/auth/login', {
       email: 'test@example.com',
       password: 'password123',
     });
@@ -140,7 +140,7 @@ describe('authStore Tests', () => {
     });
     
     // Verify API call
-    expect(api.post).toHaveBeenCalledWith('/auth/register', {
+    expect(api.post).toHaveBeenCalledWith('/api/auth/register', {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
@@ -221,7 +221,7 @@ describe('authStore Tests', () => {
     await store.fetchCurrentUser();
     
     // Verify API call
-    expect(api.get).toHaveBeenCalledWith('/auth/me', {
+    expect(api.get).toHaveBeenCalledWith('/api/auth/me', {
       headers: {
         Authorization: `Bearer ${mockToken}`,
       },
