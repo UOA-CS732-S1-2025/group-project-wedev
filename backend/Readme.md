@@ -318,11 +318,81 @@ npm run dev
 npm test
 ```
 
-## Deployment (To Be Completed)
+## 🚀 Deployment (Backend – Render)
 
-1. Build the project (if needed)
-2. Set production environment variables
-3. Start the server
+This section explains how to deploy the backend server of this MERN project to production using [Render](https://render.com).
+
+### 1. Requirements
+
+- A [Render](https://render.com) account
+- A GitHub repository connected to Render
+- Your environment variables ready (see below)
+
+### 2. Backend Scripts
+
+Ensure your `package.json` in the backend includes the correct start command:
+
+```json
+"scripts": {
+  "dev": "nodemon backend/server.js",
+  "test": "jest --runInBand",
+  "start": "node server.js"
+}
+```
+
+### 3. Environment Variables (Required)
+
+Set the following environment variables in Render dashboard under **Environment → Environment Variables**:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+
+EMAIL_USER=your_email_user
+EMAIL_PASS=your_email_app_password
+EMAIL_FROM="sender name" <your_email_address>
+
+CLOUDINARY_URL=your_cloudinary_url
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+VITE_FRONTEND_URL=https://your-frontend-url.vercel.app
+```
+
+> 🔒 **Security Note**: Do NOT commit actual secrets to version control. Use `.env.example` to document required variables.
+
+### 4. Deploy Steps on Render
+
+1. Log into your [Render](https://render.com) account.
+2. Click **"New Web Service"**, and connect your GitHub repository.
+3. Set the following options:
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Root Directory**: set to `backend/` 
+4. Add the environment variables listed above.
+5. Click **"Create Web Service"** to deploy.
+
+### 5. Starting Server Manually (Local Testing)
+
+If testing locally, make sure the environment variables are set in a `.env` file, then run:
+
+```bash
+node server.js
+```
+
+Your backend should now be accessible via the Render-assigned URL, e.g. `https://your-backend-service.onrender.com`.
+
+Use this backend URL in the frontend by setting:
+
+```env
+VITE_API_URL=https://your-backend-service.onrender.com
+```
+
+---
+
+✅ Your MERN backend is now ready and deployed. Be sure to test all API endpoints in production!
 
 ```bash
 node server.js
