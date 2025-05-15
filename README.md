@@ -29,7 +29,9 @@ Urban Ease is a full-stack service booking platform that allows users to registe
 | Yi Ji          | yji850@aucklanduni.ac.nz     | Backend
 | Meize Zhou     | mzho097@aucklanduni.ac.nz    | Frontend
 
+## Meeting Log
 
+Summary of group meeting minutes: [Urban Ease Project – Meeting Log](https://github.com/UOA-CS732-S1-2025/group-project-wedev/wiki)
 
 ## Features
 
@@ -190,11 +192,11 @@ npm test
 
 ## API Documentation
 
-Detailed API documentation can be found in [backend/Readme.md](./backend/README.md), including information about messages, conversations, and other endpoints.
+Detailed API documentation can be found in [backend/README.md](./backend/README.md), including information about messages, conversations, and other endpoints.
 
 ## Frontend Guide
 
-The frontend is a React-based interface built with Vite and Chakra UI. It communicates with the backend via RESTful APIs. For implementation details and developer setup instructions, see [frontend/Readme.md](./frontend/README.md)
+The frontend is a React-based interface built with Vite and Chakra UI. It communicates with the backend via RESTful APIs. For implementation details and developer setup instructions, see [frontend/README.md](./frontend/README.md)
 
 
 
