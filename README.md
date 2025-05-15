@@ -114,12 +114,17 @@ JWT_SECRET=your_jwt_secret
 EMAIL_USER=your_email_user
 EMAIL_PASS=your_email_password
 EMAIL_FROM="sender name" <your_email_address>
+VITE_FRONTEND_URL=http://localhost:5173 # The frontend base URL. Used in email links, CORS, etc. 
+                                        # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
 ```
  
 Update the `.env` file in the frontend directory with necessary environment variables:
 
 ```
-GOOGLE_MAPS_API_KEY=<your_google_maps_api_key>
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key     # Google Maps API key for map display
+
+VITE_API_URL=http://localhost:3000               # Backend API base URL
+                                                 # Replace with your Render backend URL when deployed
 ```
 
 3. Install backend dependencies
