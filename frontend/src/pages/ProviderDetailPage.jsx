@@ -53,7 +53,8 @@ export default function ProviderDetailPage() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingDate, setBookingDate] = useState("");
-  const [bookingTime, setBookingTime] = useState("9"); // Default booking time to 9 AM
+  const [bookingStartTime, setBookingStartTime] = useState("9"); // Default booking start time to 9 AM
+  const [bookingEndTime, setBookingEndTime] = useState("11"); // Default booking end time to 11 AM
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
@@ -170,16 +171,32 @@ export default function ProviderDetailPage() {
     }
 
     // Validate time
-    if (!bookingTime || bookingTime === "") {
-      toaster.create({ title: "Please enter booking time" });
+    if (!bookingStartTime || bookingStartTime === "") {
+      toaster.create({ title: "Please enter booking start time" });
+      return;
+    }
+    if (!bookingEndTime || bookingEndTime === "") {
+      toaster.create({ title: "Please enter booking end time" });
       return;
     }
 
     // Validate time is between 0-24
-    const timeValue = parseInt(bookingTime, 10);
-    console.log("[DEBUG] timeValue:", timeValue, "bookingTime:", bookingTime);
-    if (isNaN(timeValue) || timeValue < 0 || timeValue > 24) {
-      toaster.create({ title: "Booking time must be between 0-24" });
+    const startTimeValue = parseInt(bookingStartTime, 10);
+    const endTimeValue = parseInt(bookingEndTime, 10);
+
+    console.log("[DEBUG] timeValues:", {startTimeValue, endTimeValue}, "bookingTimes:", {bookingStartTime, bookingEndTime});
+
+    if (isNaN(startTimeValue) || startTimeValue < 0 || startTimeValue > 24) {
+      toaster.create({ title: "Booking start time must be between 0-24" });
+      return;
+    }
+    if (isNaN(endTimeValue) || endTimeValue < 0 || endTimeValue > 24) {
+      toaster.create({ title: "Booking end time must be between 0-24" });
+      return;
+    }
+
+    if (endTimeValue <= startTimeValue) {
+      toaster.create({ title: "Booking end time must be after start time" });
       return;
     }
 
@@ -234,11 +251,11 @@ export default function ProviderDetailPage() {
 
       // Use user input time to set start time
       const startTime = new Date(selectedDate);
-      startTime.setHours(timeValue, 0, 0);
+      startTime.setHours(startTimeValue, 0, 0);
 
       // End time is default 2 hours after start time
-      const endTime = new Date(startTime);
-      endTime.setHours(startTime.getHours() + 2);
+      const endTime = new Date(selectedDate);
+      endTime.setHours(endTimeValue, 0, 0);
 
       // Validate that end time is after start time
       if (endTime <= startTime) {
@@ -254,7 +271,7 @@ export default function ProviderDetailPage() {
         selectedDate,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        timeValue,
+        timeValue: { start: startTimeValue, end: endTimeValue },
       });
 
       // Build serviceAddress object, ensure all required fields have values
@@ -329,7 +346,7 @@ export default function ProviderDetailPage() {
         const paymentData = {
           provider: provider._id,
           booking: bookingResult.booking._id,
-          amount: parseFloat(provider.hourlyRate) || 0,
+          amount: bookingResult.booking.estimatedTotalCost, // Use estimatedTotalCost from booking
           method: "credit_card" // Default payment method
         };
         
@@ -394,7 +411,8 @@ export default function ProviderDetailPage() {
 
       // 3. Prepare booking message content
       const formattedDate = new Date(bookingDate).toLocaleDateString();
-      const formattedTime = `${timeValue}:00`;
+      const formattedStartTime = `${startTimeValue}:00`;
+      const formattedEndTime = `${endTimeValue}:00`;
 
       // Add customer address information to booking message
       const customerAddress = currentUser.address
@@ -408,7 +426,7 @@ export default function ProviderDetailPage() {
         `Service Provider: ${provider.firstName} ${provider.lastName}\n` +
         `Service Type: ${formatServiceType(provider.serviceType)}\n` +
         `Booking Date: ${formattedDate}\n` +
-        `Booking Time: ${formattedTime}\n` +
+        `Booking Time: ${formattedStartTime} - ${formattedEndTime}\n` +
         `Customer Address: ${customerAddress}\n` +
         `Rate: $${provider.hourlyRate || "Not specified"}/hour`;
 
@@ -459,7 +477,8 @@ export default function ProviderDetailPage() {
       });
 
       // Clear form fields after successful booking
-      setBookingTime("");
+      setBookingStartTime("9");
+      setBookingEndTime("11");
 
       // 8. Navigate to payment page instead of orders page
       navigate(`/payment/${bookingResult.booking._id}`);
@@ -898,28 +917,57 @@ export default function ProviderDetailPage() {
                   )}
                 </Field.Root>
 
-                <Field.Root mb={4}>
+                <Field.Root mb={2}> {/* Reduced margin bottom for start time */}
                   <Field.Label>
-                    Booking Time (hour, 0-24){" "}
-                    <Box as="span" color="red.500">
-                      *
-                    </Box>
+                    Start Time (hour, 0-24){" "}
                   </Field.Label>
-
-                  <NumberInput.Root onChange={(e) => {
-                      setBookingTime(e.target.value);
-                    }} max={24} min={0} w={"100%"}>
+                  <NumberInput.Root 
+                    value={bookingStartTime}
+                    onValueChange={(e) => setBookingStartTime(e.value)} 
+                    max={24} 
+                    min={0} 
+                    w={"100%"}
+                  >
                     <NumberInput.Control />
                     <NumberInput.Input />
                   </NumberInput.Root>
-                  {bookingTime &&
-                    (parseInt(bookingTime, 10) < 0 ||
-                      parseInt(bookingTime, 10) > 24 ||
-                      isNaN(parseInt(bookingTime, 10))) && (
+                  {bookingStartTime &&
+                    (parseInt(bookingStartTime, 10) < 0 ||
+                      parseInt(bookingStartTime, 10) > 24 ||
+                      isNaN(parseInt(bookingStartTime, 10))) && (
                       <Field.ErrorText>
-                        Please enter an integer between 0-24
+                        Please enter an integer between 0-24 for start time
                       </Field.ErrorText>
                     )}
+                </Field.Root>
+
+                <Field.Root mb={4}>
+                  <Field.Label>
+                    End Time (hour, 0-24){" "}
+                  </Field.Label>
+                  <NumberInput.Root 
+                    value={bookingEndTime}
+                    onValueChange={(e) => setBookingEndTime(e.value)} 
+                    max={24} 
+                    min={0} 
+                    w={"100%"}
+                  >
+                    <NumberInput.Control />
+                    <NumberInput.Input />
+                  </NumberInput.Root>
+                  {bookingEndTime &&
+                    (parseInt(bookingEndTime, 10) < 0 ||
+                      parseInt(bookingEndTime, 10) > 24 ||
+                      isNaN(parseInt(bookingEndTime, 10))) && (
+                      <Field.ErrorText>
+                        Please enter an integer between 0-24 for end time
+                      </Field.ErrorText>
+                    )}
+                  {(bookingStartTime && bookingEndTime && parseInt(bookingEndTime, 10) <= parseInt(bookingStartTime, 10)) && (
+                     <Field.ErrorText>
+                        End time must be after start time
+                      </Field.ErrorText>
+                  )}
                 </Field.Root>
 
                 <Button
