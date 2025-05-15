@@ -288,9 +288,10 @@ const TestimonialCard = ({ name, image, text, rating }) => {
               .map((_, i) => (
                 <Icon
                   key={i}
-                  as={FaStar}
                   color={i < rating ? "yellow.400" : "gray.300"}
-                />
+                >
+                  <FaStar />
+                </Icon>
               ))}
           </HStack>
         </Box>

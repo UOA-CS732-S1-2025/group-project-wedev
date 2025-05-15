@@ -15,6 +15,7 @@ const Navbar = () => {
         justify="space-between"
         align="center"
         flexDir={{ base: "column", sm: "row" }}
+        h="30px"
       >
         {/* Left icons */}
         <HStack spacing={4} color="green.500">
