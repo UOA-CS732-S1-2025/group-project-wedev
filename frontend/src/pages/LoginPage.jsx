@@ -4,6 +4,9 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from "../store/authStore";
+import { IconButton } from "@chakra-ui/react"
+import { HiEyeOff } from "react-icons/hi";
+import { HiEye } from "react-icons/hi";
 
 const LoginPage = () => {
   const [email, setEmail]       = useState('');
@@ -11,6 +14,7 @@ const LoginPage = () => {
   const [errors, setErrors]     = useState({ comtent: '' });
   const { login, user }         = useAuthStore();
   const navigate                = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -154,11 +158,24 @@ const LoginPage = () => {
               <Input
                 className="peer"
                 placeholder=""
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Field.Label css={floatingStyles}>Password</Field.Label>
+              <IconButton
+              aria-label="Toggle password visibility"
+              variant="ghost"
+              position="absolute"
+              top="50%"
+              right="0.5rem"
+              transform="translateY(-50%)"
+              size="sm"
+              zIndex={2}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <HiEyeOff/> : <HiEye/>}
+            </IconButton>
             </Field.Root>
 
             <Field.Root w="100%" mb={1} visibility={errors.comtent ? "visible" : "hidden"}>
