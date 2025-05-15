@@ -123,9 +123,75 @@ npm run test:ui
 
 The frontend communicates with the backend API via Axios. All API requests are configured with a unified base URL and automatic token injection. API request configuration is centrally managed in `src/lib/api.js`.
 
-## Deployment (To Be Completed)
+## 🌐 Deployment (Frontend – Vite + Vercel)
 
-WENZHE to complete this section
+This section explains how to deploy the Vite-based frontend of this MERN project to production using [Vercel](https://vercel.com).
+
+### 1. Requirements
+
+- A [Vercel](https://vercel.com) account
+- Your frontend project pushed to GitHub
+- Vite already set up (which you do if you're here!)
+
+### 2. Environment Variables
+
+You must set the following environment variables in your **Vercel dashboard**:
+
+```env
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+VITE_API_URL=https://your-backend-service.onrender.com
+```
+
+> 🔄 Replace the `VITE_API_URL` with your actual backend deployment URL.
+
+To manage these in Vercel:
+
+1. Go to your project in [Vercel Dashboard](https://vercel.com/dashboard).
+2. Navigate to **Settings → Environment Variables**.
+3. Add each key-value pair for both **Production** and **Preview** environments.
+
+### 3. Configure `vercel.json`
+
+Create a `vercel.json` file in the root of your frontend project to handle Vite's client-side routing (which prevents 404s on refresh):
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
+```
+
+> This ensures that all routes fallback to `index.html`, enabling client-side routing to work correctly.
+
+### 4. Deploy to Vercel
+
+To deploy:
+
+1. Push your frontend repo to GitHub (if not already).
+2. Go to [Vercel.com](https://vercel.com) and click **"New Project"**.
+3. Select your GitHub repo.
+4. Set the environment variables as above.
+5. Vercel will automatically detect Vite and build your project.
+
+Once deployed, you will get a live URL such as:
+
+```
+https://your-project-name.vercel.app
+```
+
+Use this URL in your backend's `.env` file:
+
+```env
+VITE_FRONTEND_URL=https://your-project-name.vercel.app
+```
+
+✅ Your Vite frontend is now live on Vercel and connected to your backend API!
+
+---
 
 ## Notes
 

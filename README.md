@@ -6,7 +6,7 @@
   <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
   🚀 <strong>Urban Ease is now live!</strong><br>
   Explore the full application here:<br>
-  <a href="https://wedev-liard.vercel.app/" target="_blank">
+  <a href="https://wedevv.vercel.app/" target="_blank">
     Urban Ease
   </a>
 </p>
@@ -114,8 +114,9 @@ JWT_SECRET=your_jwt_secret
 EMAIL_USER=your_email_user
 EMAIL_PASS=your_email_password
 EMAIL_FROM="sender name" <your_email_address>
-VITE_FRONTEND_URL=http://localhost:5173 # The frontend base URL. Used in email links, CORS, etc. 
-                                        # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
+
+VITE_FRONTEND_URL=http://localhost:5173          # The frontend base URL. Used in email links and CORS settings
+                                                 # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
 ```
  
 Update the `.env` file in the frontend directory with necessary environment variables:
