@@ -41,6 +41,7 @@ beforeEach(async () => {
 
   report = await Report.create({
     user: reporter._id,
+    reporter: reporter._id,
     subject: "Inappropriate behavior",
     description: "User was offensive",
     category: "user"
