@@ -5,6 +5,7 @@ export const getAllReports = async (req, res) => {
   try {
     const reports = await Report.find()
       .populate("user", "username email")
+      .populate("reporter", "username email")
       .sort({ createdAt: -1 });
     res.status(200).json(reports);
   } catch (err) {

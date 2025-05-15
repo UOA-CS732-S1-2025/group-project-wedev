@@ -111,6 +111,13 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
   // Check if a date is available
   const isDateAvailable = (date) => {
     if (!date) return false;
+
+    // Disable past dates
+    const todayForComparison = new Date();
+    todayForComparison.setHours(0, 0, 0, 0); // Compare with the start of today
+    if (date < todayForComparison) {
+      return false;
+    }
     
     const dayOfWeek = date.getDay();
     const dateString = date.toISOString().split('T')[0];

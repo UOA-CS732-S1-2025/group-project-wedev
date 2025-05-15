@@ -42,6 +42,7 @@ import { format, isPast, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 import ReviewDialog from "./ReviewDialog";
+import ReportDialog from "./ReportDialog";
 
 // Utility function: format time
 const formatTime = (dateTime) => {
@@ -50,6 +51,27 @@ const formatTime = (dateTime) => {
     return format(new Date(dateTime), "yyyy-MM-dd HH:mm");
   } catch (e) {
     return dateTime.toString();
+  }
+};
+
+// Utility function: format booking time range
+const formatBookingTimeRange = (startTime, endTime) => {
+  if (!startTime || !endTime) return "N/A";
+  try {
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    
+    // Format date part (e.g., "2023-10-26")
+    const datePart = format(startDate, "yyyy-MM-dd");
+    // Format time part for start and end time (e.g., "09:00")
+    const startTimePart = format(startDate, "HH:mm");
+    const endTimePart = format(endDate, "HH:mm");
+    
+    return `${datePart} ${startTimePart} - ${endTimePart}`;
+  } catch (e) {
+    console.error("Error formatting time range:", e);
+    // Fallback or more specific error handling
+    return "Invalid time range";
   }
 };
 
@@ -111,6 +133,7 @@ const BookingCard = ({
   const isTodayBooking = isToday(new Date(booking.startTime));
   const [isConfirming, setIsConfirming] = useState(false);
   const reviewDialogRef = useRef();
+  const reportDialogRef = useRef();
   const navigate = useNavigate();
 
   // Handle payment
@@ -170,7 +193,9 @@ const BookingCard = ({
                     bookingId={booking._id}
                     providerId={booking.provider._id}
                     onSuccess={() => {
-                      onStatusChange(booking._id, "reviewed");
+                      // This prop is now effectively for documentation or if ReviewDialog were to use it elsewhere;
+                      // The core logic of onStatusChange is handled in the submit button's onClick.
+                      // onStatusChange(booking._id, "reviewed"); // Original logic moved
                     }}
                   />
                 </Dialog.Body>
@@ -181,19 +206,75 @@ const BookingCard = ({
                     </Button>
                   </Dialog.ActionTrigger>
 
-                  <Button
-                    isLoading={reviewDialogRef.current?.loading}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      const ok = await reviewDialogRef.current?.submit();
-                      if (!ok) e.stopPropagation();
-                    }}
-                  >
-                    Submit
-                  </Button>
+                  <Dialog.ActionTrigger asChild>
+                    <Button
+                      isLoading={reviewDialogRef.current?.loading}
+                      onClick={async (e_actionTriggerEvent) => {
+                        if (!reviewDialogRef.current) return;
+
+                        const isSuccess = await reviewDialogRef.current.performSubmitOnly();
+
+                        if (isSuccess) {
+                          onStatusChange(booking._id, "reviewed");
+                        } else {
+                          e_actionTriggerEvent.preventDefault();
+                        }
+                      }}
+                    >
+                      Submit
+                    </Button>
+                  </Dialog.ActionTrigger>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" />
+                </Dialog.CloseTrigger>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
+      );
+    } else if (booking.status === "reviewed") {
+      return (
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <Button size="sm" variant="outline">
+              Report Issue
+            </Button>
+          </Dialog.Trigger>
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Report an Issue</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <ReportDialog
+                    ref={reportDialogRef}
+                    bookingId={booking._id}
+                    providerId={booking.provider._id}
+                    onSuccess={() => {
+                      onStatusChange(booking._id, "disputed");
+                      toaster.create({
+                        title: "Issue Reported",
+                        description: "Your report has been submitted and the booking status is updated to disputed.",
+                      });
+                    }}
+                  />
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Button
+                    isLoading={reportDialogRef.current?.loading}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      const ok = await reportDialogRef.current?.submit();
+                    }}
+                  >
+                    Submit Report
+                  </Button>
+                </Dialog.Footer>
+                <Dialog.CloseTrigger asChild>
+                  <CloseButton position="absolute" top="2" right="2" size="sm" />
                 </Dialog.CloseTrigger>
               </Dialog.Content>
             </Dialog.Positioner>
@@ -331,10 +412,11 @@ const BookingCard = ({
 
       <VStack align="start" spacing={4} pt={7}>
         {/* Service type */}
-        <Heading size="md">
-          <Icon mr={2} color="blue.500"><FaTools /></Icon>
-          {booking.serviceType}
-        </Heading>
+        <HStack spacing={2}>
+          <Heading size="md" color="blue.600">
+            {booking.serviceType}
+          </Heading>
+        </HStack>
 
         {/* User/provider information */}
         <HStack spacing={3}>
@@ -354,7 +436,7 @@ const BookingCard = ({
         {/* Booking time */}
         <HStack spacing={3}>
           <Icon color="gray.500"><FaCalendarAlt /></Icon>
-          <Text fontSize="sm">{formatTime(booking.startTime)}</Text>
+          <Text fontSize="sm">{formatBookingTimeRange(booking.startTime, booking.endTime)}</Text>
         </HStack>
 
         {/* Address information */}
@@ -376,7 +458,9 @@ const BookingCard = ({
         {/* Cost information */}
         <HStack spacing={3}>
           <Icon color="gray.500"><FaDollarSign /></Icon>
-          <Text fontSize="sm">${booking.hourlyRate}/hr</Text>
+          <Text fontSize="sm">
+            {booking.estimatedTotalCost?.toFixed(2) || 'N/A'} (${booking.hourlyRate}/hr)
+          </Text>
                   {/* Payment Status badge - top right, to the left of status badge */}
         {booking.paymentDetails?.paymentStatus && (
           <Badge colorPalette={paymentStatusProps.colorScheme} variant={"subtle"}>

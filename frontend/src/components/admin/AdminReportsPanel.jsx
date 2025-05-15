@@ -15,7 +15,7 @@ const AdminReportsPanel = () => {
 
   const fetchReports = async () => {
     try {
-      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/reports`, {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/reports`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports(res.data);
@@ -28,7 +28,7 @@ const AdminReportsPanel = () => {
 
   const handleReportsDelete = async (id) => {
     try {
-      await api.delete(`${import.meta.env.VITE_API_URL}/admin/reports/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/api/admin/reports/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports((prev) => prev.filter((r) => r._id !== id));
@@ -51,7 +51,9 @@ const AdminReportsPanel = () => {
         <Table.Root>
           <Table.Header>
             <Table.Row>
-              <Table.ColumnHeader>Submitter</Table.ColumnHeader>
+              <Table.ColumnHeader>Complainant</Table.ColumnHeader>
+              <Table.ColumnHeader>Respondent</Table.ColumnHeader>
+              <Table.ColumnHeader>Title</Table.ColumnHeader>
               <Table.ColumnHeader>Content</Table.ColumnHeader>
               <Table.ColumnHeader>Time</Table.ColumnHeader>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
@@ -60,7 +62,9 @@ const AdminReportsPanel = () => {
           <Table.Body>
             {reports.map((r) => (
               <Table.Row key={r._id}>
+                <Table.Cell>{r.reporter?.username || "NULL"}</Table.Cell>
                 <Table.Cell>{r.user?.username || "NULL"}</Table.Cell>
+                <Table.Cell>{r.subject}</Table.Cell>
                 <Table.Cell>{r.description}</Table.Cell>
                 <Table.Cell>{new Date(r.createdAt).toLocaleString()}</Table.Cell>
                 <Table.Cell>

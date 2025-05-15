@@ -33,7 +33,7 @@ console.log(process.env.MONGO_URI);
 
 app.use(express.json());
 app.use(cors({
-  origin: ["https://wedev-liard.vercel.app","http://localhost:5173"], // 允许前端访问的源
+  origin: ["https://wedev-liard.vercel.app","http://localhost:5173","https://wedevv.vercel.app"], // 允许前端访问的源
   credentials: true // 如果使用 cookies 或认证头
 }));
 
@@ -57,8 +57,13 @@ app.get("/", (req, res) => {
 });
 
 
-
+//Development environment
 app.listen(PORT, () => {
   connectDB();
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+// export default app; // Test environment
+
+

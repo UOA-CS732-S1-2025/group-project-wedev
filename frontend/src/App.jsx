@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ProviderDetailPage from './pages/ProviderDetailPage';
 import PaymentPage from './pages/PaymentPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import NotFound from "./pages/NotFound";
 import {
   ChakraProvider,
   createSystem,
@@ -55,7 +56,7 @@ const App = () => {
 
   return (
     <ChakraProvider value={system}>
-      <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"} libraries={['places']} language="en">
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']} language="en">
         <Box minH="100vh" >
           <Navbar />
           <Routes>
@@ -68,8 +69,10 @@ const App = () => {
              <Route path='/providerDetail/:id' element={<ProtectedRoute><ProviderDetailPage /></ProtectedRoute>} />
              <Route path="/payment/:bookingId" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
              <Route path="/verify-email" element={<VerifyEmailPage />} />
+             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
+
 
         </Box>
       </APIProvider>

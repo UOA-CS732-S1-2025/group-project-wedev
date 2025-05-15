@@ -9,7 +9,7 @@ import { sendVerificationEmail } from "../utils/sendEmail.js";
 export const registerUser = async (req, res) => {
   try {
 
-    const { firstName, lastName, email, password, role, location  } = req.body;
+    const { firstName, lastName, email, password, role, location, address = {}  } = req.body;
 
 
     // 验证用户角色
@@ -102,14 +102,23 @@ export const registerUser = async (req, res) => {
       emailVerifyToken,
       location: location?.coordinates?.length === 2
         ? location
-        : { type: "Point", coordinates: [174.7682, -36.8523] }
+        : { type: "Point", coordinates: [174.7682, -36.8523] },
+        address: {
+            street: address?.street || "",
+            suburb: address?.suburb || "",
+            city: address?.city || "",
+            state: address?.state || "",
+            postalCode: address?.postalCode || "",  
+            country: address?.country || ""
+          }
     });
 
     await newUser.save();
 
 
     // 构造验证链接
-    const verifyUrl = `http://localhost:5173/verify-email?token=${emailVerifyToken}`;
+    const verifyUrl = `${process.env.VITE_FRONTEND_URL}/verify-email?token=${emailVerifyToken}`;
+
 
     // 模拟发送验证邮件（建议改用 nodemailer）
     await sendVerificationEmail(email, verifyUrl);
@@ -248,7 +257,7 @@ export const updateCurrentUser = async (req, res) => {
     
     const allowed = [
       "firstName", "lastName", "phoneNumber", "profilePictureUrl", "bio", "address",
-      "serviceType", "hourlyRate", "role"
+      "serviceType", "hourlyRate", "role", "location"
     ];
     
     const updateFields = {};

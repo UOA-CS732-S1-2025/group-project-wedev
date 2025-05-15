@@ -7,6 +7,11 @@ const reportSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    reporter: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     subject: {
       type: String,
       required: true,
@@ -37,6 +42,11 @@ const reportSchema = new mongoose.Schema(
     resolvedAt: {
       type: Date,
     },
+    booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
+      required: false,
+    }
   },
   { timestamps: true }
 );

@@ -25,9 +25,10 @@ export const sendVerificationEmail = async (to, verifyUrl) => {
     to,
     subject: "Verify your email address",
     html: `
-      <h2>Welcome to Wedev!</h2>
+      <h2>Welcome to Urban Ease!</h2>
       <p>Click the link below to verify your email:</p>
       <a href="${verifyUrl}">${verifyUrl}</a>
+      <p>Sincerely,<br/>Cheng, Administrator of Urban Ease</p>
     `,
   };
 

@@ -13,6 +13,7 @@ import React from "react";
 import { useEffect, useState, useRef} from "react";
 import api from "../../lib/api";
 import useAuthStore from "../../store/authStore";
+import { toaster } from "@/components/ui/toaster"
 
 
 
@@ -27,7 +28,9 @@ const AdminUsersPanel = () => {
 
 const fetchUserById = async (userId) => {
   try {
-    const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, {
+
+    const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -42,7 +45,7 @@ const fetchUserById = async (userId) => {
       suburb: u.address?.suburb || "",
       city: u.address?.city || "",
       state: u.address?.state || "",
-      postCode: u.address?.postCode || "",
+      postalCode: u.address?.postalCode || "",
       country: u.address?.country || "",
     };
 
@@ -62,7 +65,7 @@ const fetchUserById = async (userId) => {
         suburb: React.createRef(),
         city: React.createRef(),
         state: React.createRef(),
-        postCode: React.createRef(),
+        postalCode: React.createRef(),
         country: React.createRef(),
       };
     }
@@ -73,7 +76,7 @@ const fetchUserById = async (userId) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users`, {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
@@ -86,7 +89,7 @@ const fetchUserById = async (userId) => {
 
   const handleUsersDelete = async (id) => {
     try {
-      await api.delete(`${import.meta.env.VITE_API_URL}/admin/users/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -109,7 +112,7 @@ const fetchUserById = async (userId) => {
     suburb: refs.suburb.current?.value || "",
     city: refs.city.current?.value || "",
     state: refs.state.current?.value || "",
-    postCode: refs.postCode.current?.value || "",
+    postalCode: refs.postalCode.current?.value || "",
     country: refs.country.current?.value || "",
   };
 
@@ -124,22 +127,29 @@ const fetchUserById = async (userId) => {
         suburb: newValues.suburb,
         city: newValues.city,
         state: newValues.state,
-        postCode: newValues.postCode,
+        postalCode: newValues.postalCode,
         country: newValues.country,
       },
     };
 
-    await api.put(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, payload, {
+
+    await api.put(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, payload, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    fetchUsers();
+    fetchUserById(userId);
 
-    setEditValuesMap((prev) => {
-      const updated = { ...prev };
-      delete updated[userId];
-      return updated;
-    });
+    toaster.create({
+              title: "Edit Success",
+              description: "User data updated.",
+            });
+
+    // setEditValuesMap((prev) => {
+    //   const updated = { ...prev };
+    //   delete updated[userId];
+    //   return updated;
+    // });
   } catch (err) {
     console.error("upload error", err);
   }
@@ -276,11 +286,11 @@ const fetchUserById = async (userId) => {
                             />
                           </Field.Root>
                           <Field.Root>
-                            <Field.Label>Postall Code</Field.Label>
+                            <Field.Label>Postal Code</Field.Label>
                             <Input 
-                            ref={inputRefsMap.current[u._id]?.postCode}
-                            defaultValue={editValuesMap[u._id]?.postCode ?? ""}
-                            placeholder={editValuesMap[u._id]?.postCode ?? ""}
+                            ref={inputRefsMap.current[u._id]?.postalCode}
+                            defaultValue={editValuesMap[u._id]?.postalCode ?? ""}
+                            placeholder={editValuesMap[u._id]?.postalCode ?? ""}
                             />
                           </Field.Root>
                           </Group>
@@ -321,7 +331,7 @@ const fetchUserById = async (userId) => {
                                 refs.suburb.current.value = values.suburb;
                                 refs.city.current.value = values.city;
                                 refs.state.current.value = values.state;
-                                refs.postCode.current.value = values.postCode;
+                                refs.postalCode.current.value = values.postalCode;
                                 refs.country.current.value = values.country;
                               }
                             }}

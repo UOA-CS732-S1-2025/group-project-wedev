@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
@@ -213,7 +211,7 @@ const UserProfile = () => {
     try {
       // The user router is typically mounted at /api/users on the backend.
       // So, the actual request will be PUT /api/users/me/profile-picture
-      const response = await api.put("/users/me/profile-picture", formData, {
+      const response = await api.put("/api/users/me/profile-picture", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -257,7 +255,7 @@ const UserProfile = () => {
     setSuccess("");
     setError("");
     try {
-      await api.put(`/auth/me`, {
+      await api.put(`/api/auth/me`, {
         firstName: form.firstName,
         lastName: form.lastName,
         phoneNumber: form.phoneNumber,
@@ -383,7 +381,6 @@ const UserProfile = () => {
                             </Tabs.Trigger>
                           </>
                         )}
-
                         <Tabs.Indicator rounded="l2" />
                       </Tabs.List>
                     </GridItem>
@@ -697,7 +694,7 @@ const UserProfile = () => {
 
                               // Submit update with provider role change - use dedicated endpoint
                               const response = await api.put(
-                                "/auth/me/become-provider",
+                                "/api/auth/me/become-provider",
                                 payload
                               );
 

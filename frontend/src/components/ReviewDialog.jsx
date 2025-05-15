@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, forwardRef, useImperativeHandle } from 'react'
-import { Field, RatingGroup, Stack, Textarea } from "@chakra-ui/react"
+import { Field, RatingGroup, Stack, Textarea, Heading } from "@chakra-ui/react"
 import useAuthStore from "../store/authStore"
 import { toaster } from "@/components/ui/toaster"
 
@@ -13,7 +13,7 @@ const ReviewDialog = forwardRef(({ bookingId, providerId, onSuccess }, ref) => {
 
   // 暴露 submit 方法给外部
   useImperativeHandle(ref, () => ({
-    async submit() {
+    async performSubmitOnly() {
       if (!rating || !comment.trim()) {
         toaster.create({
           title: "Please complete all fields",
@@ -23,7 +23,7 @@ const ReviewDialog = forwardRef(({ bookingId, providerId, onSuccess }, ref) => {
       }
       setLoading(true);
       try {
-        const res = await fetch("/api/reviews", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,6 @@ const ReviewDialog = forwardRef(({ bookingId, providerId, onSuccess }, ref) => {
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.message);
-        if (onSuccess) onSuccess();
         toaster.create({
           title: "Review submitted successfully",
           description: "Thank you for your review!",
@@ -70,6 +69,7 @@ const ReviewDialog = forwardRef(({ bookingId, providerId, onSuccess }, ref) => {
           <RatingGroup.HiddenInput />
           <RatingGroup.Control />
         </RatingGroup.Root>
+        <Heading size="sm">Review</Heading>
         <Textarea
           placeholder="Write a review"
           value={comment}
