@@ -390,13 +390,9 @@ Use this backend URL in the frontend by setting:
 VITE_API_URL=https://your-backend-service.onrender.com
 ```
 
----
-
 ✅ Your MERN backend is now ready and deployed. Be sure to test all API endpoints in production!
 
-```bash
-node server.js
-```
+---
 
 ## Notes
 
