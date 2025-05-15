@@ -15,7 +15,7 @@ const AdminReportsPanel = () => {
 
   const fetchReports = async () => {
     try {
-      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/reports`, {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/reports`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports(res.data);
@@ -28,7 +28,7 @@ const AdminReportsPanel = () => {
 
   const handleReportsDelete = async (id) => {
     try {
-      await api.delete(`${import.meta.env.VITE_API_URL}/admin/reports/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/api/admin/reports/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports((prev) => prev.filter((r) => r._id !== id));

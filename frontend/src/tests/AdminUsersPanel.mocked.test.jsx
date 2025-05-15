@@ -32,7 +32,7 @@ const MockedAdminUsersPanel = () => {
   // Mock fetching user list
   const fetchUsers = async () => {
     try {
-      const res = await api.get('/admin/users', {
+      const res = await api.get('/api/admin/users', {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
       setUsers(res.data);
@@ -46,7 +46,7 @@ const MockedAdminUsersPanel = () => {
   // Mock fetching single user details
   const fetchUserById = async (userId) => {
     try {
-      const res = await api.get(`/admin/users/${userId}`, {
+      const res = await api.get(`/api/admin/users/${userId}`, {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
       
@@ -92,7 +92,7 @@ const MockedAdminUsersPanel = () => {
   // Mock deleting user
   const handleUsersDelete = async (id) => {
     try {
-      await api.delete(`/admin/users/${id}`, {
+      await api.delete(`/api/admin/users/${id}`, {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -118,7 +118,7 @@ const MockedAdminUsersPanel = () => {
     };
     
     try {
-      await api.put(`/admin/users/${userId}`, {
+      await api.put(`/api/admin/users/${userId}`, {
         firstName: values.firstName,
         lastName: values.lastName,
         phoneNumber: values.phoneNumber,
@@ -292,7 +292,7 @@ describe('AdminUsersPanel Component Tests', () => {
     
     // Wait for user data to load
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/admin/users', {
+      expect(api.get).toHaveBeenCalledWith('/api/admin/users', {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
     });
@@ -356,7 +356,7 @@ describe('AdminUsersPanel Component Tests', () => {
     
     // Verify API call
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/admin/users/user1', {
+      expect(api.delete).toHaveBeenCalledWith('/api/admin/users/user1', {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
     });
@@ -395,7 +395,7 @@ describe('AdminUsersPanel Component Tests', () => {
     
     // Verify get user details API call
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/admin/users/user1', {
+      expect(api.get).toHaveBeenCalledWith('/api/admin/users/user1', {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
     });
@@ -418,7 +418,7 @@ describe('AdminUsersPanel Component Tests', () => {
     // Verify update API call
     await waitFor(() => {
       expect(api.put).toHaveBeenCalledWith(
-        '/admin/users/user1',
+        '/api/admin/users/user1',
         expect.objectContaining({
           firstName: 'Johnny',
           lastName: 'Updated',
@@ -429,7 +429,7 @@ describe('AdminUsersPanel Component Tests', () => {
     
     // Verify user list is refreshed
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/admin/users', {
+      expect(api.get).toHaveBeenCalledWith('/api/admin/users', {
         headers: { Authorization: 'Bearer fake-admin-token' },
       });
     });

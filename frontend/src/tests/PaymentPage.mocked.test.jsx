@@ -53,13 +53,13 @@ const MockedPaymentPage = () => {
     
     try {
       // Mock getting payment info - add headers parameter
-      const paymentRes = await mockGet(`/payments/booking/${mockParams.bookingId}`, {
+      const paymentRes = await mockGet(`/api/payments/booking/${mockParams.bookingId}`, {
         headers: { Authorization: 'Bearer fake-token' }
       });
       const payment = paymentRes.data;
       
       // Mock updating payment status
-      await mockPatch(`/payments/${payment._id}`, {
+      await mockPatch(`/api/payments/${payment._id}`, {
         status: 'paid',
         paidAt: new Date().toISOString(),
         method: method,
@@ -257,12 +257,12 @@ describe('PaymentPage Component Tests', () => {
     
     await waitFor(() => {
       // Should call API to get payment information
-      expect(mockGet).toHaveBeenCalledWith('/payments/booking/123456', {
+      expect(mockGet).toHaveBeenCalledWith('/api/payments/booking/123456', {
         headers: { Authorization: 'Bearer fake-token' }
       });
       
       // Should update payment status
-      expect(mockPatch).toHaveBeenCalledWith('/payments/payment123', {
+      expect(mockPatch).toHaveBeenCalledWith('/api/payments/payment123', {
         status: 'paid',
         paidAt: expect.any(String),
         method: 'credit_card',
