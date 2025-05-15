@@ -13,6 +13,7 @@ import React from "react";
 import { useEffect, useState, useRef} from "react";
 import api from "../../lib/api";
 import useAuthStore from "../../store/authStore";
+import { toaster } from "@/components/ui/toaster"
 
 
 
@@ -137,13 +138,18 @@ const fetchUserById = async (userId) => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    fetchUsers();
+    fetchUserById(userId);
 
-    setEditValuesMap((prev) => {
-      const updated = { ...prev };
-      delete updated[userId];
-      return updated;
-    });
+    toaster.create({
+              title: "Edit Success",
+              description: "User data updated.",
+            });
+
+    // setEditValuesMap((prev) => {
+    //   const updated = { ...prev };
+    //   delete updated[userId];
+    //   return updated;
+    // });
   } catch (err) {
     console.error("upload error", err);
   }
