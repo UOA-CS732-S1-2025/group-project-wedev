@@ -92,7 +92,7 @@ Urban Ease is a full-stack service booking platform that allows users to registe
 ## Installation Guide
 
 ### Prerequisites
-- Node.js (latest LTS version recommended)
+- Node.js (latest LTS version recommended, Development version: V20.14.0)
 - MongoDB instance (local or Atlas)
 
 ### Installation Steps
@@ -119,7 +119,7 @@ VITE_FRONTEND_URL=http://localhost:5173          # The frontend base URL. Used i
                                                  # Replace with your deployed frontend URL (e.g. https://your-app.vercel.app)
 ```
  
-Update the `.env` file in the frontend directory with necessary environment variables:
+Update the `.env.local` file in the frontend directory with necessary environment variables:
 
 ```
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key     # Google Maps API key for map display
@@ -160,6 +160,21 @@ The frontend will run at http://localhost:5173
 The backend will run at http://localhost:3000
 
 ### Testing
+
+Before running the backend test, need to configure the environment(`server.js`)
+
+<pre>
+  // Development environment 
+  // app.listen(PORT, () => { 
+  // connectDB(); 
+  // console.log(`Server is running on http://localhost:${PORT}`); 
+  // }); 
+
+  // Test environment
+ export default app; 
+  
+</pre>
+
 
 Run backend tests
 ```bash
