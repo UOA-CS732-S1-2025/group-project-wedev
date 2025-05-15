@@ -1,18 +1,179 @@
-# CS732 project - Team WeDev
+# Urban Ease - Home Service Web Application
 
-Welcome to the CS732 project. We look forward to seeing the amazing things you create this semester! This is your team's repository.
 
-Your team members are:
-- Cheng Li _(cli807@aucklanduni.ac.nz)_
-- Yunfei Xu _(yxu378@aucklanduni.ac.nz)_
-- Wenzhe Pang _(wpan273@aucklanduni.ac.nz)_
-- Ashutosh Singh _(nisa367@aucklanduni.ac.nz)_
-- Zoe Zhong _(pzho670@aucklanduni.ac.nz)_
-- Yi Ji _(yji850@aucklanduni.ac.nz)_
-- Meize Zhou _(mzho097@aucklanduni.ac.nz)_
 
-You have complete control over how you run this repo. All your members will have admin access. The only thing setup by default is branch protections on `main`, requiring a PR with at least one code reviewer to modify `main` rather than direct pushes.
+<p align="center">
+  <img src="./Urban_Ease_logo.png" alt="Urban Ease Logo" width="200"/><br>
+  🚀 <strong>Urban Ease is now live!</strong><br>
+  Explore the full application here:<br>
+  <a href="https://wedev-liard.vercel.app/" target="_blank">
+    Urban Ease
+  </a>
+</p>
 
-Please use good version control practices, such as feature branching, both to make it easier for markers to see your group's history and to lower the chances of you tripping over each other during development
 
-![](./WeDev.png)
+
+## About Urban Ease
+
+Urban Ease is a full-stack service booking platform that allows users to register as service providers or service consumers. Consumers can browse services, book appointments, and make payments, while service providers can manage bookings and receive payments. The platform also provides real-time messaging functionality, allowing communication between users, as well as a review and reporting system.
+
+## Team Members
+
+| Name           | Email                        | Role
+|----------------|------------------------------|------
+| Cheng Li       | cli807@aucklanduni.ac.nz     | Full-Stack
+| Yunfei Xu      | yxu378@aucklanduni.ac.nz     | Backend
+| Wenzhe Pang    | wpan273@aucklanduni.ac.nz    | Full-Stack
+| Ashutosh Singh | nisa367@aucklanduni.ac.nz    | Frontend
+| Zoe Zhong      | pzho670@aucklanduni.ac.nz    | Backend
+| Yi Ji          | yji850@aucklanduni.ac.nz     | Backend
+| Meize Zhou     | mzho097@aucklanduni.ac.nz    | Frontend
+
+
+
+## Features
+
+### User Management
+- User registration and login
+- Email verification
+- User profile management
+- Authentication and authorization
+
+### Services and Bookings
+- Service browsing and search
+- Booking creation and management
+- Booking status tracking
+- Schedule management
+
+### Messaging System
+- Real-time messaging between users
+- Conversation management
+- Unread message notifications
+
+### Payment System
+- Secure payment processing
+- Transaction history
+- Payment status management
+
+### Reviews and Reports
+- Service review submission
+- Issue reporting
+- Review management
+
+### Admin Features
+- User management
+- Booking monitoring
+- Payment monitoring
+- Report handling
+
+## Technology Stack
+
+### Frontend
+- **React 19** - Latest version of the React UI library
+- **React Router v7** - For page routing management
+- **Chakra UI v3** - Component library providing modern, customizable UI components
+- **Zustand** - Lightweight state management library
+- **Axios** - HTTP client for API request handling
+- **Vite** - Fast frontend build tool
+- **Vitest** - Unit testing framework
+- **@vis.gl/react-google-maps** - Google Maps integration library
+- **date-fns** - Date handling utility library
+- **react-hot-toast** - Notification toast component
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - Object Data Modeling
+- **JWT** - Authentication
+- **Bcrypt** - Password hashing
+- **Nodemailer** - Email service
+
+## Installation Guide
+
+### Prerequisites
+- Node.js (latest LTS version recommended)
+- MongoDB instance (local or Atlas)
+
+### Installation Steps
+
+1. Clone the repository
+```bash
+git clone https://github.com/UOA-CS732-S1-2025/group-project-wedev.git
+cd group-project-wedev
+```
+
+2. Set up environment variables
+
+Update the `.env` file in the backend directory with necessary environment variables:
+```
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_jwt_secret
+
+EMAIL_USER=your_email_user
+EMAIL_PASS=your_email_password
+EMAIL_FROM="sender name" <your_email_address>
+```
+ 
+Update the `.env` file in the frontend directory with necessary environment variables:
+
+```
+GOOGLE_MAPS_API_KEY=<your_google_maps_api_key>
+```
+
+3. Install backend dependencies
+```bash
+cd backend
+npm install
+```
+
+4. Install frontend dependencies
+```bash
+cd frontend
+npm install
+```
+
+## Usage Guide
+
+### Development Mode
+
+1. Start the backend server
+```bash
+cd backend
+npm run dev
+```
+
+2. Start the frontend development server
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will run at http://localhost:5173
+The backend will run at http://localhost:3000
+
+### Testing
+
+Run backend tests
+```bash
+cd backend
+npm test
+```
+
+Run frontend tests
+```bash
+cd frontend
+npm test
+```
+
+## API Documentation
+
+Detailed API documentation can be found in [backend/Readme.md](./backend/README.md), including information about messages, conversations, and other endpoints.
+
+## Frontend Guide
+
+The frontend is a React-based interface built with Vite and Chakra UI. It communicates with the backend via RESTful APIs. For implementation details and developer setup instructions, see [frontend/Readme.md](./frontend/README.md)
+
+
+

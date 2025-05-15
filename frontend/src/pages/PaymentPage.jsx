@@ -32,7 +32,7 @@ const PaymentPage = () => {
   useEffect(() => {
     const fetchPayment = async () => {
       try {
-        const res = await api.get(`/payments/booking/${bookingId}`, {
+        const res = await api.get(`/api/payments/booking/${bookingId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPaymentInfo(res.data);
@@ -63,7 +63,7 @@ const PaymentPage = () => {
     setIsProcessing(true);
     try {
       // 1. Update the payment record
-      const paymentRes = await api.get(`/payments/booking/${bookingId}`, {
+      const paymentRes = await api.get(`/api/payments/booking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,7 +77,7 @@ const PaymentPage = () => {
       
       // 2. Update payment status
       await api.patch(
-        `/payments/${payment._id}`,
+        `/api/payments/${payment._id}`,
         {
           status: "paid",
           paidAt: new Date().toISOString(),

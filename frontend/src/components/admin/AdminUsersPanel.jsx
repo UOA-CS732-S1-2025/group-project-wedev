@@ -27,7 +27,9 @@ const AdminUsersPanel = () => {
 
 const fetchUserById = async (userId) => {
   try {
-    const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, {
+
+    const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -73,11 +75,12 @@ const fetchUserById = async (userId) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get(`${import.meta.env.VITE_API_URL}/admin/users`, {
+      const res = await api.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
     } catch (err) {
+
     } finally {
       setLoading(false);
     }
@@ -85,7 +88,7 @@ const fetchUserById = async (userId) => {
 
   const handleUsersDelete = async (id) => {
     try {
-      await api.delete(`${import.meta.env.VITE_API_URL}/admin/users/${id}`, {
+      await api.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -128,7 +131,9 @@ const fetchUserById = async (userId) => {
       },
     };
 
-    await api.put(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, payload, {
+
+    await api.put(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, payload, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -157,6 +162,7 @@ const fetchUserById = async (userId) => {
 
   return (
     <Box>
+
       <Input 
         placeholder="Search Username..."
         value={filter}

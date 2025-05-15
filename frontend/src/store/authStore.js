@@ -10,7 +10,7 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     localStorage.removeItem("token");
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/api/auth/login", { email, password });
       const { user, token } = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("login", Date.now().toString());
@@ -28,7 +28,7 @@ const useAuthStore = create((set) => ({
 
   register: async ({ firstName, lastName, email, password }) => {
     try {
-      const res = await api.post("/auth/register", {
+      const res = await api.post("/api/auth/register", {
         firstName,
         lastName,
         email,
@@ -63,7 +63,7 @@ const useAuthStore = create((set) => ({
     if (!token) return;
   
     try {
-      const res = await api.get("/auth/me", {
+      const res = await api.get("/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

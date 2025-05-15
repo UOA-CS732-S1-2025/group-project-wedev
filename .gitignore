@@ -4,7 +4,7 @@ node_modules
 llms-components.txt
 .cursor/
 backend/seed.js
-<<<<<<< HEAD
-=======
+coverage/
+.vscode/
 .github/
->>>>>>> origin/main
+
