@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ProviderDetailPage from './pages/ProviderDetailPage';
 import PaymentPage from './pages/PaymentPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import NotFound from "./pages/NotFound";
 import {
   ChakraProvider,
   createSystem,
@@ -68,6 +69,7 @@ const App = () => {
              <Route path='/providerDetail/:id' element={<ProtectedRoute><ProviderDetailPage /></ProtectedRoute>} />
              <Route path="/payment/:bookingId" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
              <Route path="/verify-email" element={<VerifyEmailPage />} />
+             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
 
