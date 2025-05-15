@@ -89,10 +89,10 @@ npm install
 Create a `.env.local` file and add the necessary environment variables:
 
 ```
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key     # Google Maps API key for map display
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key     # Google Maps API key for map display
 
-VITE_API_URL=http://localhost:3000               # Backend API base URL
-                                                 # Replace with your Render backend URL when deployed
+VITE_API_URL=http://localhost:3000                    # Backend API base URL
+                                                      # Replace with your Render backend URL when deployed
 ```
 
 ### Running in Development Mode
