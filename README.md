@@ -62,7 +62,7 @@ Summary of group meeting minutes: [Urban Ease Project – Meeting Log](https://g
 - Issue reporting
 - Review management
 
-### Admin Features
+### Admin Features (Only obtain Admin identity by modifying the database or use [default account](https://github.com/UOA-CS732-S1-2025/group-project-wedev/wiki/Administrator-Account))
 - User management
 - Booking monitoring
 - Payment monitoring
