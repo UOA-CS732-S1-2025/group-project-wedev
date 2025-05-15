@@ -17,8 +17,7 @@ import {
   Badge,
   Input,
   Field,
-  NumberInput,
-
+  NumberInput
 } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -743,42 +742,6 @@ export default function ProviderDetailPage() {
 
               <Separator my={6} />
 
-              {/* Portfolio section */}
-              <Box mb={10}>
-                <Heading size="md" mb={4}>
-                  Portfolio
-                </Heading>
-                {provider.portfolioMedia &&
-                provider.portfolioMedia.length > 0 ? (
-                  <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={4}>
-                    {provider.portfolioMedia.map((media, idx) => (
-                      <Box
-                        key={idx}
-                        borderRadius="md"
-                        overflow="hidden"
-                        boxShadow="md"
-                      >
-                        <Image
-                          src={media.url}
-                          alt={media.caption || `Portfolio ${idx + 1}`}
-                          width="100%"
-                          height="200px"
-                          objectFit="cover"
-                        />
-                        {media.caption && (
-                          <Box p={2} bg={cardBgColor}>
-                            <Text fontSize="sm">{media.caption}</Text>
-                          </Box>
-                        )}
-                      </Box>
-                    ))}
-                  </SimpleGrid>
-                ) : (
-                  <Box bg={cardBgColor} p={4} borderRadius="md">
-                    <Text color="gray.500">No portfolio available.</Text>
-                  </Box>
-                )}
-              </Box>
 
               <Separator my={6} />
 
@@ -787,37 +750,45 @@ export default function ProviderDetailPage() {
                 <Heading size="md" mb={4}>
                   Reviews
                 </Heading>
-                <HStack mb={4}>
-                  <Box
-                    p={4}
-                    bg={cardBgColor}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    textAlign="center"
-                    flex="1"
+                {/* New combined display for average rating and review count */}
+                <Box
+                  p={4}
+                  bg={cardBgColor}
+                  borderRadius="md"
+                  boxShadow="sm"
+                  mb={4}
+                >
+                  <HStack
+                    spacing={{ base: 4, md: 8 }} // Responsive spacing
+                    align="center"
+                    justify="space-around" // Distribute space evenly
                   >
-                    <HStack justify="center" mb={2}>
-                      {renderStarRating(averageRating)}
-                    </HStack>
-                    <Heading size="xl" color="blue.500">
-                      {averageRating.toFixed(1) || "-"}
-                    </Heading>
-                    <Text>Average Rating</Text>
-                  </Box>
-                  <Box
-                    p={4}
-                    bg={cardBgColor}
-                    borderRadius="md"
-                    boxShadow="sm"
-                    textAlign="center"
-                    flex="1"
-                  >
-                    <Heading size="xl" color="blue.500">
-                      {reviewCount || 0}
-                    </Heading>
-                    <Text>Number of Reviews</Text>
-                  </Box>
-                </HStack>
+                    {/* Part 1: Average Rating */}
+                    <VStack spacing={1} align="center" flex="1">
+                      <Text fontSize="sm" color="gray.600" mb={1}>
+                        Average Rating
+                      </Text>
+                      <HStack justify="center">
+                        {renderStarRating(averageRating)}
+                      </HStack>
+                      <Heading size="lg" color={highlightColor}>
+                        {averageRating.toFixed(1) || "-"}
+                      </Heading>
+                    </VStack>
+
+                    <Separator orientation="vertical" h={{ base: "40px", md: "60px" }} borderColor={borderColor} />
+
+                    {/* Part 2: Number of Reviews */}
+                    <VStack spacing={1} align="center" flex="1">
+                      <Text fontSize="sm" color="gray.600" mb={1}>
+                        Total Reviews
+                      </Text>
+                      <Heading size="lg" color={highlightColor}>
+                        {reviewCount || 0}
+                      </Heading>
+                    </VStack>
+                  </HStack>
+                </Box>
 
                 {reviewsLoading ? (
                   <Flex justify="center" py={6}>

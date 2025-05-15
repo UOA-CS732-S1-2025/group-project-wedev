@@ -55,7 +55,7 @@ const App = () => {
 
   return (
     <ChakraProvider value={system}>
-      <APIProvider apiKey={"AIzaSyDoqQIS7SoRqv-mCcaid5cIxk7jdw2u_OE"} libraries={['places']} language="en">
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']} language="en">
         <Box minH="100vh" >
           <Navbar />
           <Routes>
