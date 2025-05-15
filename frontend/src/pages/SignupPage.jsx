@@ -3,6 +3,9 @@ import { Box, Input, Button, VStack, Text, Image, Field, defineStyle } from '@ch
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from "../store/authStore";
 import toast, { Toaster } from 'react-hot-toast';
+import { IconButton } from "@chakra-ui/react"
+import { HiEyeOff } from "react-icons/hi";
+import { HiEye } from "react-icons/hi";
 
 const floatingStyles = defineStyle({
   pos: "absolute",
@@ -33,6 +36,7 @@ const SignupPage = () => {
   const [errors, setErrors]       = useState({ comtent: '' });
   const { register, user }        = useAuthStore();
   const navigate                  = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const notify                    = () => toast('Please check your email to verify.', {
     duration: 4000,
     icon: '📧',
@@ -151,11 +155,24 @@ const SignupPage = () => {
               <Input
                 className="peer"
                 placeholder=""
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
               />
               <Field.Label css={floatingStyles}>Password</Field.Label>
+               <IconButton
+              aria-label="Toggle password visibility"
+              variant="ghost"
+              position="absolute"
+              top="50%"
+              right="0.5rem"
+              transform="translateY(-50%)"
+              size="sm"
+              zIndex={2}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <HiEyeOff/> : <HiEye/>}
+            </IconButton>
             </Field.Root>
 
             <Field.Root w="100%" mb={1} visibility={errors.comtent ? "visible" : "hidden"}>
