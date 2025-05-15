@@ -109,7 +109,7 @@ export const registerUser = async (req, res) => {
 
 
     // 构造验证链接
-    const verifyUrl = `${import.meta.env.VITE_FRONTEND_URL}/verify-email?token=${emailVerifyToken}`;
+    const verifyUrl = `${process.env.VITE_FRONTEND_URL}/verify-email?token=${emailVerifyToken}`;
 
 
     // 模拟发送验证邮件（建议改用 nodemailer）
