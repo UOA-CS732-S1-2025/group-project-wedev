@@ -42,6 +42,7 @@ import { format, isPast, isToday } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 import ReviewDialog from "./ReviewDialog";
+import ReportDialog from "./ReportDialog";
 
 // Utility function: format time
 const formatTime = (dateTime) => {
@@ -111,6 +112,7 @@ const BookingCard = ({
   const isTodayBooking = isToday(new Date(booking.startTime));
   const [isConfirming, setIsConfirming] = useState(false);
   const reviewDialogRef = useRef();
+  const reportDialogRef = useRef();
   const navigate = useNavigate();
 
   // Handle payment
@@ -194,6 +196,55 @@ const BookingCard = ({
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" />
+                </Dialog.CloseTrigger>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
+      );
+    } else if (booking.status === "reviewed") {
+      return (
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <Button size="sm" variant="outline">
+              Report Issue
+            </Button>
+          </Dialog.Trigger>
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Report an Issue</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <ReportDialog
+                    ref={reportDialogRef}
+                    bookingId={booking._id}
+                    providerId={booking.provider._id}
+                    onSuccess={() => {
+                      onStatusChange(booking._id, "disputed");
+                      toaster.create({
+                        title: "Issue Reported",
+                        description: "Your report has been submitted and the booking status is updated to disputed.",
+                      });
+                    }}
+                  />
+                </Dialog.Body>
+                <Dialog.Footer>
+
+                  <Button
+                    isLoading={reportDialogRef.current?.loading}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      const ok = await reportDialogRef.current?.submit();
+                    }}
+                  >
+                    Submit Report
+                  </Button>
+                </Dialog.Footer>
+                <Dialog.CloseTrigger asChild>
+                  <CloseButton position="absolute" top="2" right="2" size="sm" />
                 </Dialog.CloseTrigger>
               </Dialog.Content>
             </Dialog.Positioner>
