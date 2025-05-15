@@ -332,7 +332,6 @@ const BookingCard = ({
       <VStack align="start" spacing={4} pt={7}>
         {/* Service type */}
         <Heading size="md">
-          <Icon mr={2} color="blue.500"><FaTools /></Icon>
           {booking.serviceType}
         </Heading>
 
