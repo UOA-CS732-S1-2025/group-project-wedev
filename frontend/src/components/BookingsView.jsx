@@ -193,7 +193,9 @@ const BookingCard = ({
                     bookingId={booking._id}
                     providerId={booking.provider._id}
                     onSuccess={() => {
-                      onStatusChange(booking._id, "reviewed");
+                      // This prop is now effectively for documentation or if ReviewDialog were to use it elsewhere;
+                      // The core logic of onStatusChange is handled in the submit button's onClick.
+                      // onStatusChange(booking._id, "reviewed"); // Original logic moved
                     }}
                   />
                 </Dialog.Body>
@@ -204,16 +206,24 @@ const BookingCard = ({
                     </Button>
                   </Dialog.ActionTrigger>
 
-                  <Button
-                    isLoading={reviewDialogRef.current?.loading}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      const ok = await reviewDialogRef.current?.submit();
-                      if (!ok) e.stopPropagation();
-                    }}
-                  >
-                    Submit
-                  </Button>
+                  <Dialog.ActionTrigger asChild>
+                    <Button
+                      isLoading={reviewDialogRef.current?.loading}
+                      onClick={async (e_actionTriggerEvent) => {
+                        if (!reviewDialogRef.current) return;
+
+                        const isSuccess = await reviewDialogRef.current.performSubmitOnly();
+
+                        if (isSuccess) {
+                          onStatusChange(booking._id, "reviewed");
+                        } else {
+                          e_actionTriggerEvent.preventDefault();
+                        }
+                      }}
+                    >
+                      Submit
+                    </Button>
+                  </Dialog.ActionTrigger>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" />
@@ -253,7 +263,6 @@ const BookingCard = ({
                   />
                 </Dialog.Body>
                 <Dialog.Footer>
-
                   <Button
                     isLoading={reportDialogRef.current?.loading}
                     onClick={async (e) => {
