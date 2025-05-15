@@ -19,6 +19,7 @@ import { CiMail } from 'react-icons/ci';
 import { useConversationStore } from '../store/conversationStore';
 import { useChatDialogStore } from '../store/chatDialogStore';
 import useAuthStore from '../store/authStore';
+import { useUserStore } from '../store/userStore';
 import { formatDistanceToNow } from 'date-fns';
 import ConversationView from './ConversationView'; // We'll create this component next
 import { useNavigate } from 'react-router-dom';
@@ -37,6 +38,7 @@ const UserInbox = () => {
   const { openDialog, conversationId: targetConversationIdFromStore } = useChatDialogStore();
   const [selectedConversation, setSelectedConversation] = useState(null);
   const navigate = useNavigate();
+  const { searchProviders } = useUserStore();
 
   useEffect(() => {
     if (user?._id) {
@@ -211,7 +213,10 @@ const UserInbox = () => {
                       or <Link 
                           color="blue.600"
                           _hover={{ textDecoration: 'underline' }}
-                          onClick={() => navigate('/booking')}
+                          onClick={async () => {
+                            await searchProviders({});
+                            navigate('/booking');
+                          }}
                           cursor="pointer"
                         >
                           book a new service
