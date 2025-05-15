@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Spinner, Text, Heading } from "@chakra-ui/react";
+import { Box, Spinner, Text, Heading, Image } from "@chakra-ui/react";
 import { useSearchParams, useNavigate  } from "react-router-dom";
 import api from "../lib/api";
 
@@ -34,7 +34,27 @@ const VerifyEmailPage = () => {
   }, [token]);
 
   return (
-    <Box textAlign="center" mt="40">
+    <Box position="relative"
+    minH="90vh"
+    bgGradient="linear(to-br, green.100, green.50)"
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    justifyContent="center"
+    px={4}
+    overflow="hidden">
+      <Image
+          src="https://urbaneaseproject.s3.us-east-1.amazonaws.com/back+ground+log.png"
+          alt="Background Blob"
+          position="absolute"
+          top="0"
+          left="0"
+          w="100%"
+          h="100%"
+          objectFit="cover"
+          zIndex={0}
+          opacity={0.15}
+        />
       {status === "loading" && (
         <>
           <Spinner size="xl" />
