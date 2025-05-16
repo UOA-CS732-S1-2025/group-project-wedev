@@ -23,7 +23,7 @@ import { useUserStore } from '../store/userStore';
 import { formatDistanceToNow } from 'date-fns';
 import ConversationView from './ConversationView'; // We'll create this component next
 import { useNavigate } from 'react-router-dom';
-import { toaster } from '@/components/ui/toaster'; // 导入自定义 toaster
+import { toaster } from '@/components/ui/toaster'; // Import custom toaster
 
 const UserInbox = () => {
   const { user } = useAuthStore();
@@ -50,8 +50,8 @@ const UserInbox = () => {
   useEffect(() => {
     if (error) {
       toaster.create({
-        description: error, // 使用 API 返回的错误信息
-        type: "error", // 设置类型为 error
+        description: error, // Use error message returned by API
+        type: "error", // Set type to error
       });
     }
   }, [error]);

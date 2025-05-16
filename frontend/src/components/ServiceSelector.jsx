@@ -49,7 +49,7 @@ const ServiceSelector = ({ onSelect }) => {
     }
   ];
 
-  // 获取基于索引的hover颜色
+  // Get hover color based on index
   const getHoverColor = (index) => {
     switch (index % 3) {
       case 0: return 'teal.100';
@@ -59,7 +59,7 @@ const ServiceSelector = ({ onSelect }) => {
     }
   };
 
-  // 获取基于索引的active颜色
+  // Get active color based on index
   const getActiveColor = (index) => {
     switch (index % 3) {
       case 0: return 'teal.100';

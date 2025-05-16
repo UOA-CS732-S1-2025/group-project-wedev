@@ -24,9 +24,9 @@ const BookingPage = () => {
     };
   }, []);
 
-  // 禁用浏览器最外层滚动，只保留右侧结果区滚动
+  // Disable outermost browser scrolling, keeping only the right-side results area scrollable
   useEffect(() => {
-    // 保存原始 overflow
+    // Save original overflow
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {

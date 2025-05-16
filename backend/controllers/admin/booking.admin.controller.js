@@ -1,7 +1,7 @@
 
 import Booking from "../../models/booking.model.js";
 
-// 获取所有预订记录
+// Get all bookings
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
@@ -14,7 +14,7 @@ export const getAllBookings = async (req, res) => {
   }
 };
 
-// 获取单个预订记录
+// et a single booking by ID
 export const getBookingById = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
@@ -27,7 +27,7 @@ export const getBookingById = async (req, res) => {
   }
 };
 
-// 更新预订
+// Update booking
 export const updateBooking = async (req, res) => {
   try {
     const updated = await Booking.findByIdAndUpdate(req.params.id, req.body, {
@@ -40,7 +40,7 @@ export const updateBooking = async (req, res) => {
   }
 };
 
-// 删除预订
+// Delete booking
 export const deleteBooking = async (req, res) => {
   try {
     const deleted = await Booking.findByIdAndDelete(req.params.id);

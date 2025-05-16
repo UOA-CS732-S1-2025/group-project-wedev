@@ -27,11 +27,11 @@ beforeEach(async () => {
 
   const sender = await User.create({ username: "Alice", email: "alice@example.com", password: "123456", role: "customer",  location: {
     type: "Point",
-    coordinates: [174.7633, -36.8485] // Auckland 示例坐标
+    coordinates: [174.7633, -36.8485] // Auckland Example coordinates
   } });
   const recipient = await User.create({ username: "Bob", email: "bob@example.com", password: "123456", role: "provider",  location: {
     type: "Point",
-    coordinates: [174.7633, -36.8485] // Auckland 示例坐标
+    coordinates: [174.7633, -36.8485] // Auckland Example coordinates
   } });
 
   senderId = sender._id;

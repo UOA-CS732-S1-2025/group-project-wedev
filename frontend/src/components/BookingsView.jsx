@@ -138,7 +138,7 @@ const BookingCard = ({
 
   // Handle payment
   const handlePayment = () => {
-    // 将当前URL保存到会话存储中，以便支付完成后可以返回
+    // Save the current URL to session storage so the user can return after payment completion
     sessionStorage.setItem('returnToOrders', true);
     // Navigate to PaymentPage with the booking id
     navigate(`/payment/${booking._id}`);
@@ -289,7 +289,7 @@ const BookingCard = ({
   const providerActions = () => {
     switch (booking.status) {
       case "pending_confirmation":
-        // 检查支付状态是否为succeeded（已支付）
+        // Check if payment status is 'succeeded'
         const isPaymentSucceeded = booking.paymentDetails?.paymentStatus === "succeeded";
         
         return (

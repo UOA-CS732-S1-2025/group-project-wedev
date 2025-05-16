@@ -11,14 +11,14 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String },
   phoneNumber: { type: String },
   profilePictureUrl: { type: String },
-  profilePicturePublicId: { type: String }, // 新增字段，用于存储 Cloudinary public_id
+  profilePicturePublicId: { type: String }, // Add new field to store Cloudinary public_id
   address: {
-    street: { type: String },       // 街道地址，例如 "10 Downing Street"
-    suburb: { type: String },       // 新增的区/区域，例如 "New Lynn"
-    city: { type: String },         // 城市，例如 "Auckland"
-    state: { type: String },        // 州/省/地区，例如 "Auckland" (在新西兰，city 和 state/region 有时会是同一个，或者这里可以是 "AKL" 等简称)
-    postalCode: { type: String },   // 邮政编码，例如 "0600"
-    country: { type: String },      // 国家，例如 "New Zealand"
+    street: { type: String },       // Street address, e.g., "10 Downing Street"
+    suburb: { type: String },       // Newly added district/area, e.g., "New Lynn"
+    city: { type: String },         // City, e.g., "Auckland"
+    state: { type: String },        // State/Province/Region, e.g., "Auckland" (in New Zealand, city and state/region can sometimes be the same, or this could be an abbreviation like "AKL")
+    postalCode: { type: String },   // Postal code, e.g., "0600"
+    country: { type: String },      // Country, e.g., "New Zealand"
   },
   // Provider Specific
   serviceType: { type: String }, // or serviceTypeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ServiceType' }

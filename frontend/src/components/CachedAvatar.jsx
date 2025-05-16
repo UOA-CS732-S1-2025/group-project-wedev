@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
 import { Avatar } from '@chakra-ui/react';
 
-// 使用普通对象来缓存头像
+// Use a plain object to cache avatars
 const avatarCache = {};
 
 const CachedAvatar = ({ src, name, size = "sm", ...props }) => {
-  // 创建缓存键
+  // Create cache key
   const cacheKey = src || name || 'default';
   
-  // 使用 useMemo 缓存 Avatar 组件实例
+  // Use useMemo to cache Avatar component instances
   return useMemo(() => {
-    // 检查缓存
+    // Check cache
     if (cacheKey && avatarCache[cacheKey]) {
       return avatarCache[cacheKey];
     }
@@ -22,7 +22,7 @@ const CachedAvatar = ({ src, name, size = "sm", ...props }) => {
       </Avatar.Root>
     );
     
-    // 存入缓存
+    // Store in cache
     if (cacheKey) {
       avatarCache[cacheKey] = avatar;
     }
