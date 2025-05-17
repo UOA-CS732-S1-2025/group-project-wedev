@@ -33,7 +33,7 @@ const useAuthStore = create((set) => ({
         lastName,
         email,
         password,
-        role: "customer", // 默认注册为客户
+        role: "customer", // Default registration as customer
         location: {
           type: "Point",
           coordinates: [174.7682, -36.8523], // Default coordinates (UOA)

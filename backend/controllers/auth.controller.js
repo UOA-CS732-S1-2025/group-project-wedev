@@ -5,14 +5,14 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
 
 
-// 用户注册
+// User registration
 export const registerUser = async (req, res) => {
   try {
 
     const { firstName, lastName, email, password, role, location, address = {}  } = req.body;
 
 
-    // 验证用户角色
+    // Validate user role
     if (role !== 'customer') {
       return res.status(400).json({ 
         success: false,
@@ -71,7 +71,7 @@ export const registerUser = async (req, res) => {
     }
     
 
-    // 检查邮箱是否已经存在
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ 
@@ -80,24 +80,24 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // 对密码进行加密
+    // Encrypt the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
 
-    // 生成邮箱验证 token
+    // Generate email verification token
     const emailVerifyToken = crypto.randomBytes(32).toString("hex");
 
 
-    // 创建新用户
+    // Create a new user
     const newUser = new User({
       firstName,
       lastName,
       email,
-      username: email.split('@')[0], // 使用邮箱前缀作为默认用户名
+      username: email.split('@')[0], // Use email prefix as default username
       password: hashedPassword,
       role: 'customer',
-      profilePictureUrl: "https://avatar.iran.liara.run/public", // 默认头像
+      profilePictureUrl: "https://avatar.iran.liara.run/public", // Default avatar
       emailVerified: false,
       emailVerifyToken,
       location: location?.coordinates?.length === 2
@@ -116,22 +116,22 @@ export const registerUser = async (req, res) => {
     await newUser.save();
 
 
-    // 构造验证链接
+    // Construct verification link
     const verifyUrl = `${process.env.VITE_FRONTEND_URL}/verify-email?token=${emailVerifyToken}`;
 
 
-    // 模拟发送验证邮件（建议改用 nodemailer）
+    // Simulate sending verification email
     await sendVerificationEmail(email, verifyUrl);
 
 
-    // 生成JWT令牌
+    // Generate JWT token
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // 不返回密码
+    // Do not return the password
     const userToReturn = { ...newUser._doc };
     delete userToReturn.password;
 
@@ -151,31 +151,31 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// 用户登录
+// User login
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 验证用户是否存在
+    // Verify if user exists
     const user = await User.findOne({ email });
     if (!user) {
         return res.status(400).json({ success: false, message: "User not found" });
       }
 
-    // 验证密码
+    // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
         return res.status(400).json({ success: false, message: "Wrong password" });
       }
 
-    // 生成JWT令牌
+    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // 不返回密码
+    // Do not include password in response
     const userToReturn = { ...user._doc };
     delete userToReturn.password;
 
@@ -195,7 +195,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// 获取当前用户信息
+// Get current user information
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("-password");

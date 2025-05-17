@@ -10,7 +10,7 @@ router.post("/register", registerUser);
 // POST /api/auth/login
 router.post("/login", loginUser);
 
-// GET /api/auth/me - 获取当前登录用户信息
+// GET /api/auth/me - Get current logged-in user information
 router.get("/me", authMiddleware, getCurrentUser);
 
 // PUT /api/auth/me - update current user profile

@@ -5,10 +5,10 @@ export const submitReport = async (req, res) => {
     // reporterId will be taken from authenticated user (req.userId)
     // reportedUserId is the ID of the user being reported (e.g., providerId from frontend)
     const { reportedUserId, subject, description, category, bookingId } = req.body;
-    const reporterId = req.userId; // 从 req.userId 获取，由 authMiddleware 设置
+    const reporterId = req.userId; // Get from req.userId, set by authMiddleware
 
     if (!reporterId) {
-      // 理论上，如果 authMiddleware 正常工作，这里不会被触发，因为中间件会提前返回 401
+      // In theory, if authMiddleware works correctly, this should never be triggered, because the middleware would return a 401 beforehand.
       return res.status(401).json({ success: false, message: "Unauthorized. User ID not found in request." });
     }
 

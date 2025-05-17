@@ -103,7 +103,7 @@ export const searchProviders = async (req, res) => {
         }
         
         // Filter by location if provided
-        //用前端传来的 city 作为 state 去和后端数据库的 state 做对比，state 比如 Auckland 作为奥克兰大区，address.city为更低一级地点
+        //Use the city from the frontend as the state to compare with the backend database’s state (e.g., Auckland as the Auckland region), where address.city represents a more specific, lower-level location
         if (location && location.city) {
             query["address.state"] = location.city;
         }
@@ -313,14 +313,14 @@ export const uploadProfilePicture = async (req, res) => {
   }
 };
 
-// 添加新方法，用于更新提供商的可用性设置
+// Add new method to update provider's availability settings
 export const updateProviderAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const { availability, specialDates, dateRanges } = req.body;
 
-    // 验证用户身份（确保用户只能更新自己的可用性）
-    // 这里使用中间件设置的已认证用户ID
+    // Verify user identity (ensure users can only update their own availability)
+    // Use the authenticated user ID set by middleware here
     if (req.userId !== id) {
       return res.status(403).json({ 
         success: false, 
@@ -328,10 +328,10 @@ export const updateProviderAvailability = async (req, res) => {
       });
     }
 
-    // 要更新的数据对象
+    // Data object to update
     const updateData = {};
 
-    // 只更新提供的字段
+    // Only update the provided fields
     if (availability !== undefined) {
       updateData.availability = availability;
     }
@@ -344,7 +344,7 @@ export const updateProviderAvailability = async (req, res) => {
       updateData.dateRanges = dateRanges;
     }
 
-    // 如果没有任何要更新的内容，返回错误
+    // Return an error if there is nothing to update
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ 
         success: false, 
@@ -352,7 +352,7 @@ export const updateProviderAvailability = async (req, res) => {
       });
     }
 
-    // 更新用户文档
+    // Update user document
     const updatedUser = await User.findByIdAndUpdate(
       id,
       updateData,
@@ -385,7 +385,7 @@ export const updateProviderAvailability = async (req, res) => {
   }
 };
 
-// 添加新方法，用于获取提供商的可用性设置
+// Add new method to get provider's availability settings
 export const getProviderAvailability = async (req, res) => {
   try {
     const { id } = req.params;

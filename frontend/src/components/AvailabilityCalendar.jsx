@@ -150,7 +150,7 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
   const handleDateClick = (day, month, year) => {
     const clickedDate = new Date(year, month, day);
     
-    // 检查日期是否可用，如果不可用则直接返回
+    // Check if the date is available; if not, return immediately
     if (!isDateAvailable(clickedDate)) return;
     
     setSelectedDate && setSelectedDate(clickedDate.toISOString());
@@ -161,7 +161,7 @@ const AvailabilityCalendar = ({ providerId, currentUser, providerData, selectedD
     // If we have an onClick handler, call it with the date and availability info
     if (providerData && providerData.onDateSelect) {
       providerData.onDateSelect(clickedDate, {
-        isAvailable: true, // 我们知道日期是可用的，因为我们已经检查过了
+        isAvailable: true, // We know the date is available because we have already checked it
         timeSlots: timeSlots
       });
     }

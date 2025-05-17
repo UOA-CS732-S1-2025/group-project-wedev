@@ -4,7 +4,7 @@ import { authMiddleware  } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// 客户发起支付
+// Customer initiates payment
 router.post("/", authMiddleware , createPayment);
 
 router.patch("/:id", authMiddleware, updatePayment);

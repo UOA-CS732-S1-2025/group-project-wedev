@@ -22,7 +22,7 @@ router.get("/providers", getProviders); // GET /api/providers
 router.post('/providers/search', searchProviders);
 router.get("/providers/:id", getProviderById);
 
-// 新增路由 - 提供商可用性管理
+// Add new route — Provider availability management
 router.get("/providers/:id/availability", authMiddleware, getProviderAvailability);
 router.put("/providers/:id/availability", authMiddleware, updateProviderAvailability);
 

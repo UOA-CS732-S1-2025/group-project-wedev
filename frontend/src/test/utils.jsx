@@ -8,7 +8,7 @@ vi.mock("../components/UserNavActions", () => ({
   default: () => <div data-testid="user-nav-actions">User Nav Actions</div>
 }));
 
-// 创建测试用的系统配置
+// Create system configuration for testing
 const system = createSystem({
   theme: {
     styles: {
@@ -34,11 +34,11 @@ const system = createSystem({
 });
 
 /**
- * 自定义渲染函数，包装了必要的 providers
- * @param {React.ReactElement} ui - 要渲染的组件
- * @param {Object} options - 配置选项
- * @param {string} options.route - 初始路由路径
- * @returns {Object} 渲染结果和其他工具函数
+ * Custom render function wrapping necessary providers
+ * @param {React.ReactElement} ui - Component to render
+ * @param {Object} options - Configuration options
+ * @param {string} options.route - Initial route path
+ * @returns {Object} Render result and other utility functions
  */
 export function renderWithProviders(ui, { route = "/" } = {}) {
   window.history.pushState({}, "Test page", route);

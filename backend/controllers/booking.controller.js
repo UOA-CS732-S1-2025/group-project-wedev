@@ -21,7 +21,7 @@ const handleError = (res, error, statusCode = 500, message = 'Server error') => 
 // @access  Private (Customer)
 export const createBooking = async (req, res) => {
     try {
-        const customerId = req.userId; // 使用中间件设置的 userId
+        const customerId = req.userId; // Use userId set by middleware
         if (!customerId) {
             return res.status(401).json({ 
                 success: false, 
@@ -41,7 +41,7 @@ export const createBooking = async (req, res) => {
             notes
         } = req.body;
 
-        // 检查必填字段
+        // Check required fields
         const missingFields = [];
         if (!providerId) missingFields.push('providerId');
         if (!serviceType) missingFields.push('serviceType');
@@ -58,7 +58,7 @@ export const createBooking = async (req, res) => {
             });
         }
 
-        // 检查 serviceAddress 字段
+        // Check serviceAddress field
         if (typeof serviceAddress !== 'object') {
             console.error('Invalid serviceAddress format:', serviceAddress);
             return res.status(400).json({ 
@@ -67,17 +67,17 @@ export const createBooking = async (req, res) => {
             });
         }
 
-        // 确保 serviceAddress 至少有基本字段
+        // Ensure serviceAddress contains at least basic fields
         const addressMissingFields = [];
         if (!serviceAddress.street) addressMissingFields.push('street');
         if (!serviceAddress.city) addressMissingFields.push('city');
 
         if (addressMissingFields.length > 0) {
             console.warn('Address missing some fields:', addressMissingFields);
-            // 不返回错误，只记录警告
+            // Do not return error, only log a warning
         }
 
-        // 验证 provider 存在
+        // Verify provider exists
         const provider = await User.findById(providerId);
         if (!provider) {
             console.error('Provider not found:', providerId);
@@ -87,13 +87,13 @@ export const createBooking = async (req, res) => {
             });
         }
 
-        // 验证 provider 角色 (可选验证，如果 provider 不是服务提供者角色也允许继续)
+        // Verify provider role (optional check; allow continuation even if provider is not in the service provider role)
         if (provider.role !== 'provider') {
             console.warn('User is not a provider:', provider.role);
-            // 继续处理，只记录警告
+            // Continue processing, only log a warning
         }
 
-        // 创建 booking 记录
+        // Create booking record
         const newBooking = new Booking({
             customer: customerId,
             provider: providerId,
@@ -110,7 +110,7 @@ export const createBooking = async (req, res) => {
             endTime: new Date(endTime),
             hourlyRate: parseFloat(hourlyRate),
             notes: notes || `Booking created on ${new Date().toLocaleString()}`,
-            status: 'pending_confirmation', // 初始状态
+            status: 'pending_confirmation', // Initial status
         });
         
         console.log('Creating booking with data:', {

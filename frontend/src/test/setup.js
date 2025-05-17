@@ -31,10 +31,10 @@ global.matchMedia = vi.fn().mockImplementation(query => ({
 // Mock window.scrollTo
 global.scrollTo = vi.fn();
 
-// 设置 Chakra UI 的默认配置
+// Set default configuration for Chakra UI
 global.chakraConfig = defaultSystem;
 
-// 清除所有 mock
+// Clear all mocks
 afterEach(() => {
   vi.clearAllMocks();
 }); 

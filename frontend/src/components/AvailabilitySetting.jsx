@@ -31,7 +31,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
   const [hoveredDate, setHoveredDate] = useState(null);
   const [selectedDates, setSelectedDates] = useState([]);
   const [pendingChanges, setPendingChanges] = useState(false);
-  // 选择模式: 'add' 或 'remove'
+  // Selection mode: 'add' or 'remove'
   const [selectionMode, setSelectionMode] = useState('add');
   
   // Initialize current month and next month
@@ -164,7 +164,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     return new Date(year, month + 1, 0).getDate();
   };
 
-  // 检查两个日期是否是同一天
+  // Check if two dates are on the same day
   const isSameDay = (date1, date2) => {
     if (!date1 || !date2) return false;
     return (
@@ -174,7 +174,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     );
   };
 
-  // 检查日期是否在选择范围内
+  // Check if the date is within the selected range
   const isInSelectionRange = (date) => {
     if (!selectionStart || !hoveredDate) return false;
     
@@ -184,7 +184,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     return date >= start && date <= end;
   };
 
-  // 检查日期是否在已选择的日期中
+  // Check if the date is in the selected dates
   const isInSelectedDates = (date) => {
     return selectedDates.some(selectedDate => isSameDay(selectedDate, date));
   };
@@ -238,7 +238,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     return weeklyAvailability ? weeklyAvailability.isAvailable : false;
   };
 
-  // 处理日期点击事件
+  // Handle date click event
   const handleDateClick = (day, month, year) => {
     const clickedDate = new Date(year, month, day);
     clickedDate.setHours(0,0,0,0); // Normalize to start of day for comparison
@@ -290,7 +290,7 @@ const AvailabilitySetting = ({ providerId, providerData }) => {
     }
   };
 
-  // 处理鼠标悬停事件
+  // Handle mouse hover event
   const handleDateHover = (day, month, year) => {
     if (selectionStart) {
       const hovered = new Date(year, month, day);

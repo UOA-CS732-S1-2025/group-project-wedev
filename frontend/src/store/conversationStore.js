@@ -60,7 +60,7 @@ export const useConversationStore = create((set, get) => ({
   fetchMessages: async (conversationId, skipLoading = false) => {
     if (!conversationId) return false;
     
-    // 只有在非轮询模式下才显示加载状态
+    // Show loading state only when not in polling mode
     if (!skipLoading) {
       set({ messageLoading: true });
     }
@@ -74,17 +74,17 @@ export const useConversationStore = create((set, get) => ({
       
       const data = await response.json();
       
-      // 获取当前的消息列表和当前正在显示的数据
+      // Get the current message list and the data currently being displayed
       const currentMessages = get().activeMessages;
       
-      // 检查是否有新消息
+      // Check if there are new messages
       let hasNewMessages = false;
       
-      // 如果消息数量不同，肯定有变化
+      // If the number of messages is different, there is definitely a change
       if (data.length !== currentMessages.length) {
         hasNewMessages = true;
       } else if (data.length > 0 && currentMessages.length > 0) {
-        // 检查最后一条消息的ID是否不同（有新消息）
+        // Check if the last message ID is different (indicating new messages)
         const lastNewMsg = data[data.length - 1];
         const lastCurrentMsg = currentMessages[currentMessages.length - 1];
         
@@ -92,8 +92,8 @@ export const useConversationStore = create((set, get) => ({
             lastNewMsg._id !== lastCurrentMsg.id) {
           hasNewMessages = true;
         } else {
-          // 检查消息状态是否有更新（如booking状态变化）
-          // 只需要比较关键字段而不是整个对象
+          // Check if message status has been updated (e.g., booking status change)
+          // Only compare key fields instead of the entire object
           const statusChanged = lastNewMsg.bookingStatus !== lastCurrentMsg.bookingStatus;
           const contentChanged = lastNewMsg.content !== lastCurrentMsg.content;
           
@@ -101,22 +101,22 @@ export const useConversationStore = create((set, get) => ({
         }
       }
       
-      // 只有当有新消息或状态变化时才更新
+      // Update only when there are new messages or status changes
       if (hasNewMessages) {
-        // 保留当前UI中的更新状态，避免轮询引起的UI跳动
+        // Preserve the updated state in the current UI to avoid UI flicker caused by polling
         const updatedMessages = data.map(newMsg => {
-          // 查找相同ID的当前消息
+          // Find the current message with the same ID
           const existingMsg = currentMessages.find(msg => 
             msg._id === newMsg._id || msg.id === newMsg._id
           );
           
-          // 如果找到匹配的消息，保留一些UI状态
+          // If a matching message is found, preserve some UI state
           if (existingMsg) {
             return {
               ...newMsg,
-              // 确保保留用于UI显示的其他字段
+              // Ensure other fields used for UI display are preserved
               isCurrentUserSender: existingMsg.isCurrentUserSender,
-              id: newMsg._id // 确保id字段一致
+              id: newMsg._id // Ensure the id field is consistent
             };
           }
           
