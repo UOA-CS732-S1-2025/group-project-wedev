@@ -1,6 +1,6 @@
 import User from "../../models/user.model.js";
 
-// 获取所有用户
+// Get all users
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
@@ -10,7 +10,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// 获取单个用户
+// Get a single user
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -21,7 +21,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// 更新用户信息
+// Update user information
 export const updateUser = async (req, res) => {
   try {
     const updated = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -34,7 +34,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// 删除用户
+// Delete user
 export const deleteUser = async (req, res) => {
   try {
     const deleted = await User.findByIdAndDelete(req.params.id);

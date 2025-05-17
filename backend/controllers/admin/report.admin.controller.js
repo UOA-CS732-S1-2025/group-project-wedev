@@ -1,6 +1,6 @@
 import Report from "../../models/report.model.js";
 
-// 获取所有报告
+// Get all reports
 export const getAllReports = async (req, res) => {
   try {
     const reports = await Report.find()
@@ -13,7 +13,7 @@ export const getAllReports = async (req, res) => {
   }
 };
 
-// 获取单个报告
+// Get a single report
 export const getReportById = async (req, res) => {
   try {
     const report = await Report.findById(req.params.id)
@@ -25,7 +25,7 @@ export const getReportById = async (req, res) => {
   }
 };
 
-// 更新报告（状态、备注、处理人、处理时间）
+// Update report (status, admin notes, reviewer, resolution time)
 export const updateReport = async (req, res) => {
   try {
     const updates = {
@@ -48,7 +48,7 @@ export const updateReport = async (req, res) => {
   }
 };
 
-// 删除报告
+// Delete report
 export const deleteReport = async (req, res) => {
   try {
     const deleted = await Report.findByIdAndDelete(req.params.id);

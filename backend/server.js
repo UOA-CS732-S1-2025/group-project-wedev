@@ -33,8 +33,8 @@ console.log(process.env.MONGO_URI);
 
 app.use(express.json());
 app.use(cors({
-  origin: ["https://wedev-liard.vercel.app","http://localhost:5173","https://wedevv.vercel.app"], // 允许前端访问的源
-  credentials: true // 如果使用 cookies 或认证头
+  origin: ["https://wedev-liard.vercel.app","http://localhost:5173","https://wedevv.vercel.app"], // Allowed origins for frontend access
+  credentials: true // If using cookies or authentication headers
 }));
 
 app.use("/api/users", userRoutes);

@@ -4,7 +4,7 @@ import Booking from "../models/booking.model.js";
 export const createPayment = async (req, res) => {
   try {
     const { provider, booking, amount, method } = req.body;
-    const customer = req.userId; // 从 token 中获取用户 ID
+    const customer = req.userId; // Get user ID from token
 
     const payment = new Payment({
       customer,

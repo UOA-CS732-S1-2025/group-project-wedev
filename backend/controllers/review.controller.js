@@ -11,19 +11,19 @@ export const createReview = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // 检查 booking 是否存在
+    // Check if booking exists
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.status(404).json({ success: false, message: "Booking not found" });
     }
 
-    // 检查是否已评价
+    // Check if already reviewed
     const exist = await Review.findOne({ bookingId, customerId });
     if (exist) {
       return res.status(400).json({ success: false, message: "Already reviewed" });
     }
 
-    // 创建 review
+    // Create review
     const review = await Review.create({
       bookingId,
       providerId,
@@ -35,7 +35,7 @@ export const createReview = async (req, res) => {
       serviceType: booking.serviceType,
     });
 
-    // 更新 Provider 的 averageRating 和 reviewCount
+    // Update provider’s averageRating and reviewCount
     const reviewsForProvider = await Review.find({ providerId });
     const totalRating = reviewsForProvider.reduce((sum, r) => sum + r.rating, 0);
     const newAverageRating = reviewsForProvider.length > 0 ? totalRating / reviewsForProvider.length : 0;
@@ -73,7 +73,7 @@ export const getReviews = async (req, res) => {
   }
 };
 
-// 新增获取指定服务提供者的所有评价的方法
+// Add method to get all reviews for a specified service provider
 export const getProviderReviews = async (req, res) => {
   try {
     const { providerId } = req.params;
@@ -82,12 +82,12 @@ export const getProviderReviews = async (req, res) => {
       return res.status(400).json({ success: false, message: "Provider ID is required" });
     }
     
-    // 查找该服务提供者的所有评价，按创建时间降序排列（最新的评价排在前面）
+    // Find all reviews for the service provider, sorted by creation date in descending order (latest reviews first)
     const reviews = await Review.find({ providerId })
       .sort({ createdAt: -1 })
       .lean();
     
-    // 计算平均评分
+    // Calculate average rating
     let averageRating = 0;
     if (reviews.length > 0) {
       const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);

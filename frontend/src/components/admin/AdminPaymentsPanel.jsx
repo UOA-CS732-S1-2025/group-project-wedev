@@ -19,7 +19,7 @@ const AdminPaymentsPanel = () => {
       });
       setPayments(res.data);
     } catch (err) {
-      //toast({ title: "加载失败", description: err.message, status: "error" });
+      //toast({ title: "Loading failed", description: err.message, status: "error" });
     } finally {
       setLoading(false);
     }

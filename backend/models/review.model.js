@@ -33,7 +33,7 @@ const reviewSchema = new mongoose.Schema({
   comment: {
     type: String
   }
-}, { timestamps: true }); // 自动添加 createdAt 和 updatedAt
+}, { timestamps: true }); // Automatically add createdAt and updatedAt
 
 const Review = mongoose.model("Review", reviewSchema);
 

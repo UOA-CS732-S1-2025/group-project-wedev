@@ -20,7 +20,7 @@ const AdminReportsPanel = () => {
       });
       setReports(res.data);
     } catch (err) {
-      //toast({ title: "加载失败", description: err.message, status: "error" });
+      //toast({ title: "Loading failed", description: err.message, status: "error" });
     } finally {
       setLoading(false);
     }
@@ -32,9 +32,9 @@ const AdminReportsPanel = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReports((prev) => prev.filter((r) => r._id !== id));
-      //toast({ title: "删除成功", status: "success" });
+      //toast({ title: "Deleted success", status: "success" });
     } catch (err) {
-      //toast({ title: "删除失败", description: err.message, status: "error" });
+      //toast({ title: "Delete failed", description: err.message, status: "error" });
     }
   };
 

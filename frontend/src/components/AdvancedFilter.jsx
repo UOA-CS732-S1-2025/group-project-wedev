@@ -103,11 +103,11 @@ const parsePriceParam = (priceString) => {
   return !isNaN(price) ? price : 100; // Return parsed price or default
 };
 
-// 默认的地图中心位置（奥克兰）
+// Default map center location (Auckland)
 const DEFAULT_CENTER = { lat: -36.8485, lng: 174.7633 };
 const DEFAULT_ZOOM = 12;
 
-// 用于检查经纬度浮点值是否有显著差异的辅助函数
+// Helper function to check if latitude and longitude float values differ significantly
 const isSignificantChange = (value1, value2, threshold = 0.0001) => {
   return Math.abs(value1 - value2) > threshold;
 };
@@ -116,10 +116,10 @@ const AdvancedFilter = () => {
   const { searchProviders, lastSearchParams, users, setSelectedProviderId } =
     useUserStore();
 
-  // 地图相关状态
+  // Map-related state
   const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
-  // 用于跟踪是否正在进行编程式更新地图状态
+  // Used to track whether a programmatic update of the map state is in progress
   const isUpdatingMapProgrammatically = useRef(false);
 
   // Local state for filter values initialized from store
@@ -196,13 +196,13 @@ const AdvancedFilter = () => {
     searchProviders,
   ]);
 
-  // 根据搜索结果更新地图中心点和缩放级别
+  // Update map center and zoom level based on search results
   useEffect(() => {
     if (users && users.length > 0) {
-      // 设置标记开始进行编程式更新
+      // Set flag to start programmatic marker update
       isUpdatingMapProgrammatically.current = true;
 
-      // 收集所有有效的坐标点
+      // Collect all valid coordinate points
       const validLocations = users
         .filter(
           (user) =>
@@ -217,13 +217,13 @@ const AdvancedFilter = () => {
         }));
 
       if (validLocations.length > 0) {
-        // 如果只有一个位置，直接将地图中心设置为该位置
+        // If there is only one location, directly set the map center to that location
         if (validLocations.length === 1) {
           setMapCenter(validLocations[0]);
-          setMapZoom(14); // 放大一点以便清晰查看单个位置
+          setMapZoom(14); // Zoom in a bit for a clearer view of the single location
         } else {
-          // 计算所有位置的边界，然后调整地图以显示所有位置
-          // 由于我们没有使用 Google Maps API 的 bounds，我们通过计算平均坐标简单实现
+          // Calculate the bounds of all locations, then adjust the map to show all locations
+          // Since we are not using Google Maps API bounds, we simply calculate the average coordinates as a workaround
           const sumLat = validLocations.reduce((sum, loc) => sum + loc.lat, 0);
           const sumLng = validLocations.reduce((sum, loc) => sum + loc.lng, 0);
 
@@ -232,7 +232,7 @@ const AdvancedFilter = () => {
             lng: sumLng / validLocations.length,
           });
 
-          // 根据结果数量调整缩放级别，这里使用一个简单的启发式方法
+          // Adjust zoom level based on the number of results, using a simple heuristic here
           if (validLocations.length <= 3) {
             setMapZoom(12);
           } else if (validLocations.length <= 8) {
@@ -242,17 +242,17 @@ const AdvancedFilter = () => {
           }
         }
       } else {
-        // 如果没有有效位置，使用默认中心和缩放级别
+        // If no valid locations, use default center and zoom level
         setMapCenter(DEFAULT_CENTER);
         setMapZoom(DEFAULT_ZOOM);
       }
 
-      // 设置一个短暂的延时，确保地图更新完成后再允许用户交互更新
+      // Set a short delay to ensure map updates complete before allowing user interaction updates
       setTimeout(() => {
         isUpdatingMapProgrammatically.current = false;
       }, 300);
     } else {
-      // 如果没有搜索结果，使用默认中心和缩放级别
+      // If there are no search results, use default center and zoom level
       isUpdatingMapProgrammatically.current = true;
       setMapCenter(DEFAULT_CENTER);
       setMapZoom(DEFAULT_ZOOM);
@@ -263,16 +263,16 @@ const AdvancedFilter = () => {
     }
   }, [users]);
 
-  // 处理地图相机变化事件
+  // Handle map camera change events
   const handleCameraChange = (ev) => {
-    // 如果正在进行编程式更新，则忽略用户交互引起的相机变化
+    // Ignore camera changes caused by user interaction if a programmatic update is in progress
     if (isUpdatingMapProgrammatically.current) return;
 
     const { center, zoom } = ev.detail;
     const newCenter = { lat: center.lat, lng: center.lng };
     const newZoom = zoom;
 
-    // 检查中心点是否有显著变化，避免浮点数精度问题导致不必要的重渲染
+    // Check if the center point has changed significantly to avoid unnecessary re-rendering caused by floating-point precision issues
     if (
       isSignificantChange(newCenter.lat, mapCenter.lat) ||
       isSignificantChange(newCenter.lng, mapCenter.lng) ||
@@ -327,10 +327,10 @@ const AdvancedFilter = () => {
     searchProviders({});
   };
 
-  // 处理标记点点击事件
+  // Handle marker click events
   const handleMarkerClick = (userId) => {
-    // 设置选中的 provider ID，这将在 BookingPage 中用于高亮显示对应的 ProviderCard
-    // 传递 true 表示这是通过地图标记点击触发的选中
+    // Set the selected provider ID, which will be used in BookingPage to highlight the corresponding ProviderCard
+    // Pass true to indicate the selection was triggered by a map marker click
     setSelectedProviderId(userId, true);
   };
 
@@ -553,7 +553,7 @@ const AdvancedFilter = () => {
         </Box>
       </Box>
 
-      {/* 地图区域 */}
+      {/* Map region */}
       <Box
         borderWidth="1px"
         borderRadius="lg"
@@ -568,14 +568,14 @@ const AdvancedFilter = () => {
             zoom={mapZoom}
             onCameraChanged={handleCameraChange}
             style={{ width: "100%", height: "100%" }}
-            disableDefaultUI={true} // 禁用所有默认的Google Maps UI控件
-            zoomControl={true} // 单独启用缩放按钮
+            disableDefaultUI={true} // Disable all default Google Maps UI controls
+            zoomControl={true} // Enable zoom control only
           >
-            {/* 遍历所有查询结果，显示标记点 */}
+            {/* Iterate over all search results and display markers */}
             {users &&
               users.length > 0 &&
               users.map((user) => {
-                // 确保用户有位置信息
+                // Ensure the user has location information
                 if (
                   user.location &&
                   user.location.coordinates &&
@@ -594,9 +594,9 @@ const AdvancedFilter = () => {
                       onClick={() => handleMarkerClick(user._id)}
                     >
                       <Pin
-                        background={"#B0E0E6"} // 淡蓝色
-                        borderColor={"#6495ED"} // 中蓝色
-                        glyphColor={"#F0F8FF"} // 爱丽丝蓝
+                        background={"#B0E0E6"} // Light blue
+                        borderColor={"#6495ED"} // Medium blue
+                        glyphColor={"#F0F8FF"} // Alice Blue
                       />
                     </AdvancedMarker>
                   );

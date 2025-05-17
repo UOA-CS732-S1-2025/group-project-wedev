@@ -3,7 +3,7 @@ import { Box, HStack, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import CachedAvatar from './CachedAvatar';
 
-// 格式化消息时间
+// Format message timestamp
 const formatMessageTime = (timestamp) => {
   if (!timestamp) return '';
   try {
@@ -48,7 +48,7 @@ const ChatMessage = React.memo(({ message, isCurrentUserSender, currentUser, oth
     </Box>
   );
 }, (prevProps, nextProps) => {
-  // 增强 memo 比较逻辑，避免不必要的重新渲染
+  // Enhance memo comparison logic to avoid unnecessary re-renders
   return (
     prevProps.message.id === nextProps.message.id && 
     prevProps.isCurrentUserSender === nextProps.isCurrentUserSender

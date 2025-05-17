@@ -131,7 +131,7 @@ const PaymentPage = () => {
 
   return (
       <Container maxW="lg" py={8}>
-  {/* 成功提示区域 */}
+  {/* Success notification area */}
   <Box
     bg="gray.50"
     border="1px solid"
@@ -154,7 +154,7 @@ const PaymentPage = () => {
     </Box>
   </Box>
 
-  {/* 支付方式选择区域 */}
+  {/* Payment method selection area */}
   <Box mb={6}>
     <Text fontWeight="bold" mb={3}>Please select a payment method</Text>
     <RadioCard.Root type="single" 
@@ -350,7 +350,7 @@ const PaymentPage = () => {
 
   </Box>
 
-  {/* 操作按钮区域 */}
+  {/* Action button area */}
   <Stack direction="row" spacing={4} mt={4}>
   <Button
     colorScheme="blue"

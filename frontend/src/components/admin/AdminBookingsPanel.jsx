@@ -20,7 +20,7 @@ const AdminBookingsPanel = () => {
       });
       setBookings(res.data);
     } catch (err) {
-      //toast({ title: "加载失败", description: err.message, status: "error" });
+      //toast({ title: "Loading failed", description: err.message, status: "error" });
     } finally {
       setLoading(false);
     }
@@ -32,9 +32,9 @@ const AdminBookingsPanel = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings((prev) => prev.filter((b) => b._id !== id));
-      //toast({ title: "已删除", status: "success" });
+      //toast({ title: "Deleted", status: "success" });
     } catch (err) {
-      //toast({ title: "删除失败", description: err.message, status: "error" });
+      //toast({ title: "Delete failed", description: err.message, status: "error" });
     }
   };
 

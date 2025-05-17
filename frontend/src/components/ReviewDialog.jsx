@@ -11,7 +11,7 @@ const ReviewDialog = forwardRef(({ bookingId, providerId, onSuccess }, ref) => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 暴露 submit 方法给外部
+  // Expose submit method to external callers
   useImperativeHandle(ref, () => ({
     async performSubmitOnly() {
       if (!rating || !comment.trim()) {

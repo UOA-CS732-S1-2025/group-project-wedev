@@ -37,7 +37,7 @@ const reportSchema = new mongoose.Schema(
     },
     reviewedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // 管理员用户
+      ref: "User", // Admin user
     },
     resolvedAt: {
       type: Date,

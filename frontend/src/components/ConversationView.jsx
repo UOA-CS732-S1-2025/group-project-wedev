@@ -25,7 +25,7 @@ const ConversationView = ({ conversation, user }) => {
   const [newMessage, setNewMessage] = useState('');
   const [updatingMessageIds, setUpdatingMessageIds] = useState([]);
   const messagesEndRef = useRef(null);
-  const pollingIntervalRef = useRef(null); // 轮询定时器引用
+  const pollingIntervalRef = useRef(null); // Polling timer reference
   
   // Cache user information
   const currentUserInfo = useMemo(() => ({
@@ -40,7 +40,7 @@ const ConversationView = ({ conversation, user }) => {
     profilePictureUrl: conversation?.otherUser?.profilePictureUrl
   }), [conversation?.otherUser]);
   
-  // 初始加载消息
+  // Initial load of messages
   useEffect(() => {
     if (conversation?._id) {
       fetchMessages(conversation._id).then(() => {
@@ -50,18 +50,18 @@ const ConversationView = ({ conversation, user }) => {
         }
       });
       
-      // 设置轮询，每5秒检查一次消息更新
+      // Set polling to check for message updates every 5 seconds
       pollingIntervalRef.current = setInterval(() => {
-        // 传递 true 表示跳过加载状态，并处理返回的结果
+        // Pass true to skip loading state and process the returned results
         fetchMessages(conversation._id, true).then(hasNewMessages => {
-          // 只有当有新消息时，才自动滚动到底部
+          // Automatically scroll to bottom only when there are new messages
           if (hasNewMessages && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
           }
         });
       }, 5000);
       
-      // 组件卸载时清除轮询
+      // Clear polling on component unmount
       return () => {
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
@@ -70,7 +70,7 @@ const ConversationView = ({ conversation, user }) => {
     }
   }, [conversation?._id, fetchMessages]);
   
-  // 确保当conversation变化时重新设置轮询
+  // Ensure polling is reset when the conversation changes
   useEffect(() => {
     return () => {
       if (pollingIntervalRef.current) {

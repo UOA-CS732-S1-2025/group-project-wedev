@@ -4,15 +4,15 @@ import { Box, Heading, Text, Spinner, Image } from "@chakra-ui/react";
 
 const NotFound = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(5); // 初始倒计时秒数
+  const [countdown, setCountdown] = useState(5); // Initial countdown seconds
 
   useEffect(() => {
-    // 每秒减少倒计时
+    // Decrease countdown every second
     const interval = setInterval(() => {
       setCountdown((prev) => prev - 1);
     }, 1000);
 
-    // 到 0 就跳转
+    // Redirect when it reaches 0
     const timeout = setTimeout(() => {
       navigate("/");
     }, 5000);
